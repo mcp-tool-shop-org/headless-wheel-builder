@@ -1,0 +1,168 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "headless-wheel-builder"
+version = "0.1.0"
+description = "A universal, headless Python wheel builder supporting local paths, git repos, and CI/CD pipelines"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Your Name", email = "you@example.com" }
+]
+keywords = [
+    "wheel",
+    "build",
+    "packaging",
+    "ci-cd",
+    "pypi",
+    "automation",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Software Distribution",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "click>=8.1.0",
+    "rich>=13.0.0",
+    "tomli>=2.0.0;python_version<'3.11'",
+    "packaging>=24.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4.0",
+    "pyright>=1.1.350",
+    "pre-commit>=3.6.0",
+]
+test = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.24.0",
+]
+publish = [
+    "twine>=5.0.0",
+    "build>=1.0.0",
+]
+all = [
+    "headless-wheel-builder[dev,test,docs,publish]",
+]
+
+[project.scripts]
+hwb = "headless_wheel_builder.cli.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/your-org/headless-wheel-builder"
+Documentation = "https://headless-wheel-builder.readthedocs.io"
+Repository = "https://github.com/your-org/headless-wheel-builder"
+Changelog = "https://github.com/your-org/headless-wheel-builder/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/headless_wheel_builder"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+]
+
+# Ruff configuration
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+    "TCH",    # flake8-type-checking
+    "PTH",    # flake8-use-pathlib
+    "ERA",    # eradicate (commented code)
+    "RUF",    # Ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # function call in default argument (needed for Click)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["headless_wheel_builder"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["ARG001", "ARG002"]  # Unused arguments in tests (fixtures)
+
+# Pyright configuration
+[tool.pyright]
+pythonVersion = "3.10"
+typeCheckingMode = "strict"
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportUnusedImport = false  # Handled by ruff
+include = ["src"]
+exclude = ["**/__pycache__", "build", "dist"]
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-markers",
+]
+markers = [
+    "slow: marks tests as slow",
+    "docker: marks tests requiring Docker",
+    "windows: marks Windows-specific tests",
+    "integration: marks integration tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/headless_wheel_builder"]
+branch = true
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
