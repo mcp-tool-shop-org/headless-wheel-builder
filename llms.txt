@@ -1,0 +1,101 @@
+# Headless Wheel Builder
+
+> Universal, headless Python wheel builder with GitHub operations and CI/CD automation
+
+## Overview
+
+Headless Wheel Builder (hwb) builds Python wheels from anywhere — local paths, git URLs, tarballs — with integrated release management, dependency analysis, and full CI/CD pipeline orchestration. All without touching the web UI.
+
+## Quick Start
+
+```bash
+pip install headless-wheel-builder
+
+# Build from current directory
+hwb build
+
+# Build from git repository
+hwb build https://github.com/user/repo
+
+# Build specific version with Docker
+hwb build https://github.com/user/repo@v2.0.0 --isolation docker
+```
+
+## Core Commands
+
+### hwb build
+Build Python wheels.
+- Source: Local path, git URL (with @branch/@tag), or tarball
+- `--isolation`: venv (uv-powered) or docker (manylinux/musllinux)
+- `--python`: Target Python versions (3.10-3.14)
+- Returns: Built wheel paths
+
+### hwb release create
+Create draft releases with approval workflows.
+- `--workflow`: simple, two-stage, or enterprise
+- `--changelog`: Auto-generate from Conventional Commits
+- Returns: Release ID, approval status
+
+### hwb release approve
+Approve and publish releases.
+- `--stage`: QA, security, release (enterprise workflow)
+- Returns: Publication status
+
+### hwb deps graph
+Analyze dependency trees.
+- `--format`: tree, json, dot, mermaid
+- `--check-licenses`: Flag GPL in permissive projects
+- Returns: Dependency graph, license report
+
+### hwb pipeline run
+Execute build-to-release pipelines.
+- `--stages`: build, test, release, publish
+- Returns: Pipeline status, artifacts
+
+### hwb gh release
+Headless GitHub release management.
+- `create`, `list`, `download`, `delete` subcommands
+- Returns: Release metadata, asset URLs
+
+## Installation Extras
+
+| Extra | Description |
+|-------|-------------|
+| `[docker]` | Docker isolation support |
+| `[github]` | GitHub API integration |
+| `[notifications]` | Slack, Discord, webhooks |
+| `[security]` | SBOM, vulnerability scanning |
+| `[all]` | Everything |
+
+## Features
+
+### Build Isolation
+- **venv**: uv-powered, 10-100x faster than pip
+- **docker**: manylinux/musllinux for portable wheels
+
+### Release Management
+- Draft releases with multi-stage approval
+- Rollback support for published releases
+- Auto-generated changelogs from Conventional Commits
+
+### Analysis & Security
+- Dependency graph visualization
+- License compliance checking
+- Vulnerability scanning
+- SBOM generation
+
+### Integrations
+- PyPI Trusted Publishers (OIDC)
+- DevPi, Artifactory, S3 registries
+- Slack, Discord, Teams notifications
+
+## Links
+
+- Repository: https://github.com/mcp-tool-shop/headless-wheel-builder
+- PyPI: https://pypi.org/project/headless-wheel-builder/
+- Documentation: https://github.com/mcp-tool-shop/headless-wheel-builder#readme
+- Issues: https://github.com/mcp-tool-shop/headless-wheel-builder/issues
+
+## License
+
+MIT License
