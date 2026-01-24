@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -11,7 +10,6 @@ from rich.console import Console
 from rich.panel import Panel
 
 from headless_wheel_builder.changelog.generator import (
-    Changelog,
     ChangelogConfig,
     ChangelogFormat,
     generate_changelog,
@@ -93,8 +91,7 @@ def generate_cmd(
             Path(output).write_text(content, encoding="utf-8")
             console.print(f"[green]Changelog written to {output}[/green]")
             console.print(
-                f"  {len(log.commits)} commits, "
-                f"{len(log.breaking_changes)} breaking changes"
+                f"  {len(log.commits)} commits, {len(log.breaking_changes)} breaking changes"
             )
         else:
             console.print(content)

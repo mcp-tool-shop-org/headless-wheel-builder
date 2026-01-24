@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
+    from pathlib import Path
 
 
 @dataclass
@@ -25,7 +25,7 @@ class BuildEnvironment:
         if self._cleanup:
             await self._cleanup()
 
-    async def __aenter__(self) -> "BuildEnvironment":
+    async def __aenter__(self) -> BuildEnvironment:
         return self
 
     async def __aexit__(self, *args: object) -> None:

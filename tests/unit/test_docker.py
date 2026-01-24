@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -383,7 +383,9 @@ class TestDockerIsolation:
         isolation._docker_available = True
 
         # Mock image selection
-        with patch.object(isolation, "_select_image", return_value="quay.io/pypa/manylinux_2_28_x86_64"):
+        with patch.object(
+            isolation, "_select_image", return_value="quay.io/pypa/manylinux_2_28_x86_64"
+        ):
             env = await isolation.create_environment(
                 python_version="3.12",
                 build_requirements=["hatchling"],

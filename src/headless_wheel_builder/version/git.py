@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -14,6 +13,7 @@ from headless_wheel_builder.version.semver import Version, parse_version
 @dataclass
 class GitTag:
     """Git tag information."""
+
     name: str
     version: Version | None
     commit_hash: str
@@ -40,7 +40,10 @@ async def get_latest_tag(
 
     # Get all tags matching pattern, sorted by version
     cmd = [
-        "git", "tag", "-l", pattern,
+        "git",
+        "tag",
+        "-l",
+        pattern,
         "--sort=-v:refname",  # Sort by version, newest first
     ]
 
@@ -108,13 +111,11 @@ async def get_commits_since_tag(
     repo_path = Path(repo_path)
 
     # Build git log command
-    if tag:
-        range_spec = f"{tag}..HEAD"
-    else:
-        range_spec = "HEAD"
+    range_spec = f"{tag}..HEAD" if tag else "HEAD"
 
     cmd = [
-        "git", "log",
+        "git",
+        "log",
         range_spec,
         "--pretty=format:%H%x00%B%x00",  # Hash and full message separated by null
     ]
@@ -196,7 +197,7 @@ async def create_tag(
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
-    stdout, stderr = await process.communicate()
+    _stdout, stderr = await process.communicate()
 
     if process.returncode != 0:
         error_msg = stderr.decode().strip()
@@ -248,7 +249,7 @@ async def push_tag(
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
-    stdout, stderr = await process.communicate()
+    _stdout, stderr = await process.communicate()
 
     if process.returncode != 0:
         error_msg = stderr.decode().strip()
@@ -260,7 +261,10 @@ async def get_current_branch(repo_path: Path | str = ".") -> str:
     repo_path = Path(repo_path)
 
     process = await asyncio.create_subprocess_exec(
-        "git", "rev-parse", "--abbrev-ref", "HEAD",
+        "git",
+        "rev-parse",
+        "--abbrev-ref",
+        "HEAD",
         cwd=repo_path,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -278,7 +282,9 @@ async def get_head_commit(repo_path: Path | str = ".") -> str:
     repo_path = Path(repo_path)
 
     process = await asyncio.create_subprocess_exec(
-        "git", "rev-parse", "HEAD",
+        "git",
+        "rev-parse",
+        "HEAD",
         cwd=repo_path,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -296,7 +302,9 @@ async def is_dirty(repo_path: Path | str = ".") -> bool:
     repo_path = Path(repo_path)
 
     process = await asyncio.create_subprocess_exec(
-        "git", "status", "--porcelain",
+        "git",
+        "status",
+        "--porcelain",
         cwd=repo_path,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -312,7 +320,11 @@ async def is_dirty(repo_path: Path | str = ".") -> bool:
 async def _get_tag_commit(repo_path: Path, tag_name: str) -> str:
     """Get the commit hash for a tag."""
     process = await asyncio.create_subprocess_exec(
-        "git", "rev-list", "-n", "1", tag_name,
+        "git",
+        "rev-list",
+        "-n",
+        "1",
+        tag_name,
         cwd=repo_path,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
@@ -328,12 +340,16 @@ async def _get_tag_commit(repo_path: Path, tag_name: str) -> str:
 async def _get_tag_message(repo_path: Path, tag_name: str) -> str | None:
     """Get the message for an annotated tag."""
     process = await asyncio.create_subprocess_exec(
-        "git", "tag", "-l", "--format=%(contents)", tag_name,
+        "git",
+        "tag",
+        "-l",
+        "--format=%(contents)",
+        tag_name,
         cwd=repo_path,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
     )
-    stdout, stderr = await process.communicate()
+    stdout, _stderr = await process.communicate()
 
     if process.returncode != 0:
         return None

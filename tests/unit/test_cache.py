@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -18,6 +17,9 @@ from headless_wheel_builder.cache.models import (
 )
 from headless_wheel_builder.cache.registry import RegistryEntry, WheelRegistry
 from headless_wheel_builder.cache.storage import ArtifactCache
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestCacheEntry:

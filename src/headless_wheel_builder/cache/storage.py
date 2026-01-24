@@ -25,9 +25,7 @@ class ArtifactCache:
         max_entries: Maximum number of entries (0 = unlimited)
     """
 
-    cache_dir: Path = field(
-        default_factory=lambda: Path.home() / ".hwb" / "cache"
-    )
+    cache_dir: Path = field(default_factory=lambda: Path.home() / ".hwb" / "cache")
     max_size_bytes: int = 0  # 0 = unlimited
     max_entries: int = 0  # 0 = unlimited
     _index: dict[str, CacheEntry] = field(default_factory=lambda: {})
@@ -61,8 +59,7 @@ class ArtifactCache:
                 content = self._index_path.read_text(encoding="utf-8")
                 data = json.loads(content)
                 self._index = {
-                    k: CacheEntry.from_dict(v)
-                    for k, v in data.get("entries", {}).items()
+                    k: CacheEntry.from_dict(v) for k, v in data.get("entries", {}).items()
                 }
             except (json.JSONDecodeError, OSError):
                 self._index = {}
@@ -274,7 +271,7 @@ class ArtifactCache:
         Returns:
             List of package names
         """
-        return list(set(e.package for e in self._index.values()))
+        return list({e.package for e in self._index.values()})
 
     def list_versions(self, package: str) -> list[str]:
         """List cached versions of a package.
@@ -285,14 +282,9 @@ class ArtifactCache:
         Returns:
             List of versions
         """
-        return list(set(
-            e.version for e in self._index.values()
-            if e.package == package
-        ))
+        return list({e.version for e in self._index.values() if e.package == package})
 
-    def list_entries(
-        self, package: str | None = None
-    ) -> list[CacheEntry]:
+    def list_entries(self, package: str | None = None) -> list[CacheEntry]:
         """List cache entries.
 
         Args:
@@ -351,7 +343,7 @@ class ArtifactCache:
             Cache statistics
         """
         total_size = sum(e.size_bytes for e in self._index.values())
-        packages = set(e.package for e in self._index.values())
+        packages = {e.package for e in self._index.values()}
 
         timestamps = [e.created_at for e in self._index.values() if e.created_at]
         oldest = min(timestamps) if timestamps else None

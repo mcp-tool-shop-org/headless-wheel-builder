@@ -5,13 +5,17 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 from headless_wheel_builder.version.semver import BumpType
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class CommitType(Enum):
     """Conventional commit types."""
+
     FEAT = "feat"  # New feature
     FIX = "fix"  # Bug fix
     DOCS = "docs"  # Documentation
@@ -43,14 +47,11 @@ COMMIT_PATTERN = re.compile(
     r"(?P<breaking>!)?"
     r":\s*"
     r"(?P<description>.+)$",
-    re.MULTILINE
+    re.MULTILINE,
 )
 
 # Breaking change footer pattern
-BREAKING_FOOTER_PATTERN = re.compile(
-    r"^BREAKING[ -]CHANGE:\s*(.+)$",
-    re.MULTILINE | re.IGNORECASE
-)
+BREAKING_FOOTER_PATTERN = re.compile(r"^BREAKING[ -]CHANGE:\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 
 
 @dataclass
@@ -231,7 +232,12 @@ def determine_bump_from_commits(commits: Sequence[Commit]) -> BumpType | None:
         if isinstance(commit.type, CommitType):
             if commit.type == CommitType.FEAT:
                 has_feat = True
-            elif commit.type in (CommitType.FIX, CommitType.PERF, CommitType.REFACTOR, CommitType.REVERT):
+            elif commit.type in (
+                CommitType.FIX,
+                CommitType.PERF,
+                CommitType.REFACTOR,
+                CommitType.REVERT,
+            ):
                 has_fix = True
 
     if has_breaking:
@@ -260,10 +266,7 @@ def format_commit(commit: Commit, include_hash: bool = True) -> str:
     if include_hash and commit.hash:
         parts.append(f"[{commit.hash[:7]}]")
 
-    if isinstance(commit.type, CommitType):
-        type_str = commit.type.value
-    else:
-        type_str = str(commit.type)
+    type_str = commit.type.value if isinstance(commit.type, CommitType) else str(commit.type)
 
     if commit.scope:
         parts.append(f"{type_str}({commit.scope}):")
@@ -293,10 +296,7 @@ def group_commits_by_type(
     groups: dict[str, list[Commit]] = {}
 
     for commit in commits:
-        if isinstance(commit.type, CommitType):
-            key = commit.type.value
-        else:
-            key = str(commit.type)
+        key = commit.type.value if isinstance(commit.type, CommitType) else str(commit.type)
 
         if key not in groups:
             groups[key] = []

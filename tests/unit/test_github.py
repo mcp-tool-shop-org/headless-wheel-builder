@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -471,7 +470,10 @@ class TestGitHubClient:
             )
             mock_req.assert_called_once()
             call_args = mock_req.call_args
-            assert call_args[0] == ("POST", "/repos/owner/repo/actions/workflows/build.yml/dispatches")
+            assert call_args[0] == (
+                "POST",
+                "/repos/owner/repo/actions/workflows/build.yml/dispatches",
+            )
             assert call_args[1]["json"]["ref"] == "main"
             assert call_args[1]["json"]["inputs"]["version"] == "1.0.0"
 

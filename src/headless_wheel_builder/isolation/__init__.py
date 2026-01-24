@@ -4,8 +4,8 @@ from headless_wheel_builder.isolation.base import BuildEnvironment, IsolationStr
 from headless_wheel_builder.isolation.venv import VenvConfig, VenvIsolation
 
 __all__ = [
-    "IsolationStrategy",
     "BuildEnvironment",
-    "VenvIsolation",
+    "IsolationStrategy",
     "VenvConfig",
+    "VenvIsolation",
 ]

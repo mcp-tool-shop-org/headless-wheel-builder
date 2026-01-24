@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
-import tempfile
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
 from click.testing import CliRunner
 
+from headless_wheel_builder.release.cli import release
+from headless_wheel_builder.release.manager import ReleaseManager
 from headless_wheel_builder.release.models import (
     ApprovalState,
     ApprovalStep,
@@ -18,17 +19,18 @@ from headless_wheel_builder.release.models import (
     ReleaseStatus,
 )
 from headless_wheel_builder.release.workflow import (
+    WORKFLOW_TEMPLATES,
     ApprovalWorkflow,
     WorkflowTemplate,
-    WORKFLOW_TEMPLATES,
 )
-from headless_wheel_builder.release.manager import ReleaseManager
-from headless_wheel_builder.release.cli import release
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # =============================================================================
 # Model Tests
 # =============================================================================
+
 
 class TestApprovalState:
     """Tests for ApprovalState enum."""
@@ -312,9 +314,7 @@ class TestDraftRelease:
             "version": "1.0.0",
             "package": "my-package",
             "status": "pending_approval",
-            "approval_steps": [
-                {"name": "review", "state": "pending"}
-            ],
+            "approval_steps": [{"name": "review", "state": "pending"}],
         }
         rel = DraftRelease.from_dict(data)
         assert rel.id == "rel-123"
@@ -345,6 +345,7 @@ class TestReleaseConfig:
 # =============================================================================
 # Workflow Tests
 # =============================================================================
+
 
 class TestWorkflowTemplate:
     """Tests for WorkflowTemplate."""
@@ -494,6 +495,7 @@ class TestApprovalWorkflow:
 # =============================================================================
 # Manager Tests
 # =============================================================================
+
 
 class TestReleaseManager:
     """Tests for ReleaseManager."""
@@ -795,6 +797,7 @@ class TestReleaseManager:
 # CLI Tests
 # =============================================================================
 
+
 class TestReleaseCLI:
     """Tests for release CLI commands."""
 
@@ -816,12 +819,18 @@ class TestReleaseCLI:
             mock_manager.create_draft.return_value = mock_draft
             mock.return_value = mock_manager
 
-            result = runner.invoke(release, [
-                "create",
-                "-n", "Test Release",
-                "-v", "1.0.0",
-                "-p", "my-package",
-            ])
+            result = runner.invoke(
+                release,
+                [
+                    "create",
+                    "-n",
+                    "Test Release",
+                    "-v",
+                    "1.0.0",
+                    "-p",
+                    "my-package",
+                ],
+            )
 
             assert result.exit_code == 0
             assert "rel-123" in result.output
@@ -839,13 +848,19 @@ class TestReleaseCLI:
             mock_manager.create_draft.return_value = mock_draft
             mock.return_value = mock_manager
 
-            result = runner.invoke(release, [
-                "create",
-                "-n", "Test",
-                "-v", "1.0.0",
-                "-p", "pkg",
-                "--json",
-            ])
+            result = runner.invoke(
+                release,
+                [
+                    "create",
+                    "-n",
+                    "Test",
+                    "-v",
+                    "1.0.0",
+                    "-p",
+                    "pkg",
+                    "--json",
+                ],
+            )
 
             assert result.exit_code == 0
             data = json.loads(result.output)
@@ -935,10 +950,15 @@ class TestReleaseCLI:
             )
             mock.return_value = mock_manager
 
-            result = runner.invoke(release, [
-                "approve", "rel-123",
-                "-a", "alice",
-            ])
+            result = runner.invoke(
+                release,
+                [
+                    "approve",
+                    "rel-123",
+                    "-a",
+                    "alice",
+                ],
+            )
 
             assert result.exit_code == 0
             assert "approved" in result.output.lower()
@@ -950,11 +970,17 @@ class TestReleaseCLI:
             mock_manager.reject.return_value = True
             mock.return_value = mock_manager
 
-            result = runner.invoke(release, [
-                "reject", "rel-123",
-                "-r", "alice",
-                "-c", "Not ready",
-            ])
+            result = runner.invoke(
+                release,
+                [
+                    "reject",
+                    "rel-123",
+                    "-r",
+                    "alice",
+                    "-c",
+                    "Not ready",
+                ],
+            )
 
             assert result.exit_code == 0
             assert "rejected" in result.output.lower()
@@ -966,10 +992,15 @@ class TestReleaseCLI:
             mock_manager.publish.return_value = True
             mock.return_value = mock_manager
 
-            result = runner.invoke(release, [
-                "publish", "rel-123",
-                "-p", "publisher",
-            ])
+            result = runner.invoke(
+                release,
+                [
+                    "publish",
+                    "rel-123",
+                    "-p",
+                    "publisher",
+                ],
+            )
 
             assert result.exit_code == 0
             assert "published" in result.output.lower()

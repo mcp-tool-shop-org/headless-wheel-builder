@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
 from headless_wheel_builder.cache.models import CacheEntry, RegistryConfig
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass
@@ -109,6 +110,7 @@ class WheelRegistry:
         packages: list[str] = []
         # Simple HTML parsing for <a href="package/">package</a>
         import re
+
         for match in re.finditer(r'<a[^>]+href="([^"]+)/"[^>]*>([^<]+)</a>', content):
             packages.append(match.group(2))
 
@@ -144,24 +146,25 @@ class WheelRegistry:
                 parts = file["filename"].split("-")
                 version = parts[1] if len(parts) > 1 else ""
 
-                entries.append(RegistryEntry(
-                    package=package,
-                    version=version,
-                    wheel_name=file["filename"],
-                    sha256=file.get("hashes", {}).get("sha256", ""),
-                    url=file.get("url", ""),
-                    size_bytes=file.get("size", 0),
-                    requires_python=file.get("requires-python", ""),
-                ))
+                entries.append(
+                    RegistryEntry(
+                        package=package,
+                        version=version,
+                        wheel_name=file["filename"],
+                        sha256=file.get("hashes", {}).get("sha256", ""),
+                        url=file.get("url", ""),
+                        size_bytes=file.get("size", 0),
+                        requires_python=file.get("requires-python", ""),
+                    )
+                )
 
             return entries
 
         # Fall back to HTML parsing
         content = response.text
         import re
-        for match in re.finditer(
-            r'<a[^>]+href="([^"]+)"[^>]*>([^<]+\.whl)</a>', content
-        ):
+
+        for match in re.finditer(r'<a[^>]+href="([^"]+)"[^>]*>([^<]+\.whl)</a>', content):
             href = match.group(1)
             filename = match.group(2)
 
@@ -175,18 +178,17 @@ class WheelRegistry:
             version = parts[1] if len(parts) > 1 else ""
 
             # Build full URL
-            if href.startswith("http"):
-                file_url = href
-            else:
-                file_url = f"{url}{href}"
+            file_url = href if href.startswith("http") else f"{url}{href}"
 
-            entries.append(RegistryEntry(
-                package=package,
-                version=version,
-                wheel_name=filename,
-                sha256=sha256,
-                url=file_url.split("#")[0],
-            ))
+            entries.append(
+                RegistryEntry(
+                    package=package,
+                    version=version,
+                    wheel_name=filename,
+                    sha256=sha256,
+                    url=file_url.split("#")[0],
+                )
+            )
 
         return entries
 

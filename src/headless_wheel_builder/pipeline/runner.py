@@ -6,10 +6,10 @@ import asyncio
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Coroutine
+from typing import TYPE_CHECKING, Any
 
 from headless_wheel_builder.core.builder import BuildConfig, BuildEngine
-from headless_wheel_builder.exceptions import BuildError, PipelineError
+from headless_wheel_builder.exceptions import BuildError
 from headless_wheel_builder.github import GitHubClient, GitHubConfig
 from headless_wheel_builder.pipeline.models import (
     PipelineConfig,
@@ -20,6 +20,8 @@ from headless_wheel_builder.pipeline.models import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Coroutine
+
     from headless_wheel_builder.github.models import Release
 
 
@@ -98,17 +100,13 @@ class Pipeline:
                 self.result.add_stage(stage_result)
 
                 # Stop on failure (except for notify which is best-effort)
-                if (
-                    stage_result.status == StageStatus.FAILED
-                    and stage != PipelineStage.NOTIFY
-                ):
+                if stage_result.status == StageStatus.FAILED and stage != PipelineStage.NOTIFY:
                     break
 
             # Pipeline succeeds if all required stages succeeded
             required_stages = [s for s in stages if s != PipelineStage.NOTIFY]
             self.result.success = all(
-                self.result.stages.get(s, StageResult.pending(s)).status
-                == StageStatus.SUCCESS
+                self.result.stages.get(s, StageResult.pending(s)).status == StageStatus.SUCCESS
                 for s in required_stages
             )
 
@@ -336,11 +334,11 @@ class Pipeline:
                     other.append(f"- {commit}")
 
             if features:
-                changelog_lines.extend(["### ✨ Features", ""] + features + [""])
+                changelog_lines.extend(["### ✨ Features", "", *features, ""])
             if fixes:
-                changelog_lines.extend(["### 🐛 Bug Fixes", ""] + fixes + [""])
+                changelog_lines.extend(["### 🐛 Bug Fixes", "", *fixes, ""])
             if other:
-                changelog_lines.extend(["### 📝 Other Changes", ""] + other + [""])
+                changelog_lines.extend(["### 📝 Other Changes", "", *other, ""])
 
             changelog = "\n".join(changelog_lines)
             self.result.changelog = changelog

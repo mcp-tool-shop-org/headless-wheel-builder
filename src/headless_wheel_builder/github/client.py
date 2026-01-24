@@ -54,7 +54,7 @@ class GitHubClient:
         self.config = config or GitHubConfig()
         self._client: httpx.AsyncClient | None = None
 
-    async def __aenter__(self) -> "GitHubClient":
+    async def __aenter__(self) -> GitHubClient:
         """Enter async context."""
         await self._ensure_client()
         return self
@@ -500,7 +500,7 @@ class GitHubClient:
             tasks = [self.upload_asset(upload_url, fp) for fp in file_paths]
             outcomes = await asyncio.gather(*tasks, return_exceptions=True)
 
-            for fp, outcome in zip(file_paths, outcomes):
+            for fp, outcome in zip(file_paths, outcomes, strict=False):
                 if isinstance(outcome, BaseException):
                     result.add_failed(fp, str(outcome))
                     result.success = False

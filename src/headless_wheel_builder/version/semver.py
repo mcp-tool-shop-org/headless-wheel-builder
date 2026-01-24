@@ -5,13 +5,13 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Literal
 
 from headless_wheel_builder.exceptions import VersionError
 
 
 class BumpType(Enum):
     """Type of version bump."""
+
     MAJOR = "major"
     MINOR = "minor"
     PATCH = "patch"
@@ -39,7 +39,7 @@ RELAXED_PATTERN = re.compile(
     r"(?:\.(?P<patch>\d+))?"
     r"(?:[.-]?(?P<prerelease>(?:alpha|beta|rc|dev|a|b|c)\.?\d*))?"
     r"(?:\+(?P<build>.+))?$",
-    re.IGNORECASE
+    re.IGNORECASE,
 )
 
 
@@ -59,6 +59,7 @@ class Version:
         >>> str(v)
         '2.0.0-alpha.1'
     """
+
     major: int
     minor: int
     patch: int
@@ -93,11 +94,11 @@ class Version:
         return self.major >= 1 and not self.is_prerelease
 
     @property
-    def base_version(self) -> "Version":
+    def base_version(self) -> Version:
         """Get base version without prerelease/build."""
         return Version(self.major, self.minor, self.patch)
 
-    def bump(self, bump_type: BumpType | str) -> "Version":
+    def bump(self, bump_type: BumpType | str) -> Version:
         """
         Create a new version with the specified bump.
 
@@ -127,19 +128,16 @@ class Version:
             return Version(self.major, self.minor, self.patch + 1)
         elif bump_type == BumpType.PRERELEASE:
             # Increment prerelease or add one
-            if self.prerelease:
-                new_pre = _increment_prerelease(self.prerelease)
-            else:
-                new_pre = "alpha.1"
+            new_pre = _increment_prerelease(self.prerelease) if self.prerelease else "alpha.1"
             return Version(self.major, self.minor, self.patch, prerelease=new_pre)
         else:
             raise VersionError(f"Unsupported bump type: {bump_type}")
 
-    def with_prerelease(self, prerelease: str) -> "Version":
+    def with_prerelease(self, prerelease: str) -> Version:
         """Create version with prerelease identifier."""
         return Version(self.major, self.minor, self.patch, prerelease=prerelease, build=self.build)
 
-    def with_build(self, build: str) -> "Version":
+    def with_build(self, build: str) -> Version:
         """Create version with build metadata."""
         return Version(self.major, self.minor, self.patch, prerelease=self.prerelease, build=build)
 

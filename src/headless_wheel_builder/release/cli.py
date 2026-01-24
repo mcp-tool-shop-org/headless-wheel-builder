@@ -12,7 +12,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from headless_wheel_builder.release.manager import ReleaseManager
-from headless_wheel_builder.release.models import ReleaseConfig, ReleaseStatus
+from headless_wheel_builder.release.models import ReleaseStatus
 from headless_wheel_builder.release.workflow import WORKFLOW_TEMPLATES
 
 console = Console()
@@ -37,10 +37,20 @@ def release() -> None:
 @click.option("--name", "-n", required=True, help="Release name")
 @click.option("--version", "-v", required=True, help="Version")
 @click.option("--package", "-p", required=True, help="Package name")
-@click.option("--wheel", "-w", multiple=True, type=click.Path(exists=True, path_type=Path), help="Wheel file paths")
+@click.option(
+    "--wheel",
+    "-w",
+    multiple=True,
+    type=click.Path(exists=True, path_type=Path),
+    help="Wheel file paths",
+)
 @click.option("--changelog", "-c", help="Changelog text")
-@click.option("--changelog-file", type=click.Path(exists=True, path_type=Path), help="Changelog file")
-@click.option("--template", "-t", type=click.Choice(list(WORKFLOW_TEMPLATES.keys())), help="Workflow template")
+@click.option(
+    "--changelog-file", type=click.Path(exists=True, path_type=Path), help="Changelog file"
+)
+@click.option(
+    "--template", "-t", type=click.Choice(list(WORKFLOW_TEMPLATES.keys())), help="Workflow template"
+)
 @click.option("--creator", default="cli", help="Creator identifier")
 @click.option("--json", "json_output", is_flag=True, help="Output as JSON")
 def create_release(
@@ -76,21 +86,25 @@ def create_release(
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold]ID:[/] {draft.id}\n"
-        f"[bold]Name:[/] {draft.name}\n"
-        f"[bold]Version:[/] {draft.version}\n"
-        f"[bold]Package:[/] {draft.package}\n"
-        f"[bold]Status:[/] {draft.status.value}\n"
-        f"[bold]Approval Steps:[/] {len(draft.approval_steps)}",
-        title="[green]Draft Release Created[/]",
-        border_style="green",
-    ))
+    console.print(
+        Panel(
+            f"[bold]ID:[/] {draft.id}\n"
+            f"[bold]Name:[/] {draft.name}\n"
+            f"[bold]Version:[/] {draft.version}\n"
+            f"[bold]Package:[/] {draft.package}\n"
+            f"[bold]Status:[/] {draft.status.value}\n"
+            f"[bold]Approval Steps:[/] {len(draft.approval_steps)}",
+            title="[green]Draft Release Created[/]",
+            border_style="green",
+        )
+    )
     console.print()
 
 
 @release.command("list")
-@click.option("--status", "-s", type=click.Choice([s.value for s in ReleaseStatus]), help="Filter by status")
+@click.option(
+    "--status", "-s", type=click.Choice([s.value for s in ReleaseStatus]), help="Filter by status"
+)
 @click.option("--package", "-p", help="Filter by package")
 @click.option("--limit", "-n", default=20, help="Maximum results")
 @click.option("--json", "json_output", is_flag=True, help="Output as JSON")
@@ -164,17 +178,19 @@ def show_release(release_id: str, json_output: bool) -> None:
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold]ID:[/] {draft.id}\n"
-        f"[bold]Name:[/] {draft.name}\n"
-        f"[bold]Version:[/] {draft.version}\n"
-        f"[bold]Package:[/] {draft.package}\n"
-        f"[bold]Status:[/] {draft.status.value}\n"
-        f"[bold]Created:[/] {draft.created_at}\n"
-        f"[bold]Created By:[/] {draft.created_by}",
-        title="Release Details",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]ID:[/] {draft.id}\n"
+            f"[bold]Name:[/] {draft.name}\n"
+            f"[bold]Version:[/] {draft.version}\n"
+            f"[bold]Package:[/] {draft.package}\n"
+            f"[bold]Status:[/] {draft.status.value}\n"
+            f"[bold]Created:[/] {draft.created_at}\n"
+            f"[bold]Created By:[/] {draft.created_by}",
+            title="Release Details",
+            border_style="blue",
+        )
+    )
 
     # Approval steps
     if draft.approval_steps:
@@ -300,9 +316,8 @@ def rollback_release(release_id: str, yes: bool) -> None:
     """Rollback a published release."""
     manager = get_manager()
 
-    if not yes:
-        if not click.confirm(f"Rollback release {release_id}?"):
-            return
+    if not yes and not click.confirm(f"Rollback release {release_id}?"):
+        return
 
     if not manager.rollback(release_id):
         error_console.print(f"[red]Could not rollback release:[/] {release_id}")
@@ -318,9 +333,8 @@ def delete_release(release_id: str, yes: bool) -> None:
     """Delete a draft release."""
     manager = get_manager()
 
-    if not yes:
-        if not click.confirm(f"Delete release {release_id}?"):
-            return
+    if not yes and not click.confirm(f"Delete release {release_id}?"):
+        return
 
     if not manager.delete(release_id):
         error_console.print(f"[red]Could not delete release:[/] {release_id}")
@@ -374,12 +388,14 @@ def show_stats(json_output: bool) -> None:
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold]Total Releases:[/] {stats['total']}\n"
-        f"[bold]Pending Approval:[/] {stats['pending_approval']}",
-        title="Release Statistics",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Total Releases:[/] {stats['total']}\n"
+            f"[bold]Pending Approval:[/] {stats['pending_approval']}",
+            title="Release Statistics",
+            border_style="blue",
+        )
+    )
 
     if stats["by_status"]:
         console.print("\n[bold]By Status:[/]")

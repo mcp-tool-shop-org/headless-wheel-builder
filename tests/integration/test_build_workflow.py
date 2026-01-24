@@ -7,18 +7,17 @@ to wheel creation, testing real-world scenarios.
 from __future__ import annotations
 
 import asyncio
-import shutil
-import sys
-import tempfile
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from headless_wheel_builder.core.analyzer import ProjectAnalyzer
-from headless_wheel_builder.core.builder import BuildEngine, BuildConfig
-from headless_wheel_builder.core.source import SourceResolver, SourceSpec, SourceType
+from headless_wheel_builder.core.builder import BuildEngine
+from headless_wheel_builder.core.source import SourceResolver
 from headless_wheel_builder.isolation.venv import VenvIsolation
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # Mark all tests as integration tests
 pytestmark = pytest.mark.integration
@@ -155,7 +154,7 @@ class TestSourceResolution:
         resolver = SourceResolver()
 
         with pytest.raises(Exception):  # Should raise an error
-            spec = resolver.parse_source(str(tmp_path / "nonexistent"))
+            resolver.parse_source(str(tmp_path / "nonexistent"))
 
 
 class TestAnalyzerIntegration:
@@ -222,7 +221,9 @@ description = "Hatch test project"
         assert info.version == "1.2.3"
         assert info.backend.module == "setuptools.build_meta"
         assert "setuptools>=61.0" in info.backend.requirements
-        assert "requests>=2.0" in info.dependencies or any("requests" in d for d in info.dependencies)
+        assert "requests>=2.0" in info.dependencies or any(
+            "requests" in d for d in info.dependencies
+        )
 
     @pytest.mark.asyncio
     async def test_analyze_hatchling_project(self, hatchling_project: Path):
@@ -268,11 +269,13 @@ class TestVenvIsolation:
 
             # Run a simple Python command
             process = await asyncio.create_subprocess_exec(
-                str(env.python_path), "-c", "print('hello')",
+                str(env.python_path),
+                "-c",
+                "print('hello')",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, stderr = await process.communicate()
+            stdout, _stderr = await process.communicate()
 
             assert process.returncode == 0
             assert b"hello" in stdout
@@ -416,6 +419,7 @@ def test_hello():
 
         # Verify wheel contents
         import zipfile
+
         with zipfile.ZipFile(result.wheel_path) as whl:
             names = whl.namelist()
 
@@ -460,7 +464,11 @@ def test_hello():
         try:
             # Install the wheel
             process = await asyncio.create_subprocess_exec(
-                str(env.python_path), "-m", "pip", "install", str(result.wheel_path),
+                str(env.python_path),
+                "-m",
+                "pip",
+                "install",
+                str(result.wheel_path),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -470,7 +478,9 @@ def test_hello():
 
             # Try to import the package
             process = await asyncio.create_subprocess_exec(
-                str(env.python_path), "-c", "from complete_project import hello; print(hello())",
+                str(env.python_path),
+                "-c",
+                "from complete_project import hello; print(hello())",
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )

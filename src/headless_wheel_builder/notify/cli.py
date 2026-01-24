@@ -5,8 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import sys
-from pathlib import Path
-from typing import Any, Coroutine, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import click
 from rich.console import Console
@@ -19,6 +18,9 @@ from headless_wheel_builder.notify.models import (
     ProviderType,
 )
 from headless_wheel_builder.notify.sender import NotificationSender
+
+if TYPE_CHECKING:
+    from collections.abc import Coroutine
 
 console = Console()
 error_console = Console(stderr=True)
@@ -43,7 +45,8 @@ def notify() -> None:
 @notify.command("test")
 @click.option("--url", "-u", required=True, help="Webhook URL")
 @click.option(
-    "--provider", "-p",
+    "--provider",
+    "-p",
     type=click.Choice(["slack", "discord", "webhook"]),
     default="webhook",
     help="Provider type",
@@ -86,7 +89,7 @@ def test_notification(
     async def _send():
         return await sender.send(event)
 
-    console.print(f"\n[bold blue]Sending test notification...[/]")
+    console.print("\n[bold blue]Sending test notification...[/]")
     console.print(f"  Provider: {provider}")
     console.print(f"  Title: {title}")
     console.print()
@@ -104,13 +107,15 @@ def test_notification(
 @notify.command("send")
 @click.option("--url", "-u", required=True, help="Webhook URL")
 @click.option(
-    "--provider", "-p",
+    "--provider",
+    "-p",
     type=click.Choice(["slack", "discord", "webhook"]),
     default="webhook",
     help="Provider type",
 )
 @click.option(
-    "--type", "event_type",
+    "--type",
+    "event_type",
     type=click.Choice([t.value for t in NotificationType]),
     default="custom",
     help="Event type",

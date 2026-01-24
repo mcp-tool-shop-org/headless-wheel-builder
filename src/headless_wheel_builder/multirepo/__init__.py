@@ -18,17 +18,17 @@ from headless_wheel_builder.multirepo.config import (
     save_config,
 )
 from headless_wheel_builder.multirepo.manager import (
+    BatchResult,
     MultiRepoManager,
     RepoResult,
-    BatchResult,
 )
 
 __all__ = [
+    "BatchResult",
     "MultiRepoConfig",
+    "MultiRepoManager",
     "RepoConfig",
+    "RepoResult",
     "load_config",
     "save_config",
-    "MultiRepoManager",
-    "RepoResult",
-    "BatchResult",
 ]

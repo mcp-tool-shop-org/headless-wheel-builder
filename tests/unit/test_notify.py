@@ -450,9 +450,7 @@ class TestNotificationSender:
             title="Test",
         )
 
-        with patch(
-            "headless_wheel_builder.notify.providers.httpx.AsyncClient"
-        ) as mock_client:
+        with patch("headless_wheel_builder.notify.providers.httpx.AsyncClient") as mock_client:
             mock_response = AsyncMock()
             mock_response.status_code = 200
             mock_response.text = "OK"

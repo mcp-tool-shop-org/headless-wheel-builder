@@ -146,9 +146,7 @@ async def _get_client_and_repo(ctx: click.Context) -> tuple[GitHubClient, str]:
         if detected:
             repo_str = detected.full_name
         else:
-            raise click.UsageError(
-                "Could not detect repository. Specify with --repo owner/repo"
-            )
+            raise click.UsageError("Could not detect repository. Specify with --repo owner/repo")
 
     return client, repo_str
 
@@ -159,9 +157,7 @@ def _handle_auth_error(e: GitHubAuthError, json_output: bool) -> None:
         click.echo(json.dumps({"success": False, "error": str(e)}))
     else:
         error_console.print(f"\n[bold red]Authentication Error:[/] {e}")
-        error_console.print(
-            "\nSet GITHUB_TOKEN environment variable or use --token flag."
-        )
+        error_console.print("\nSet GITHUB_TOKEN environment variable or use --token flag.")
         error_console.print("Create a token at: https://github.com/settings/tokens\n")
     sys.exit(1)
 
@@ -607,11 +603,16 @@ def workflow_cmd(
 
         if json_output:
             if isinstance(result, WorkflowRunResult):
-                click.echo(json.dumps({
-                    "triggered": True,
-                    "workflow": result.workflow,
-                    "ref": result.ref,
-                }, indent=2))
+                click.echo(
+                    json.dumps(
+                        {
+                            "triggered": True,
+                            "workflow": result.workflow,
+                            "ref": result.ref,
+                        },
+                        indent=2,
+                    )
+                )
             elif isinstance(result, WorkflowListResult):
                 output = [
                     {
@@ -627,13 +628,18 @@ def workflow_cmd(
                 click.echo(json.dumps(output, indent=2))
             else:  # WorkflowStatusResult
                 r = result.run
-                click.echo(json.dumps({
-                    "id": r.id,
-                    "name": r.name,
-                    "status": r.status,
-                    "conclusion": r.conclusion,
-                    "url": r.html_url,
-                }, indent=2))
+                click.echo(
+                    json.dumps(
+                        {
+                            "id": r.id,
+                            "name": r.name,
+                            "status": r.status,
+                            "conclusion": r.conclusion,
+                            "url": r.html_url,
+                        },
+                        indent=2,
+                    )
+                )
         elif not quiet:
             if isinstance(result, WorkflowRunResult):
                 console.print(
@@ -760,12 +766,17 @@ def pr_cmd(
         if json_output:
             if isinstance(result, PRCreateResult):
                 pr = result.pr
-                click.echo(json.dumps({
-                    "number": pr.number,
-                    "title": pr.title,
-                    "url": pr.html_url,
-                    "draft": pr.draft,
-                }, indent=2))
+                click.echo(
+                    json.dumps(
+                        {
+                            "number": pr.number,
+                            "title": pr.title,
+                            "url": pr.html_url,
+                            "draft": pr.draft,
+                        },
+                        indent=2,
+                    )
+                )
             elif isinstance(result, PRListResult):
                 output = [
                     {
@@ -780,13 +791,18 @@ def pr_cmd(
                 click.echo(json.dumps(output, indent=2))
             else:  # PRViewResult
                 pr = result.pr
-                click.echo(json.dumps({
-                    "number": pr.number,
-                    "title": pr.title,
-                    "state": pr.state,
-                    "body": pr.body,
-                    "url": pr.html_url,
-                }, indent=2))
+                click.echo(
+                    json.dumps(
+                        {
+                            "number": pr.number,
+                            "title": pr.title,
+                            "state": pr.state,
+                            "body": pr.body,
+                            "url": pr.html_url,
+                        },
+                        indent=2,
+                    )
+                )
         elif not quiet:
             if isinstance(result, PRCreateResult):
                 pr = result.pr
@@ -901,11 +917,16 @@ def issue_cmd(
         if json_output:
             if isinstance(result, IssueCreateResult):
                 issue = result.issue
-                click.echo(json.dumps({
-                    "number": issue.number,
-                    "title": issue.title,
-                    "url": issue.html_url,
-                }, indent=2))
+                click.echo(
+                    json.dumps(
+                        {
+                            "number": issue.number,
+                            "title": issue.title,
+                            "url": issue.html_url,
+                        },
+                        indent=2,
+                    )
+                )
             elif isinstance(result, IssueListResult):
                 output = [
                     {
@@ -920,14 +941,19 @@ def issue_cmd(
                 click.echo(json.dumps(output, indent=2))
             else:  # IssueViewResult
                 issue = result.issue
-                click.echo(json.dumps({
-                    "number": issue.number,
-                    "title": issue.title,
-                    "state": issue.state,
-                    "body": issue.body,
-                    "labels": issue.labels,
-                    "url": issue.html_url,
-                }, indent=2))
+                click.echo(
+                    json.dumps(
+                        {
+                            "number": issue.number,
+                            "title": issue.title,
+                            "state": issue.state,
+                            "body": issue.body,
+                            "labels": issue.labels,
+                            "url": issue.html_url,
+                        },
+                        indent=2,
+                    )
+                )
         elif not quiet:
             if isinstance(result, IssueCreateResult):
                 issue = result.issue
@@ -948,7 +974,9 @@ def issue_cmd(
 
                     for issue in result.issues:
                         labels_str = ", ".join(issue.labels[:3]) if issue.labels else "-"
-                        issue_title = issue.title[:50] + "..." if len(issue.title) > 50 else issue.title
+                        issue_title = (
+                            issue.title[:50] + "..." if len(issue.title) > 50 else issue.title
+                        )
                         table.add_row(
                             str(issue.number),
                             issue_title,

@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Any
 
 from headless_wheel_builder.release.models import (
     ApprovalState,
@@ -35,7 +36,7 @@ class WorkflowTemplate:
         """
         return [
             ApprovalStep(
-                name=step.get("name", f"Step {i+1}"),
+                name=step.get("name", f"Step {i + 1}"),
                 approvers=step.get("approvers", []),
                 required_approvals=step.get("required_approvals", 1),
             )

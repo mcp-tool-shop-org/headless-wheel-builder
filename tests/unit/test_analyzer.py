@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadata
 from headless_wheel_builder.exceptions import ProjectError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestProjectAnalyzer:

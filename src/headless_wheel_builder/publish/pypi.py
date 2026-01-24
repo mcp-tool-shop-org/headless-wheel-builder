@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import os
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from headless_wheel_builder.exceptions import PublishError
 from headless_wheel_builder.publish.base import BasePublisher, PublishConfig, PublishResult
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # Well-known PyPI endpoints
 PYPI_URL = "https://upload.pypi.org/legacy/"
@@ -85,9 +85,7 @@ class PyPIPublisher(BasePublisher):
         elif self.config.repository == "pypi":
             return PYPI_URL
         else:
-            raise PublishError(
-                "Custom repository requires repository_url to be set"
-            )
+            raise PublishError("Custom repository requires repository_url to be set")
 
     def _get_credentials(self) -> tuple[str | None, str | None]:
         """Get credentials for authentication."""
@@ -266,8 +264,8 @@ class PyPIPublisher(BasePublisher):
 
     async def check_package_exists(self, name: str, version: str) -> bool:
         """Check if a package version already exists on the registry."""
-        import urllib.request
         import urllib.error
+        import urllib.request
 
         if self.config.repository == "pypi":
             url = f"https://pypi.org/pypi/{name}/{version}/json"

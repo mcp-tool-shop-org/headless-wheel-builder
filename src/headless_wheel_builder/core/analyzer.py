@@ -132,9 +132,7 @@ class ProjectAnalyzer:
 
         # Must have at least one config file
         if not metadata.has_pyproject and not metadata.has_setup_py:
-            raise ProjectError(
-                f"No pyproject.toml or setup.py found in: {source_path}"
-            )
+            raise ProjectError(f"No pyproject.toml or setup.py found in: {source_path}")
 
         # Parse pyproject.toml if present
         if metadata.has_pyproject:
@@ -251,7 +249,8 @@ class ProjectAnalyzer:
                 matches = list(source_path.rglob(pattern))
                 # Filter out common non-extension C files
                 matches = [
-                    m for m in matches
+                    m
+                    for m in matches
                     if not any(
                         part in str(m)
                         for part in ["venv", ".venv", "site-packages", "__pycache__", ".git"]

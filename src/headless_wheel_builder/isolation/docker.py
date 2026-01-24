@@ -13,7 +13,6 @@ from typing import Literal
 from headless_wheel_builder.exceptions import IsolationError
 from headless_wheel_builder.isolation.base import BaseIsolation, BuildEnvironment
 
-
 # Official manylinux images from PyPA
 # https://github.com/pypa/manylinux
 MANYLINUX_IMAGES = {
@@ -111,7 +110,8 @@ class DockerIsolation(BaseIsolation):
         # Check if Docker daemon is running
         try:
             process = await asyncio.create_subprocess_exec(
-                "docker", "info",
+                "docker",
+                "info",
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.DEVNULL,
             )
@@ -208,7 +208,7 @@ class DockerIsolation(BaseIsolation):
         )
 
         # Run the build
-        full_cmd = docker_cmd + ["bash", "-c", build_script]
+        full_cmd = [*docker_cmd, "bash", "-c", build_script]
 
         process = await asyncio.create_subprocess_exec(
             *full_cmd,
@@ -258,8 +258,7 @@ class DockerIsolation(BaseIsolation):
         image = MANYLINUX_IMAGES.get(platform_key)
         if not image:
             raise IsolationError(
-                f"Unknown platform: {platform_key}. "
-                f"Available: {', '.join(MANYLINUX_IMAGES.keys())}"
+                f"Unknown platform: {platform_key}. Available: {', '.join(MANYLINUX_IMAGES.keys())}"
             )
 
         # Pull image if needed
@@ -271,7 +270,10 @@ class DockerIsolation(BaseIsolation):
         """Pull Docker image if not present locally."""
         # Check if image exists
         process = await asyncio.create_subprocess_exec(
-            "docker", "image", "inspect", image,
+            "docker",
+            "image",
+            "inspect",
+            image,
             stdout=asyncio.subprocess.DEVNULL,
             stderr=asyncio.subprocess.DEVNULL,
         )
@@ -280,16 +282,16 @@ class DockerIsolation(BaseIsolation):
         if process.returncode != 0:
             # Pull the image
             process = await asyncio.create_subprocess_exec(
-                "docker", "pull", image,
+                "docker",
+                "pull",
+                image,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
             )
             stdout, _ = await process.communicate()
 
             if process.returncode != 0:
-                raise IsolationError(
-                    f"Failed to pull Docker image {image}:\n{stdout.decode()}"
-                )
+                raise IsolationError(f"Failed to pull Docker image {image}:\n{stdout.decode()}")
 
     def _get_container_python(self, version: str) -> str:
         """Get Python path inside manylinux container."""
@@ -411,31 +413,37 @@ class DockerIsolation(BaseIsolation):
 
         # Repair wheel with auditwheel
         if repair_wheel and build_wheel:
-            lines.extend([
-                "",
-                "# Repair wheel for manylinux compatibility",
-                "for whl in /tmp/dist/*.whl; do",
-                '    if [ -f "$whl" ]; then',
-                '        auditwheel repair "$whl" --plat auto -w /output/ || cp "$whl" /output/',
-                "    fi",
-                "done",
-            ])
+            lines.extend(
+                [
+                    "",
+                    "# Repair wheel for manylinux compatibility",
+                    "for whl in /tmp/dist/*.whl; do",
+                    '    if [ -f "$whl" ]; then',
+                    '        auditwheel repair "$whl" --plat auto -w /output/ || cp "$whl" /output/',
+                    "    fi",
+                    "done",
+                ]
+            )
         else:
-            lines.extend([
-                "",
-                "# Copy artifacts to output",
-                "cp /tmp/dist/* /output/ 2>/dev/null || true",
-            ])
+            lines.extend(
+                [
+                    "",
+                    "# Copy artifacts to output",
+                    "cp /tmp/dist/* /output/ 2>/dev/null || true",
+                ]
+            )
 
         # Copy sdist if built
         if build_sdist:
             lines.append("cp /tmp/dist/*.tar.gz /output/ 2>/dev/null || true")
 
-        lines.extend([
-            "",
-            "# List output",
-            "ls -la /output/",
-        ])
+        lines.extend(
+            [
+                "",
+                "# List output",
+                "ls -la /output/",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -446,11 +454,14 @@ class DockerIsolation(BaseIsolation):
     async def get_image_info(self, image: str) -> dict:
         """Get information about a Docker image."""
         process = await asyncio.create_subprocess_exec(
-            "docker", "image", "inspect", image,
+            "docker",
+            "image",
+            "inspect",
+            image,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        stdout, stderr = await process.communicate()
+        stdout, _stderr = await process.communicate()
 
         if process.returncode != 0:
             raise IsolationError(f"Image not found: {image}")

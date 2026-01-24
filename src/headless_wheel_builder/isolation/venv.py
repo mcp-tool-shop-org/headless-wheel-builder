@@ -7,7 +7,6 @@ import os
 import shutil
 import sys
 import tempfile
-import venv
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -189,7 +188,10 @@ class VenvIsolation(BaseIsolation):
         """Find Python via uv."""
         try:
             process = await asyncio.create_subprocess_exec(
-                "uv", "python", "find", version,
+                "uv",
+                "python",
+                "find",
+                version,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -269,12 +271,15 @@ class VenvIsolation(BaseIsolation):
     async def _create_venv_uv(self, python: Path, venv_dir: Path) -> None:
         """Create venv using uv."""
         process = await asyncio.create_subprocess_exec(
-            "uv", "venv", str(venv_dir),
-            "--python", str(python),
+            "uv",
+            "venv",
+            str(venv_dir),
+            "--python",
+            str(python),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        _, stderr = await process.communicate()
+        _, _stderr = await process.communicate()
 
         if process.returncode != 0:
             # Fall back to stdlib
@@ -284,7 +289,10 @@ class VenvIsolation(BaseIsolation):
         """Create venv using stdlib venv module."""
         # Use subprocess to ensure we use the correct Python
         process = await asyncio.create_subprocess_exec(
-            str(python), "-m", "venv", str(venv_dir),
+            str(python),
+            "-m",
+            "venv",
+            str(venv_dir),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -311,13 +319,16 @@ class VenvIsolation(BaseIsolation):
     async def _install_with_uv(self, python: Path, requirements: list[str]) -> None:
         """Install packages using uv pip."""
         process = await asyncio.create_subprocess_exec(
-            "uv", "pip", "install",
-            "--python", str(python),
+            "uv",
+            "pip",
+            "install",
+            "--python",
+            str(python),
             *requirements,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        stdout, stderr = await process.communicate()
+        _stdout, _stderr = await process.communicate()
 
         if process.returncode != 0:
             # Fall back to pip
@@ -326,7 +337,10 @@ class VenvIsolation(BaseIsolation):
     async def _install_with_pip(self, python: Path, requirements: list[str]) -> None:
         """Install packages using pip."""
         process = await asyncio.create_subprocess_exec(
-            str(python), "-m", "pip", "install",
+            str(python),
+            "-m",
+            "pip",
+            "install",
             "--quiet",
             "--disable-pip-version-check",
             *requirements,

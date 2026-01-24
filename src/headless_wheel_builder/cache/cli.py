@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import shutil
 import sys
 from pathlib import Path
 
@@ -12,7 +11,6 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from headless_wheel_builder.cache.models import RegistryConfig
 from headless_wheel_builder.cache.storage import ArtifactCache
 
 console = Console()
@@ -40,16 +38,18 @@ def show_stats(json_output: bool) -> None:
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold]Entries:[/] {stats.total_entries}\n"
-        f"[bold]Packages:[/] {stats.packages}\n"
-        f"[bold]Total Size:[/] {_format_bytes(stats.total_size_bytes)}\n"
-        f"[bold]Hit Rate:[/] {stats.hit_rate:.1%}\n"
-        f"[bold]Hits:[/] [green]{stats.hits}[/]\n"
-        f"[bold]Misses:[/] [yellow]{stats.misses}[/]",
-        title="Cache Statistics",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Entries:[/] {stats.total_entries}\n"
+            f"[bold]Packages:[/] {stats.packages}\n"
+            f"[bold]Total Size:[/] {_format_bytes(stats.total_size_bytes)}\n"
+            f"[bold]Hit Rate:[/] {stats.hit_rate:.1%}\n"
+            f"[bold]Hits:[/] [green]{stats.hits}[/]\n"
+            f"[bold]Misses:[/] [yellow]{stats.misses}[/]",
+            title="Cache Statistics",
+            border_style="blue",
+        )
+    )
     console.print()
 
 
@@ -141,11 +141,16 @@ def get_wheel(
     dest_path = artifact_cache.copy_to(entry, dest_dir)
 
     if json_output:
-        click.echo(json.dumps({
-            "found": True,
-            "path": str(dest_path),
-            "entry": entry.to_dict(),
-        }, indent=2))
+        click.echo(
+            json.dumps(
+                {
+                    "found": True,
+                    "path": str(dest_path),
+                    "entry": entry.to_dict(),
+                },
+                indent=2,
+            )
+        )
     else:
         console.print(f"[green]Copied to:[/] {dest_path}")
 
@@ -204,9 +209,8 @@ def remove_wheel(package: str, version: str, yes: bool) -> None:
         error_console.print(f"[yellow]Not in cache:[/] {package} {version}")
         return
 
-    if not yes:
-        if not click.confirm(f"Remove {package} {version} from cache?"):
-            return
+    if not yes and not click.confirm(f"Remove {package} {version} from cache?"):
+        return
 
     count = artifact_cache.remove(package, version)
     console.print(f"[green]Removed {count} entries[/]")
@@ -225,9 +229,7 @@ def clear_cache(yes: bool) -> None:
 
     if not yes:
         size_str = _format_bytes(stats.total_size_bytes)
-        if not click.confirm(
-            f"Clear cache? ({stats.total_entries} entries, {size_str})"
-        ):
+        if not click.confirm(f"Clear cache? ({stats.total_entries} entries, {size_str})"):
             return
 
     artifact_cache.clear()
@@ -303,21 +305,23 @@ def show_info(package: str, version: str, json_output: bool) -> None:
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold]Package:[/] {entry.package}\n"
-        f"[bold]Version:[/] {entry.version}\n"
-        f"[bold]Wheel:[/] {entry.wheel_name}\n"
-        f"[bold]Size:[/] {_format_bytes(entry.size_bytes)}\n"
-        f"[bold]SHA256:[/] {entry.sha256}\n"
-        f"[bold]Python:[/] {entry.python_version or 'any'}\n"
-        f"[bold]Platform:[/] {entry.platform or 'any'}\n"
-        f"[bold]Source:[/] {entry.source}\n"
-        f"[bold]Created:[/] {entry.created_at or '-'}\n"
-        f"[bold]Accessed:[/] {entry.last_accessed or '-'}\n"
-        f"[bold]Access Count:[/] {entry.access_count}",
-        title="Cache Entry",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Package:[/] {entry.package}\n"
+            f"[bold]Version:[/] {entry.version}\n"
+            f"[bold]Wheel:[/] {entry.wheel_name}\n"
+            f"[bold]Size:[/] {_format_bytes(entry.size_bytes)}\n"
+            f"[bold]SHA256:[/] {entry.sha256}\n"
+            f"[bold]Python:[/] {entry.python_version or 'any'}\n"
+            f"[bold]Platform:[/] {entry.platform or 'any'}\n"
+            f"[bold]Source:[/] {entry.source}\n"
+            f"[bold]Created:[/] {entry.created_at or '-'}\n"
+            f"[bold]Accessed:[/] {entry.last_accessed or '-'}\n"
+            f"[bold]Access Count:[/] {entry.access_count}",
+            title="Cache Entry",
+            border_style="blue",
+        )
+    )
     console.print()
 
 
@@ -347,7 +351,7 @@ def _parse_size(size_str: str) -> int | None:
     for unit, multiplier in units.items():
         if size_str.endswith(unit):
             try:
-                value = float(size_str[:-len(unit)])
+                value = float(size_str[: -len(unit)])
                 return int(value * multiplier)
             except ValueError:
                 return None

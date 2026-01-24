@@ -63,10 +63,10 @@ class ResolvedSource:
         for callback in self._cleanup_callbacks:
             try:
                 callback()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 pass  # Best effort cleanup
 
-    def __enter__(self) -> "ResolvedSource":
+    def __enter__(self) -> ResolvedSource:
         return self
 
     def __exit__(self, *args: object) -> None:
@@ -322,10 +322,7 @@ class SourceResolver:
 
             # Find the actual source directory (usually one level deep)
             contents = list(extract_dir.iterdir())
-            if len(contents) == 1 and contents[0].is_dir():
-                source_dir = contents[0]
-            else:
-                source_dir = extract_dir
+            source_dir = contents[0] if len(contents) == 1 and contents[0].is_dir() else extract_dir
 
             resolved = ResolvedSource(
                 spec=spec,
@@ -358,10 +355,7 @@ class SourceResolver:
 
             # Find the actual source directory
             contents = list(temp_dir.iterdir())
-            if len(contents) == 1 and contents[0].is_dir():
-                source_dir = contents[0]
-            else:
-                source_dir = temp_dir
+            source_dir = contents[0] if len(contents) == 1 and contents[0].is_dir() else temp_dir
 
             resolved = ResolvedSource(
                 spec=spec,

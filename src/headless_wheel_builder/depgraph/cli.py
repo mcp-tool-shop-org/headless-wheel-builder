@@ -6,7 +6,7 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from typing import Any, Coroutine, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import click
 from rich.console import Console
@@ -16,6 +16,9 @@ from rich.tree import Tree
 
 from headless_wheel_builder.depgraph.analyzer import DependencyAnalyzer
 from headless_wheel_builder.depgraph.models import LicenseCategory
+
+if TYPE_CHECKING:
+    from collections.abc import Coroutine
 
 console = Console()
 error_console = Console(stderr=True)
@@ -49,6 +52,7 @@ def show_tree(
     json_output: bool,
 ) -> None:
     """Show dependency tree for a package."""
+
     async def _analyze():
         analyzer = DependencyAnalyzer(max_depth=depth)
         try:
@@ -111,6 +115,7 @@ def analyze_local(
     json_output: bool,
 ) -> None:
     """Analyze dependencies of a local project."""
+
     async def _analyze():
         analyzer = DependencyAnalyzer(max_depth=depth)
         try:
@@ -129,14 +134,16 @@ def analyze_local(
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold]Project:[/] {graph.root}\n"
-        f"[bold]Dependencies:[/] {len(graph.nodes) - 1}\n"
-        f"[bold]Direct:[/] {len(graph.edges.get(graph.root, []))}\n"
-        f"[bold]Transitive:[/] {len(graph.nodes) - 1 - len(graph.edges.get(graph.root, []))}",
-        title="Dependency Analysis",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Project:[/] {graph.root}\n"
+            f"[bold]Dependencies:[/] {len(graph.nodes) - 1}\n"
+            f"[bold]Direct:[/] {len(graph.edges.get(graph.root, []))}\n"
+            f"[bold]Transitive:[/] {len(graph.nodes) - 1 - len(graph.edges.get(graph.root, []))}",
+            title="Dependency Analysis",
+            border_style="blue",
+        )
+    )
 
     # Show build order
     if graph.build_order:
@@ -179,6 +186,7 @@ def check_licenses(
     json_output: bool,
 ) -> None:
     """Check licenses of dependencies."""
+
     async def _analyze():
         analyzer = DependencyAnalyzer(max_depth=5)
         try:
@@ -210,10 +218,15 @@ def check_licenses(
             licenses["Unknown"].append(name)
 
     if json_output:
-        click.echo(json.dumps({
-            "licenses": licenses,
-            "issues": graph.license_issues,
-        }, indent=2))
+        click.echo(
+            json.dumps(
+                {
+                    "licenses": licenses,
+                    "issues": graph.license_issues,
+                },
+                indent=2,
+            )
+        )
         return
 
     # Display licenses
@@ -225,6 +238,7 @@ def check_licenses(
     for license_name, packages in sorted(licenses.items(), key=lambda x: -len(x[1])):
         # Determine category color
         from headless_wheel_builder.depgraph.models import categorize_license
+
         category = categorize_license(license_name)
 
         if category == LicenseCategory.PERMISSIVE:
@@ -250,9 +264,7 @@ def check_licenses(
     if check:
         for license_to_check in check:
             if license_to_check in licenses:
-                error_console.print(
-                    f"[red]Found forbidden license:[/] {license_to_check}"
-                )
+                error_console.print(f"[red]Found forbidden license:[/] {license_to_check}")
                 for pkg in licenses[license_to_check]:
                     error_console.print(f"  • {pkg}")
                 exit_code = 1
@@ -261,9 +273,7 @@ def check_licenses(
         allowed_set = set(allow)
         for license_name, packages in licenses.items():
             if license_name not in allowed_set and license_name != "Unknown":
-                error_console.print(
-                    f"[red]Found non-allowed license:[/] {license_name}"
-                )
+                error_console.print(f"[red]Found non-allowed license:[/] {license_name}")
                 for pkg in packages:
                     error_console.print(f"  • {pkg}")
                 exit_code = 1
@@ -280,6 +290,7 @@ def show_conflicts(
     json_output: bool,
 ) -> None:
     """Show version conflicts in dependencies."""
+
     async def _analyze():
         analyzer = DependencyAnalyzer(max_depth=5)
         try:
@@ -327,6 +338,7 @@ def show_cycles(
     json_output: bool,
 ) -> None:
     """Show circular dependencies."""
+
     async def _analyze():
         analyzer = DependencyAnalyzer(max_depth=10)
         try:
@@ -371,6 +383,7 @@ def show_build_order(
     json_output: bool,
 ) -> None:
     """Show optimal build order for dependencies."""
+
     async def _analyze():
         analyzer = DependencyAnalyzer(max_depth=5)
         try:

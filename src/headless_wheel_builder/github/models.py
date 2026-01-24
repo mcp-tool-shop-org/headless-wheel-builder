@@ -5,10 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from pathlib import Path
     pass
 
 
@@ -66,7 +66,7 @@ class Repository:
     ssh_url: str = ""
 
     @classmethod
-    def from_api(cls, data: dict[str, Any]) -> "Repository":
+    def from_api(cls, data: dict[str, Any]) -> Repository:
         """Create from GitHub API response."""
         return cls(
             owner=data["owner"]["login"],
@@ -81,7 +81,7 @@ class Repository:
         )
 
     @classmethod
-    def parse(cls, repo_str: str) -> "Repository":
+    def parse(cls, repo_str: str) -> Repository:
         """Parse 'owner/repo' string into Repository.
 
         Args:
@@ -122,7 +122,7 @@ class ReleaseAsset:
     download_count: int = 0
 
     @classmethod
-    def from_api(cls, data: dict[str, Any]) -> "ReleaseAsset":
+    def from_api(cls, data: dict[str, Any]) -> ReleaseAsset:
         """Create from GitHub API response."""
         return cls(
             id=data["id"],
@@ -157,7 +157,7 @@ class Release:
     target_commitish: str = "main"
 
     @classmethod
-    def from_api(cls, data: dict[str, Any]) -> "Release":
+    def from_api(cls, data: dict[str, Any]) -> Release:
         """Create from GitHub API response."""
         assets = [ReleaseAsset.from_api(a) for a in data.get("assets", [])]
 
@@ -198,7 +198,7 @@ class ReleaseResult:
     errors: list[str] = field(default_factory=lambda: [])
 
     @classmethod
-    def failure(cls, error: str) -> "ReleaseResult":
+    def failure(cls, error: str) -> ReleaseResult:
         """Create a failure result."""
         return cls(success=False, errors=[error])
 
@@ -228,7 +228,7 @@ class WorkflowRun:
     updated_at: datetime | None = None
 
     @classmethod
-    def from_api(cls, data: dict[str, Any]) -> "WorkflowRun":
+    def from_api(cls, data: dict[str, Any]) -> WorkflowRun:
         """Create from GitHub API response."""
         created_at = None
         if data.get("created_at"):
@@ -269,7 +269,7 @@ class PullRequest:
     labels: list[str] = field(default_factory=lambda: [])
 
     @classmethod
-    def from_api(cls, data: dict[str, Any]) -> "PullRequest":
+    def from_api(cls, data: dict[str, Any]) -> PullRequest:
         """Create from GitHub API response."""
         labels = [label["name"] for label in data.get("labels", [])]
         return cls(
@@ -300,7 +300,7 @@ class Issue:
     assignees: list[str] = field(default_factory=lambda: [])
 
     @classmethod
-    def from_api(cls, data: dict[str, Any]) -> "Issue":
+    def from_api(cls, data: dict[str, Any]) -> Issue:
         """Create from GitHub API response."""
         labels = [label["name"] for label in data.get("labels", [])]
         assignees = [user["login"] for user in data.get("assignees", [])]

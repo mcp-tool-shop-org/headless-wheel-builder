@@ -2,8 +2,8 @@
 
 from headless_wheel_builder.publish.base import (
     PublishConfig,
-    PublishResult,
     Publisher,
+    PublishResult,
 )
 from headless_wheel_builder.publish.pypi import PyPIPublisher
 from headless_wheel_builder.publish.s3 import S3Publisher

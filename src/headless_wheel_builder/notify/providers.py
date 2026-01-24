@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from typing import Any
@@ -120,11 +119,13 @@ class SlackProvider(BaseProvider):
         # Build fields from event data
         fields: list[dict[str, Any]] = []
         for key, value in event.data.items():
-            fields.append({
-                "title": key.replace("_", " ").title(),
-                "value": str(value),
-                "short": len(str(value)) < 30,
-            })
+            fields.append(
+                {
+                    "title": key.replace("_", " ").title(),
+                    "value": str(value),
+                    "short": len(str(value)) < 30,
+                }
+            )
 
         # Build attachment
         attachment: dict[str, Any] = {
@@ -173,11 +174,13 @@ class DiscordProvider(BaseProvider):
         # Build fields from event data
         fields: list[dict[str, Any]] = []
         for key, value in event.data.items():
-            fields.append({
-                "name": key.replace("_", " ").title(),
-                "value": str(value),
-                "inline": len(str(value)) < 30,
-            })
+            fields.append(
+                {
+                    "name": key.replace("_", " ").title(),
+                    "value": str(value),
+                    "inline": len(str(value)) < 30,
+                }
+            )
 
         # Build embed
         embed: dict[str, Any] = {

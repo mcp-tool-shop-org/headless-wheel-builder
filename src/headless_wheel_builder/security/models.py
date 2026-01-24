@@ -146,19 +146,16 @@ class ScanResult:
     @property
     def has_critical(self) -> bool:
         """Check if there are any critical issues."""
-        return any(
-            v.severity == Severity.CRITICAL for v in self.vulnerabilities
-        ) or any(i.severity == Severity.CRITICAL for i in self.issues)
+        return any(v.severity == Severity.CRITICAL for v in self.vulnerabilities) or any(
+            i.severity == Severity.CRITICAL for i in self.issues
+        )
 
     @property
     def has_high(self) -> bool:
         """Check if there are any high severity issues."""
         return any(
-            v.severity in (Severity.CRITICAL, Severity.HIGH)
-            for v in self.vulnerabilities
-        ) or any(
-            i.severity in (Severity.CRITICAL, Severity.HIGH) for i in self.issues
-        )
+            v.severity in (Severity.CRITICAL, Severity.HIGH) for v in self.vulnerabilities
+        ) or any(i.severity in (Severity.CRITICAL, Severity.HIGH) for i in self.issues)
 
     @property
     def total_issues(self) -> int:

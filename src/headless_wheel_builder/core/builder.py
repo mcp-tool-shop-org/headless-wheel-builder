@@ -14,11 +14,11 @@ from typing import TYPE_CHECKING
 
 from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadata
 from headless_wheel_builder.core.source import ResolvedSource, SourceResolver, SourceSpec
-from headless_wheel_builder.exceptions import BuildError, IsolationError
-from headless_wheel_builder.isolation.base import BuildEnvironment, IsolationStrategy
+from headless_wheel_builder.exceptions import BuildError
 from headless_wheel_builder.isolation.venv import VenvIsolation
 
 if TYPE_CHECKING:
+    from headless_wheel_builder.isolation.base import BuildEnvironment, IsolationStrategy
     pass
 
 
@@ -43,7 +43,7 @@ class BuildResult:
     size_bytes: int | None = None
 
     @classmethod
-    def failure(cls, error: str, build_log: str = "", duration: float = 0.0) -> "BuildResult":
+    def failure(cls, error: str, build_log: str = "", duration: float = 0.0) -> BuildResult:
         """Create a failure result."""
         return cls(
             success=False,
@@ -151,7 +151,9 @@ class BuildEngine:
                     architecture=self.config.docker_architecture,
                 )
                 isolation = DockerIsolation(docker_config)
-                build_log.append(f"Using Docker isolation (platform: {self.config.docker_platform})")
+                build_log.append(
+                    f"Using Docker isolation (platform: {self.config.docker_platform})"
+                )
 
             if isolation is None:
                 isolation = VenvIsolation()
@@ -268,7 +270,9 @@ class BuildEngine:
 
             # Build script that invokes the backend
             build_script = self._create_build_script(
-                backend_module=metadata.backend.module if metadata.backend else "setuptools.build_meta",
+                backend_module=metadata.backend.module
+                if metadata.backend
+                else "setuptools.build_meta",
                 source_path=source_path,
                 output_path=temp_path,
                 config_settings=self.config.config_settings,
@@ -277,7 +281,8 @@ class BuildEngine:
             # Run build in isolated environment
             process = await asyncio.create_subprocess_exec(
                 str(env.python_path),
-                "-c", build_script,
+                "-c",
+                build_script,
                 cwd=source_path,
                 env=env.env_vars,
                 stdout=asyncio.subprocess.PIPE,
@@ -337,7 +342,9 @@ class BuildEngine:
 
             # Build script for sdist
             build_script = self._create_sdist_script(
-                backend_module=metadata.backend.module if metadata.backend else "setuptools.build_meta",
+                backend_module=metadata.backend.module
+                if metadata.backend
+                else "setuptools.build_meta",
                 source_path=source_path,
                 output_path=temp_path,
                 config_settings=self.config.config_settings,
@@ -345,14 +352,15 @@ class BuildEngine:
 
             process = await asyncio.create_subprocess_exec(
                 str(env.python_path),
-                "-c", build_script,
+                "-c",
+                build_script,
                 cwd=source_path,
                 env=env.env_vars,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
 
-            stdout, stderr = await process.communicate()
+            _stdout, stderr = await process.communicate()
 
             if process.returncode != 0:
                 build_log.append(f"sdist build errors:\n{stderr.decode()}")
@@ -385,7 +393,7 @@ class BuildEngine:
         """Create Python script to invoke build backend."""
         config_repr = repr(config_settings) if config_settings else "None"
 
-        return f'''
+        return f"""
 import sys
 import importlib
 
@@ -401,7 +409,7 @@ if hasattr(backend, 'build_wheel'):
     print(f"WHEEL_NAME={{wheel_name}}")
 else:
     raise RuntimeError("Build backend does not support build_wheel")
-'''
+"""
 
     def _create_sdist_script(
         self,
@@ -413,7 +421,7 @@ else:
         """Create Python script to invoke build backend for sdist."""
         config_repr = repr(config_settings) if config_settings else "None"
 
-        return f'''
+        return f"""
 import sys
 import importlib
 
@@ -429,7 +437,7 @@ if hasattr(backend, 'build_sdist'):
     print(f"SDIST_NAME={{sdist_name}}")
 else:
     raise RuntimeError("Build backend does not support build_sdist")
-'''
+"""
 
     def _validate_wheel(self, wheel_path: Path) -> None:
         """Validate wheel structure and metadata."""

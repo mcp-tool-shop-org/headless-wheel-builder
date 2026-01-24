@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass
@@ -40,7 +42,7 @@ class PublishResult:
     urls: list[str] = field(default_factory=list)  # URLs where files are available
 
     @classmethod
-    def failure(cls, error: str) -> "PublishResult":
+    def failure(cls, error: str) -> PublishResult:
         """Create a failure result."""
         return cls(success=False, errors=[error])
 

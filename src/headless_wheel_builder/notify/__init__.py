@@ -25,12 +25,12 @@ from headless_wheel_builder.notify.providers import (
 from headless_wheel_builder.notify.sender import NotificationSender
 
 __all__ = [
+    "DiscordProvider",
     "NotificationConfig",
     "NotificationEvent",
     "NotificationResult",
+    "NotificationSender",
     "NotificationType",
-    "DiscordProvider",
     "SlackProvider",
     "WebhookProvider",
-    "NotificationSender",
 ]

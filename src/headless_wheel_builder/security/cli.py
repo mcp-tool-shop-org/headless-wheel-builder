@@ -6,7 +6,7 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from typing import Any, Coroutine, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import click
 from rich.console import Console
@@ -15,6 +15,9 @@ from rich.table import Table
 
 from headless_wheel_builder.security.models import ScanResult, ScanType, Severity
 from headless_wheel_builder.security.scanner import ScannerConfig, SecurityScanner
+
+if TYPE_CHECKING:
+    from collections.abc import Coroutine
 
 console = Console()
 error_console = Console(stderr=True)
@@ -39,7 +42,8 @@ def security() -> None:
 @security.command("scan")
 @click.option("--path", "-p", default=".", help="Project path to scan")
 @click.option(
-    "--type", "scan_type",
+    "--type",
+    "scan_type",
     type=click.Choice(["all", "vulnerability", "code"]),
     default="all",
     help="Type of scan",
@@ -89,7 +93,7 @@ def scan(
             return await scanner.scan_all()
 
     if not json_output:
-        console.print(f"\n[bold blue]Running security scan...[/]")
+        console.print("\n[bold blue]Running security scan...[/]")
         console.print(f"  Path: {path}")
         console.print(f"  Type: {scan_type}")
         console.print()
@@ -126,7 +130,7 @@ def quick_check(path: str, json_output: bool) -> None:
         return await scanner.scan_vulnerabilities()
 
     if not json_output:
-        console.print(f"\n[bold blue]Quick security check...[/]")
+        console.print("\n[bold blue]Quick security check...[/]")
         console.print()
 
     result = run_async(_check())
@@ -181,19 +185,23 @@ def _print_scan_results(results: list[ScanResult]) -> None:
 def _print_vulnerability_result(result: ScanResult) -> None:
     """Print vulnerability scan result."""
     if not result.success:
-        console.print(Panel(
-            f"[red]Scan failed:[/] {result.error}",
-            title="Vulnerability Scan",
-            border_style="red",
-        ))
+        console.print(
+            Panel(
+                f"[red]Scan failed:[/] {result.error}",
+                title="Vulnerability Scan",
+                border_style="red",
+            )
+        )
         return
 
     if not result.vulnerabilities:
-        console.print(Panel(
-            "[green]No vulnerabilities found[/]",
-            title="Vulnerability Scan",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                "[green]No vulnerabilities found[/]",
+                title="Vulnerability Scan",
+                border_style="green",
+            )
+        )
         return
 
     table = Table(title="Vulnerabilities Found")
@@ -232,19 +240,23 @@ def _print_vulnerability_result(result: ScanResult) -> None:
 def _print_code_security_result(result: ScanResult) -> None:
     """Print code security scan result."""
     if not result.success:
-        console.print(Panel(
-            f"[red]Scan failed:[/] {result.error}",
-            title="Code Security Scan",
-            border_style="red",
-        ))
+        console.print(
+            Panel(
+                f"[red]Scan failed:[/] {result.error}",
+                title="Code Security Scan",
+                border_style="red",
+            )
+        )
         return
 
     if not result.issues:
-        console.print(Panel(
-            "[green]No security issues found[/]",
-            title="Code Security Scan",
-            border_style="green",
-        ))
+        console.print(
+            Panel(
+                "[green]No security issues found[/]",
+                title="Code Security Scan",
+                border_style="green",
+            )
+        )
         return
 
     table = Table(title="Security Issues Found")

@@ -318,7 +318,11 @@ class TestTemplateContent:
         assert tmpl is not None
         # Security templates should have security-related content
         content_lower = tmpl.content.lower()
-        assert "security" in content_lower or "dependabot" in content_lower or "codeql" in content_lower
+        assert (
+            "security" in content_lower
+            or "dependabot" in content_lower
+            or "codeql" in content_lower
+        )
 
     def test_all_templates_have_name(self) -> None:
         """Test all templates have a workflow name."""
@@ -328,8 +332,9 @@ class TestTemplateContent:
     def test_all_templates_have_triggers(self) -> None:
         """Test all templates have triggers defined."""
         for name, tmpl in TEMPLATES.items():
-            assert "on:" in tmpl.content or "on :" in tmpl.content, \
+            assert "on:" in tmpl.content or "on :" in tmpl.content, (
                 f"Template {name} missing on: trigger definition"
+            )
 
     def test_all_templates_have_jobs(self) -> None:
         """Test all templates have jobs defined."""

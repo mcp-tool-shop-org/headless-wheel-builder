@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
-from headless_wheel_builder.core.builder import BuildResult
 from headless_wheel_builder.metrics.models import (
     BuildMetrics,
     MetricsReport,
@@ -14,6 +13,9 @@ from headless_wheel_builder.metrics.models import (
     TimeRange,
 )
 from headless_wheel_builder.metrics.storage import MetricsStorage
+
+if TYPE_CHECKING:
+    from headless_wheel_builder.core.builder import BuildResult
 
 
 @dataclass
@@ -102,7 +104,7 @@ class MetricsCollector:
         successful = [m for m in metrics if m.success]
         failed = [m for m in metrics if not m.success]
         durations = [m.duration_seconds for m in metrics]
-        packages = set(m.package for m in metrics)
+        packages = {m.package for m in metrics}
 
         total_bytes = sum(m.wheel_size_bytes or 0 for m in successful)
 
@@ -213,9 +215,7 @@ class MetricsCollector:
             recent_failures=failures,
         )
 
-    def get_trends(
-        self, package: str | None = None, days: int = 30
-    ) -> list[dict[str, Any]]:
+    def get_trends(self, package: str | None = None, days: int = 30) -> list[dict[str, Any]]:
         """Get daily trend data.
 
         Args:
@@ -253,13 +253,15 @@ class MetricsCollector:
             successful = sum(1 for m in day_metrics if m.success)
             durations = [m.duration_seconds for m in day_metrics]
 
-            trends.append({
-                "date": day,
-                "total": len(day_metrics),
-                "successful": successful,
-                "failed": len(day_metrics) - successful,
-                "success_rate": successful / len(day_metrics) if day_metrics else 0,
-                "avg_duration": sum(durations) / len(durations) if durations else 0,
-            })
+            trends.append(
+                {
+                    "date": day,
+                    "total": len(day_metrics),
+                    "successful": successful,
+                    "failed": len(day_metrics) - successful,
+                    "success_rate": successful / len(day_metrics) if day_metrics else 0,
+                    "avg_duration": sum(durations) / len(durations) if durations else 0,
+                }
+            )
 
         return trends

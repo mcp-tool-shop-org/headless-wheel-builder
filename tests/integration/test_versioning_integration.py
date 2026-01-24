@@ -5,10 +5,9 @@ These tests exercise the versioning module with real git repositories.
 
 from __future__ import annotations
 
-import asyncio
 import subprocess
 from datetime import date
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -31,10 +30,11 @@ from headless_wheel_builder.version.git import (
 )
 from headless_wheel_builder.version.semver import (
     Version,
-    bump_version,
     parse_version,
 )
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # Mark all tests as integration tests
 pytestmark = pytest.mark.integration

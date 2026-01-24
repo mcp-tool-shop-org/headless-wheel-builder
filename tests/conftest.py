@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
 
 if TYPE_CHECKING:
-    from collections.abc import Generator
+    from pathlib import Path
+    pass
 
 
 @pytest.fixture
 def sample_pyproject_content() -> str:
     """Sample pyproject.toml content."""
-    return '''
+    return """
 [build-system]
 requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
@@ -31,7 +31,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
-'''
+"""
 
 
 @pytest.fixture
@@ -62,7 +62,7 @@ def sample_setuptools_project(tmp_path: Path) -> Path:
     project_dir.mkdir()
 
     # pyproject.toml with setuptools
-    pyproject = '''
+    pyproject = """
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -71,7 +71,7 @@ build-backend = "setuptools.build_meta"
 name = "setuptools-project"
 version = "0.1.0"
 description = "A setuptools project"
-'''
+"""
     (project_dir / "pyproject.toml").write_text(pyproject)
 
     # Source files
@@ -89,7 +89,7 @@ def sample_legacy_project(tmp_path: Path) -> Path:
     project_dir.mkdir()
 
     # setup.py only
-    setup_py = '''
+    setup_py = """
 from setuptools import setup, find_packages
 
 setup(
@@ -97,7 +97,7 @@ setup(
     version="0.1.0",
     packages=find_packages(),
 )
-'''
+"""
     (project_dir / "setup.py").write_text(setup_py)
 
     # Source files
@@ -115,7 +115,7 @@ def sample_extension_project(tmp_path: Path) -> Path:
     project_dir.mkdir()
 
     # pyproject.toml
-    pyproject = '''
+    pyproject = """
 [build-system]
 requires = ["setuptools>=61.0", "wheel", "cython"]
 build-backend = "setuptools.build_meta"
@@ -123,11 +123,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "extension-project"
 version = "0.1.0"
-'''
+"""
     (project_dir / "pyproject.toml").write_text(pyproject)
 
     # C source file
-    (project_dir / "extension.c").write_text('// Dummy C file\n')
+    (project_dir / "extension.c").write_text("// Dummy C file\n")
 
     # Python package
     pkg_dir = project_dir / "extension_project"

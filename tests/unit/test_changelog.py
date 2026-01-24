@@ -2,18 +2,16 @@
 
 from __future__ import annotations
 
-from headless_wheel_builder.changelog.parser import (
-    CommitType,
-    ConventionalCommit,
-    parse_commit,
-    parse_commits,
-)
 from headless_wheel_builder.changelog.generator import (
     Changelog,
     ChangelogConfig,
     ChangelogEntry,
     ChangelogFormat,
-    generate_changelog,
+)
+from headless_wheel_builder.changelog.parser import (
+    CommitType,
+    ConventionalCommit,
+    parse_commits,
 )
 
 

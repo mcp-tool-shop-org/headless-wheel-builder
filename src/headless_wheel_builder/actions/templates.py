@@ -52,7 +52,7 @@ RELEASE_TEMPLATE = WorkflowTemplate(
         "python_version": "3.12",
         "generate_changelog": True,
     },
-    content='''name: Release
+    content="""name: Release
 
 on:
   push:
@@ -90,7 +90,7 @@ jobs:
           hwb pipeline release ${{{{ github.ref_name }}}} \\
             --repo ${{{{ github.repository }}}} \\
             {changelog_flag}
-''',
+""",
 )
 
 # CI workflow template
@@ -104,7 +104,7 @@ CI_TEMPLATE = WorkflowTemplate(
         "python_versions": ["3.10", "3.11", "3.12"],
         "platforms": ["ubuntu-latest", "windows-latest"],
     },
-    content='''name: CI
+    content="""name: CI
 
 on:
   push:
@@ -166,7 +166,7 @@ jobs:
         with:
           name: wheel
           path: dist/*.whl
-''',
+""",
 )
 
 # Publish to PyPI template
@@ -179,7 +179,7 @@ PUBLISH_TEMPLATE = WorkflowTemplate(
     variables={
         "use_trusted_publishing": True,
     },
-    content='''name: Publish to PyPI
+    content="""name: Publish to PyPI
 
 on:
   release:
@@ -210,7 +210,7 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-''',
+""",
 )
 
 # Test-only template
@@ -223,7 +223,7 @@ TEST_TEMPLATE = WorkflowTemplate(
     variables={
         "python_version": "3.12",
     },
-    content='''name: Tests
+    content="""name: Tests
 
 on:
   push:
@@ -251,7 +251,7 @@ jobs:
 
       - name: Run tests
         run: uv run pytest -v --tb=short
-''',
+""",
 )
 
 # Security scanning template
@@ -262,7 +262,7 @@ SECURITY_TEMPLATE = WorkflowTemplate(
     filename="security.yml",
     triggers=["push", "schedule"],
     variables={},
-    content='''name: Security
+    content="""name: Security
 
 on:
   push:
@@ -306,7 +306,7 @@ jobs:
 
       - name: Audit dependencies
         run: pip-audit
-''',
+""",
 )
 
 # Documentation template
@@ -319,7 +319,7 @@ DOCS_TEMPLATE = WorkflowTemplate(
     variables={
         "docs_dir": "docs",
     },
-    content='''name: Documentation
+    content="""name: Documentation
 
 on:
   push:
@@ -353,7 +353,7 @@ jobs:
 
       - name: Build and deploy
         run: uv run mkdocs gh-deploy --force
-''',
+""",
 )
 
 # All templates indexed by name

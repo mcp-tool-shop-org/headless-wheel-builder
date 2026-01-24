@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from typing import TYPE_CHECKING
+from unittest.mock import patch
 
 import pytest
 from click.testing import CliRunner
@@ -22,9 +22,11 @@ from headless_wheel_builder.depgraph.models import (
 )
 from headless_wheel_builder.depgraph.resolver import (
     DependencyResolver,
-    VersionConstraint,
     find_minimal_upgrade,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestLicenseInfo:
@@ -271,21 +273,21 @@ class TestDependencyAnalyzer:
     def test_parse_requirement_version(self) -> None:
         """Test parsing requirement with version."""
         analyzer = DependencyAnalyzer()
-        name, spec, extras = analyzer.parse_requirement("requests>=2.0,<3.0")
+        name, spec, _extras = analyzer.parse_requirement("requests>=2.0,<3.0")
         assert name == "requests"
         assert spec == ">=2.0,<3.0"
 
     def test_parse_requirement_extras(self) -> None:
         """Test parsing requirement with extras."""
         analyzer = DependencyAnalyzer()
-        name, spec, extras = analyzer.parse_requirement("requests[security,socks]>=2.0")
+        name, _spec, extras = analyzer.parse_requirement("requests[security,socks]>=2.0")
         assert name == "requests"
         assert extras == ["security", "socks"]
 
     def test_parse_requirement_underscore(self) -> None:
         """Test parsing requirement with underscore."""
         analyzer = DependencyAnalyzer()
-        name, spec, extras = analyzer.parse_requirement("my_package>=1.0")
+        name, _spec, _extras = analyzer.parse_requirement("my_package>=1.0")
         assert name == "my-package"  # Normalized
 
     @pytest.mark.asyncio
@@ -315,12 +317,15 @@ class TestDependencyAnalyzer:
         """Test analyzing local project."""
         # Create pyproject.toml
         pyproject = tmp_path / "pyproject.toml"
-        pyproject.write_text('''
+        pyproject.write_text(
+            """
 [project]
 name = "testproject"
 version = "1.0.0"
 dependencies = ["requests>=2.0"]
-''', encoding="utf-8")
+""",
+            encoding="utf-8",
+        )
 
         analyzer = DependencyAnalyzer()
 
@@ -480,11 +485,13 @@ class TestDepsCLI:
         runner = CliRunner()
 
         mock_graph = DependencyGraph(root="test")
-        mock_graph.add_node(DependencyNode(
-            name="test",
-            version="1.0.0",
-            license_info=LicenseInfo(name="MIT"),
-        ))
+        mock_graph.add_node(
+            DependencyNode(
+                name="test",
+                version="1.0.0",
+                license_info=LicenseInfo(name="MIT"),
+            )
+        )
 
         with patch("headless_wheel_builder.depgraph.cli.run_async", return_value=mock_graph):
             result = runner.invoke(deps, ["licenses", "test", "--json"])

@@ -6,12 +6,12 @@ from headless_wheel_builder.core.source import ResolvedSource, SourceSpec, Sourc
 __version__ = "0.3.0"
 
 __all__ = [
-    "__version__",
-    "build_wheel",
     "BuildResult",
+    "ResolvedSource",
     "SourceSpec",
     "SourceType",
-    "ResolvedSource",
+    "__version__",
+    "build_wheel",
 ]
 
 

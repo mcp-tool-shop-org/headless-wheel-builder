@@ -5,12 +5,11 @@ from __future__ import annotations
 import os
 import zipfile
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
 from headless_wheel_builder.publish.base import (
-    BasePublisher,
     PublishConfig,
     PublishResult,
 )
@@ -19,7 +18,6 @@ from headless_wheel_builder.publish.pypi import (
     TEST_PYPI_URL,
     PyPIConfig,
     PyPIPublisher,
-    publish_to_pypi,
 )
 from headless_wheel_builder.publish.s3 import S3Config, S3Publisher
 
@@ -169,10 +167,9 @@ class TestPyPIPublisher:
 
     def test_get_repository_url_custom(self):
         """Test getting custom repository URL."""
-        publisher = PyPIPublisher(PyPIConfig(
-            repository="custom",
-            repository_url="https://my-pypi.example.com/simple/"
-        ))
+        publisher = PyPIPublisher(
+            PyPIConfig(repository="custom", repository_url="https://my-pypi.example.com/simple/")
+        )
 
         url = publisher._get_repository_url()
 
@@ -189,10 +186,7 @@ class TestPyPIPublisher:
 
     def test_get_credentials_from_username_password(self):
         """Test getting credentials from username/password."""
-        publisher = PyPIPublisher(PyPIConfig(
-            username="user",
-            password="pass"
-        ))
+        publisher = PyPIPublisher(PyPIConfig(username="user", password="pass"))
 
         username, password = publisher._get_credentials()
 
@@ -368,10 +362,7 @@ class TestS3Publisher:
 
     def test_get_public_url_custom(self):
         """Test getting public URL with custom URL."""
-        publisher = S3Publisher(S3Config(
-            bucket="bucket",
-            public_url="https://cdn.example.com"
-        ))
+        publisher = S3Publisher(S3Config(bucket="bucket", public_url="https://cdn.example.com"))
 
         url = publisher._get_public_url("test.whl")
 
@@ -410,8 +401,16 @@ class TestS3Publisher:
         """Test PEP 503 index generation."""
         publisher = S3Publisher(S3Config(bucket="bucket"))
         files = [
-            {"filename": "test-1.0.0-py3-none-any.whl", "url": "https://example.com/test.whl", "sha256": "abc123"},
-            {"filename": "test-1.0.1-py3-none-any.whl", "url": "https://example.com/test2.whl", "sha256": "def456"},
+            {
+                "filename": "test-1.0.0-py3-none-any.whl",
+                "url": "https://example.com/test.whl",
+                "sha256": "abc123",
+            },
+            {
+                "filename": "test-1.0.1-py3-none-any.whl",
+                "url": "https://example.com/test2.whl",
+                "sha256": "def456",
+            },
         ]
 
         html = publisher._generate_package_index("test", files)
@@ -498,6 +497,7 @@ class TestBasePublisher:
 
 # Helper functions
 
+
 def create_mock_wheel(
     path: Path,
     name: str = "test-package",
@@ -506,7 +506,7 @@ def create_mock_wheel(
     """Create a minimal valid wheel file for testing."""
     with zipfile.ZipFile(path, "w") as whl:
         # Add WHEEL file
-        wheel_content = f"""Wheel-Version: 1.0
+        wheel_content = """Wheel-Version: 1.0
 Generator: test
 Root-Is-Purelib: true
 Tag: py3-none-any

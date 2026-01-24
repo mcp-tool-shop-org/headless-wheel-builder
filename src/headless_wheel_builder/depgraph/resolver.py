@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-import re
+import contextlib
 from dataclasses import dataclass, field
-from typing import Any
 
 from packaging.specifiers import SpecifierSet
-from packaging.version import Version, InvalidVersion
+from packaging.version import InvalidVersion, Version
 
 from headless_wheel_builder.depgraph.models import (
     ConflictInfo,
     DependencyGraph,
-    DependencyNode,
 )
 
 
@@ -83,12 +81,14 @@ class DependencyResolver:
         if package not in self.constraints:
             self.constraints[package] = []
 
-        self.constraints[package].append(VersionConstraint(
-            source=source,
-            specifier=specifier,
-            extras=extras or [],
-            markers=markers,
-        ))
+        self.constraints[package].append(
+            VersionConstraint(
+                source=source,
+                specifier=specifier,
+                extras=extras or [],
+                markers=markers,
+            )
+        )
 
     def set_available_versions(
         self,
@@ -203,15 +203,15 @@ class DependencyResolver:
             else:
                 # Collect conflict info
                 constraints = self.constraints.get(package, [])
-                required_versions = {
-                    c.source: c.specifier for c in constraints
-                }
-                conflicts.append(ConflictInfo(
-                    package=package,
-                    required_versions=required_versions,
-                    is_resolvable=False,
-                    message=f"No version satisfies all constraints",
-                ))
+                required_versions = {c.source: c.specifier for c in constraints}
+                conflicts.append(
+                    ConflictInfo(
+                        package=package,
+                        required_versions=required_versions,
+                        is_resolvable=False,
+                        message="No version satisfies all constraints",
+                    )
+                )
 
         return resolved, conflicts
 
@@ -231,10 +231,8 @@ class DependencyResolver:
             specs: list[SpecifierSet] = []
             for c in constraints:
                 if c.specifier:
-                    try:
+                    with contextlib.suppress(Exception):
                         specs.append(SpecifierSet(c.specifier))
-                    except Exception:
-                        pass
 
             if len(specs) < 2:
                 continue
@@ -250,15 +248,15 @@ class DependencyResolver:
                     break
 
             if not found and available:
-                required_versions = {
-                    c.source: c.specifier for c in constraints
-                }
-                conflicts.append(ConflictInfo(
-                    package=package,
-                    required_versions=required_versions,
-                    is_resolvable=False,
-                    message=f"Conflicting version requirements",
-                ))
+                required_versions = {c.source: c.specifier for c in constraints}
+                conflicts.append(
+                    ConflictInfo(
+                        package=package,
+                        required_versions=required_versions,
+                        is_resolvable=False,
+                        message="Conflicting version requirements",
+                    )
+                )
 
         return conflicts
 

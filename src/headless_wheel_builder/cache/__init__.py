@@ -15,8 +15,8 @@ from headless_wheel_builder.cache.models import (
     CacheStats,
     RegistryConfig,
 )
-from headless_wheel_builder.cache.storage import ArtifactCache
 from headless_wheel_builder.cache.registry import WheelRegistry
+from headless_wheel_builder.cache.storage import ArtifactCache
 
 __all__ = [
     "ArtifactCache",

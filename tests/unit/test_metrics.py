@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -19,6 +19,9 @@ from headless_wheel_builder.metrics.models import (
     TimeRange,
 )
 from headless_wheel_builder.metrics.storage import MetricsStorage
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestTimeRange:
@@ -209,9 +212,13 @@ class TestMetricsStorage:
     def test_get_by_package(self, tmp_path: Path) -> None:
         """Test filtering by package."""
         storage = MetricsStorage(path=tmp_path / "metrics.json")
-        storage.add(BuildMetrics(package="alpha", version="1.0.0", success=True, duration_seconds=1))
+        storage.add(
+            BuildMetrics(package="alpha", version="1.0.0", success=True, duration_seconds=1)
+        )
         storage.add(BuildMetrics(package="beta", version="1.0.0", success=True, duration_seconds=2))
-        storage.add(BuildMetrics(package="alpha", version="2.0.0", success=True, duration_seconds=3))
+        storage.add(
+            BuildMetrics(package="alpha", version="2.0.0", success=True, duration_seconds=3)
+        )
 
         alpha_metrics = storage.get_by_package("alpha")
         assert len(alpha_metrics) == 2
@@ -259,7 +266,9 @@ class TestMetricsStorage:
         """Test getting recent entries."""
         storage = MetricsStorage(path=tmp_path / "metrics.json")
         for i in range(10):
-            storage.add(BuildMetrics(package=f"pkg{i}", version="1.0.0", success=True, duration_seconds=i))
+            storage.add(
+                BuildMetrics(package=f"pkg{i}", version="1.0.0", success=True, duration_seconds=i)
+            )
 
         recent = storage.get_recent(3)
         assert len(recent) == 3
@@ -269,9 +278,15 @@ class TestMetricsStorage:
     def test_get_failures(self, tmp_path: Path) -> None:
         """Test getting failures only."""
         storage = MetricsStorage(path=tmp_path / "metrics.json")
-        storage.add(BuildMetrics(package="success", version="1.0.0", success=True, duration_seconds=1))
-        storage.add(BuildMetrics(package="fail1", version="1.0.0", success=False, duration_seconds=2))
-        storage.add(BuildMetrics(package="fail2", version="1.0.0", success=False, duration_seconds=3))
+        storage.add(
+            BuildMetrics(package="success", version="1.0.0", success=True, duration_seconds=1)
+        )
+        storage.add(
+            BuildMetrics(package="fail1", version="1.0.0", success=False, duration_seconds=2)
+        )
+        storage.add(
+            BuildMetrics(package="fail2", version="1.0.0", success=False, duration_seconds=3)
+        )
 
         failures = storage.get_failures()
         assert len(failures) == 2
@@ -289,7 +304,9 @@ class TestMetricsStorage:
         """Test max entries rotation."""
         storage = MetricsStorage(path=tmp_path / "metrics.json", max_entries=5)
         for i in range(10):
-            storage.add(BuildMetrics(package=f"pkg{i}", version="1.0.0", success=True, duration_seconds=i))
+            storage.add(
+                BuildMetrics(package=f"pkg{i}", version="1.0.0", success=True, duration_seconds=i)
+            )
 
         all_metrics = storage.get_all()
         assert len(all_metrics) == 5
@@ -400,15 +417,33 @@ class TestMetricsCollector:
         collector = MetricsCollector(storage=storage)
 
         # Add some builds
-        storage.add(BuildMetrics(package="pkg1", version="1.0.0", success=True, duration_seconds=10, wheel_size_bytes=1000))
-        storage.add(BuildMetrics(package="pkg2", version="1.0.0", success=True, duration_seconds=20, wheel_size_bytes=2000))
-        storage.add(BuildMetrics(package="pkg1", version="2.0.0", success=False, duration_seconds=5))
+        storage.add(
+            BuildMetrics(
+                package="pkg1",
+                version="1.0.0",
+                success=True,
+                duration_seconds=10,
+                wheel_size_bytes=1000,
+            )
+        )
+        storage.add(
+            BuildMetrics(
+                package="pkg2",
+                version="1.0.0",
+                success=True,
+                duration_seconds=20,
+                wheel_size_bytes=2000,
+            )
+        )
+        storage.add(
+            BuildMetrics(package="pkg1", version="2.0.0", success=False, duration_seconds=5)
+        )
 
         summary = collector.get_summary()
         assert summary.total_builds == 3
         assert summary.successful_builds == 2
         assert summary.failed_builds == 1
-        assert summary.success_rate == pytest.approx(2/3)
+        assert summary.success_rate == pytest.approx(2 / 3)
         assert summary.total_bytes_built == 3000
         assert summary.packages_built == 2
 
@@ -417,9 +452,15 @@ class TestMetricsCollector:
         storage = MetricsStorage(path=tmp_path / "metrics.json")
         collector = MetricsCollector(storage=storage)
 
-        storage.add(BuildMetrics(package="alpha", version="1.0.0", success=True, duration_seconds=10))
-        storage.add(BuildMetrics(package="alpha", version="2.0.0", success=True, duration_seconds=15))
-        storage.add(BuildMetrics(package="beta", version="1.0.0", success=False, duration_seconds=5))
+        storage.add(
+            BuildMetrics(package="alpha", version="1.0.0", success=True, duration_seconds=10)
+        )
+        storage.add(
+            BuildMetrics(package="alpha", version="2.0.0", success=True, duration_seconds=15)
+        )
+        storage.add(
+            BuildMetrics(package="beta", version="1.0.0", success=False, duration_seconds=5)
+        )
 
         by_package = collector.get_summary_by_package()
         assert "alpha" in by_package
@@ -433,8 +474,24 @@ class TestMetricsCollector:
         storage = MetricsStorage(path=tmp_path / "metrics.json")
         collector = MetricsCollector(storage=storage)
 
-        storage.add(BuildMetrics(package="pkg", version="1.0.0", success=True, duration_seconds=10, python_version="3.11"))
-        storage.add(BuildMetrics(package="pkg", version="2.0.0", success=False, duration_seconds=5, python_version="3.12"))
+        storage.add(
+            BuildMetrics(
+                package="pkg",
+                version="1.0.0",
+                success=True,
+                duration_seconds=10,
+                python_version="3.11",
+            )
+        )
+        storage.add(
+            BuildMetrics(
+                package="pkg",
+                version="2.0.0",
+                success=False,
+                duration_seconds=5,
+                python_version="3.12",
+            )
+        )
 
         report = collector.get_report()
         assert report.summary.total_builds == 2
@@ -451,30 +508,36 @@ class TestMetricsCollector:
         now = datetime.now(timezone.utc)
 
         # Add metrics for today
-        storage.add(BuildMetrics(
-            package="pkg",
-            version="1.0.0",
-            success=True,
-            duration_seconds=10,
-            timestamp=now.isoformat(),
-        ))
-        storage.add(BuildMetrics(
-            package="pkg",
-            version="1.0.1",
-            success=False,
-            duration_seconds=5,
-            timestamp=now.isoformat(),
-        ))
+        storage.add(
+            BuildMetrics(
+                package="pkg",
+                version="1.0.0",
+                success=True,
+                duration_seconds=10,
+                timestamp=now.isoformat(),
+            )
+        )
+        storage.add(
+            BuildMetrics(
+                package="pkg",
+                version="1.0.1",
+                success=False,
+                duration_seconds=5,
+                timestamp=now.isoformat(),
+            )
+        )
 
         # Add metric for yesterday
         yesterday = now - timedelta(days=1)
-        storage.add(BuildMetrics(
-            package="pkg",
-            version="1.0.2",
-            success=True,
-            duration_seconds=15,
-            timestamp=yesterday.isoformat(),
-        ))
+        storage.add(
+            BuildMetrics(
+                package="pkg",
+                version="1.0.2",
+                success=True,
+                duration_seconds=15,
+                timestamp=yesterday.isoformat(),
+            )
+        )
 
         trends = collector.get_trends(days=7)
         assert len(trends) == 2  # Two days with data
@@ -485,8 +548,24 @@ class TestMetricsCollector:
         collector = MetricsCollector(storage=storage)
 
         now = datetime.now(timezone.utc)
-        storage.add(BuildMetrics(package="alpha", version="1.0.0", success=True, duration_seconds=10, timestamp=now.isoformat()))
-        storage.add(BuildMetrics(package="beta", version="1.0.0", success=True, duration_seconds=5, timestamp=now.isoformat()))
+        storage.add(
+            BuildMetrics(
+                package="alpha",
+                version="1.0.0",
+                success=True,
+                duration_seconds=10,
+                timestamp=now.isoformat(),
+            )
+        )
+        storage.add(
+            BuildMetrics(
+                package="beta",
+                version="1.0.0",
+                success=True,
+                duration_seconds=5,
+                timestamp=now.isoformat(),
+            )
+        )
 
         alpha_trends = collector.get_trends(package="alpha")
         assert len(alpha_trends) == 1
@@ -504,11 +583,16 @@ class TestMetricsCLI:
     def test_summary_empty(self, tmp_path: Path) -> None:
         """Test summary with no data."""
         runner = CliRunner()
-        with patch.object(MetricsStorage, "__init__", lambda self, **kwargs: setattr(self, "path", tmp_path / "m.json") or setattr(self, "max_entries", 10000) or None):
-            with patch.object(MetricsStorage, "_load", return_value=[]):
-                result = runner.invoke(metrics, ["summary"])
-                assert result.exit_code == 0
-                assert "0" in result.output  # total builds
+        with patch.object(
+            MetricsStorage,
+            "__init__",
+            lambda self, **kwargs: setattr(self, "path", tmp_path / "m.json")
+            or setattr(self, "max_entries", 10000)
+            or None,
+        ), patch.object(MetricsStorage, "_load", return_value=[]):
+            result = runner.invoke(metrics, ["summary"])
+            assert result.exit_code == 0
+            assert "0" in result.output  # total builds
 
     def test_summary_json(self, tmp_path: Path) -> None:
         """Test summary JSON output."""
@@ -547,7 +631,16 @@ class TestMetricsCLI:
     def test_trends_json(self, tmp_path: Path) -> None:
         """Test trends JSON output."""
         runner = CliRunner()
-        trend_data = [{"date": "2024-01-15", "total": 5, "successful": 4, "failed": 1, "success_rate": 0.8, "avg_duration": 10.0}]
+        trend_data = [
+            {
+                "date": "2024-01-15",
+                "total": 5,
+                "successful": 4,
+                "failed": 1,
+                "success_rate": 0.8,
+                "avg_duration": 10.0,
+            }
+        ]
         with patch.object(MetricsCollector, "get_trends", return_value=trend_data):
             result = runner.invoke(metrics, ["trends", "--json"])
             assert result.exit_code == 0
@@ -578,7 +671,9 @@ class TestMetricsCLI:
         """Test list failures only."""
         runner = CliRunner()
         mock_failures = [
-            BuildMetrics(package="bad", version="0.1.0", success=False, duration_seconds=5, error="Failed"),
+            BuildMetrics(
+                package="bad", version="0.1.0", success=False, duration_seconds=5, error="Failed"
+            ),
         ]
         with patch.object(MetricsStorage, "get_failures", return_value=mock_failures):
             result = runner.invoke(metrics, ["list", "--failures"])
@@ -618,5 +713,5 @@ class TestMetricsCLI:
         """Test clear cancelled."""
         runner = CliRunner()
         with patch.object(MetricsStorage, "clear") as mock_clear:
-            result = runner.invoke(metrics, ["clear"], input="n\n")
+            runner.invoke(metrics, ["clear"], input="n\n")
             mock_clear.assert_not_called()

@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-from tempfile import TemporaryDirectory
-
-import pytest
-
 from headless_wheel_builder.security.models import (
     ScanResult,
     ScanType,
@@ -236,15 +232,21 @@ class TestScanResult:
             success=True,
             vulnerabilities=[
                 VulnerabilityInfo(
-                    id="CVE-1", package="pkg", installed_version="1.0",
+                    id="CVE-1",
+                    package="pkg",
+                    installed_version="1.0",
                     severity=Severity.CRITICAL,
                 ),
                 VulnerabilityInfo(
-                    id="CVE-2", package="pkg", installed_version="1.0",
+                    id="CVE-2",
+                    package="pkg",
+                    installed_version="1.0",
                     severity=Severity.HIGH,
                 ),
                 VulnerabilityInfo(
-                    id="CVE-3", package="pkg", installed_version="1.0",
+                    id="CVE-3",
+                    package="pkg",
+                    installed_version="1.0",
                     severity=Severity.HIGH,
                 ),
             ],

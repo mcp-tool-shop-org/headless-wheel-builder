@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from headless_wheel_builder.core.source import SourceResolver, SourceSpec, SourceType
 from headless_wheel_builder.exceptions import SourceError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class TestSourceResolver:
@@ -101,7 +104,9 @@ class TestSourceResolver:
             await resolver.resolve(spec)
 
     @pytest.mark.asyncio
-    async def test_resolve_local_with_subdirectory(self, tmp_path: Path, sample_pyproject_content: str) -> None:
+    async def test_resolve_local_with_subdirectory(
+        self, tmp_path: Path, sample_pyproject_content: str
+    ) -> None:
         """Test resolving a local path with subdirectory."""
         # Create nested project
         root = tmp_path / "monorepo"

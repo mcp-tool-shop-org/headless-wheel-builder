@@ -159,10 +159,12 @@ def load_config(path: str | Path) -> MultiRepoConfig:
     if path.suffix == ".toml":
         try:
             import tomllib
+
             data = dict(tomllib.loads(content))
         except ImportError:
             try:
                 import tomli  # type: ignore[import-not-found,reportUnknownMemberType]
+
                 data = dict(tomli.loads(content))  # type: ignore[reportUnknownMemberType]
             except ImportError:
                 raise ImportError("tomllib or tomli required for TOML support")

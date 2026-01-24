@@ -63,11 +63,13 @@ class NotificationSender:
         notification_results: list[NotificationResult] = []
         for i, result in enumerate(results):
             if isinstance(result, BaseException):
-                notification_results.append(NotificationResult(
-                    config=applicable[i],
-                    success=False,
-                    error=str(result),
-                ))
+                notification_results.append(
+                    NotificationResult(
+                        config=applicable[i],
+                        success=False,
+                        error=str(result),
+                    )
+                )
             else:
                 notification_results.append(result)
 
@@ -241,7 +243,7 @@ class NotificationSender:
         event = NotificationEvent(
             type=NotificationType.PIPELINE_SUCCESS,
             title=f"Pipeline Complete: {package} {version}",
-            message=f"All pipeline stages completed successfully",
+            message="All pipeline stages completed successfully",
             status="success",
             data=data,
         )

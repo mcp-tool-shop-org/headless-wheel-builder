@@ -272,9 +272,7 @@ class DraftRelease:
             created_by=data.get("created_by", ""),
             wheel_paths=data.get("wheel_paths", []),
             changelog=data.get("changelog", ""),
-            approval_steps=[
-                ApprovalStep.from_dict(s) for s in data.get("approval_steps", [])
-            ],
+            approval_steps=[ApprovalStep.from_dict(s) for s in data.get("approval_steps", [])],
             metadata=data.get("metadata", {}),
             published_at=data.get("published_at"),
             published_by=data.get("published_by", ""),
@@ -302,9 +300,7 @@ class ReleaseConfig:
     notify_on_create: bool = True
     notify_on_approve: bool = True
     notify_on_publish: bool = True
-    storage_path: Path = field(
-        default_factory=lambda: Path.home() / ".hwb" / "releases"
-    )
+    storage_path: Path = field(default_factory=lambda: Path.home() / ".hwb" / "releases")
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> ReleaseConfig:

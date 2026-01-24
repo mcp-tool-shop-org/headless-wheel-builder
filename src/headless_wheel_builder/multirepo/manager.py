@@ -6,11 +6,13 @@ import asyncio
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from headless_wheel_builder.core.builder import BuildConfig, BuildEngine, BuildResult
 from headless_wheel_builder.exceptions import HWBError
-from headless_wheel_builder.multirepo.config import MultiRepoConfig, RepoConfig
+
+if TYPE_CHECKING:
+    from headless_wheel_builder.multirepo.config import MultiRepoConfig, RepoConfig
 
 
 class OperationType(Enum):
@@ -56,7 +58,9 @@ class RepoResult:
         if self.error:
             result["error"] = self.error
         if self.build_result:
-            result["wheel_path"] = str(self.build_result.wheel_path) if self.build_result.wheel_path else None
+            result["wheel_path"] = (
+                str(self.build_result.wheel_path) if self.build_result.wheel_path else None
+            )
         return result
 
 
@@ -140,7 +144,7 @@ class MultiRepoManager:
             graph[repo.name] = deps
 
         # Topological sort (Kahn's algorithm)
-        in_degree: dict[str, int] = {name: 0 for name in graph}
+        in_degree: dict[str, int] = dict.fromkeys(graph, 0)
         for deps in graph.values():
             for dep in deps:
                 if dep in in_degree:
@@ -212,12 +216,14 @@ class MultiRepoManager:
                 )
                 for i, result in enumerate(results):
                     if isinstance(result, BaseException):
-                        batch.results.append(RepoResult(
-                            repo=level[i],
-                            operation=OperationType.BUILD,
-                            success=False,
-                            error=str(result),
-                        ))
+                        batch.results.append(
+                            RepoResult(
+                                repo=level[i],
+                                operation=OperationType.BUILD,
+                                success=False,
+                                error=str(result),
+                            )
+                        )
                         if self.config.fail_fast:
                             batch.success = False
                             batch.total_duration_seconds = time.time() - start_time
@@ -328,7 +334,9 @@ class MultiRepoManager:
                     repo=repo,
                     operation=OperationType.BUILD,
                     success=result.success,
-                    message=f"Built {result.name} {result.version}" if result.success else "Build failed",
+                    message=f"Built {result.name} {result.version}"
+                    if result.success
+                    else "Build failed",
                     build_result=result,
                     duration_seconds=duration,
                     error=result.error if not result.success else None,
@@ -382,12 +390,14 @@ class MultiRepoManager:
 
         for i, result in enumerate(results):
             if isinstance(result, BaseException):
-                batch.results.append(RepoResult(
-                    repo=repos[i],
-                    operation=OperationType.SYNC,
-                    success=False,
-                    error=str(result),
-                ))
+                batch.results.append(
+                    RepoResult(
+                        repo=repos[i],
+                        operation=OperationType.SYNC,
+                        success=False,
+                        error=str(result),
+                    )
+                )
             else:
                 batch.results.append(result)
 
@@ -416,7 +426,8 @@ class MultiRepoManager:
                     if path.exists():
                         # Pull existing repo
                         process = await asyncio.create_subprocess_exec(
-                            "git", "pull",
+                            "git",
+                            "pull",
                             cwd=str(path),
                             stdout=asyncio.subprocess.PIPE,
                             stderr=asyncio.subprocess.PIPE,
@@ -445,7 +456,10 @@ class MultiRepoManager:
                         # Clone
                         path.parent.mkdir(parents=True, exist_ok=True)
                         process = await asyncio.create_subprocess_exec(
-                            "git", "clone", repo.url, str(path),
+                            "git",
+                            "clone",
+                            repo.url,
+                            str(path),
                             stdout=asyncio.subprocess.PIPE,
                             stderr=asyncio.subprocess.PIPE,
                         )

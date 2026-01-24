@@ -350,14 +350,14 @@ class DependencyGraph:
             graph.nodes[name] = DependencyNode.from_dict(node_data)
         graph.edges = data.get("edges", {})
         graph.cycles = data.get("cycles", [])
-        graph.conflicts = [
-            ConflictInfo(**c) for c in data.get("conflicts", [])
-        ]
+        graph.conflicts = [ConflictInfo(**c) for c in data.get("conflicts", [])]
         graph.license_issues = data.get("license_issues", [])
         graph.build_order = data.get("build_order", [])
         return graph
 
-    def to_tree_string(self, node: str | None = None, prefix: str = "", is_last: bool = True) -> str:
+    def to_tree_string(
+        self, node: str | None = None, prefix: str = "", is_last: bool = True
+    ) -> str:
         """Generate ASCII tree representation.
 
         Args:

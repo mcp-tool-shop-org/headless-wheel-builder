@@ -4,15 +4,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 from headless_wheel_builder.version.conventional import (
     Commit,
     CommitType,
     group_commits_by_type,
 )
-from headless_wheel_builder.version.semver import Version
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from headless_wheel_builder.version.semver import Version
 
 # Section order and titles for changelog
 SECTION_ORDER = [

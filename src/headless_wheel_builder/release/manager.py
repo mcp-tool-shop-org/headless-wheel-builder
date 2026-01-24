@@ -6,8 +6,7 @@ import json
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from headless_wheel_builder.release.models import (
     ApprovalStep,
@@ -15,7 +14,10 @@ from headless_wheel_builder.release.models import (
     ReleaseConfig,
     ReleaseStatus,
 )
-from headless_wheel_builder.release.workflow import ApprovalWorkflow, WORKFLOW_TEMPLATES
+from headless_wheel_builder.release.workflow import WORKFLOW_TEMPLATES, ApprovalWorkflow
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass
@@ -54,10 +56,7 @@ class ReleaseManager:
         data = {
             "version": 1,
             "updated_at": datetime.now(timezone.utc).isoformat(),
-            "releases": {
-                rid: release.to_dict()
-                for rid, release in self._releases.items()
-            },
+            "releases": {rid: release.to_dict() for rid, release in self._releases.items()},
         }
         content = json.dumps(data, indent=2)
         index_path.write_text(content, encoding="utf-8")
@@ -100,7 +99,7 @@ class ReleaseManager:
             elif approval_steps:
                 steps = [
                     ApprovalStep(
-                        name=s.get("name", f"Step {i+1}"),
+                        name=s.get("name", f"Step {i + 1}"),
                         approvers=s.get("approvers", []),
                         required_approvals=s.get("required_approvals", 1),
                     )
@@ -109,7 +108,7 @@ class ReleaseManager:
             elif self.config.approval_steps:
                 steps = [
                     ApprovalStep(
-                        name=s.get("name", f"Step {i+1}"),
+                        name=s.get("name", f"Step {i + 1}"),
                         approvers=s.get("approvers", []),
                         required_approvals=s.get("required_approvals", 1),
                     )

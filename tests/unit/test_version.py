@@ -2,25 +2,20 @@
 
 from __future__ import annotations
 
-import asyncio
-import tempfile
 from datetime import date
-from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
 from headless_wheel_builder.exceptions import GitError, VersionError
 from headless_wheel_builder.version.changelog import (
-    ChangelogEntry,
     SECTION_ORDER,
+    ChangelogEntry,
     create_changelog_entry,
     generate_changelog,
     generate_full_changelog,
 )
 from headless_wheel_builder.version.conventional import (
-    BUMP_TYPES,
-    Commit,
     CommitType,
     determine_bump_from_commits,
     format_commit,
@@ -30,7 +25,6 @@ from headless_wheel_builder.version.conventional import (
 from headless_wheel_builder.version.git import (
     GitTag,
     create_tag,
-    get_commits_since_tag,
     get_current_branch,
     get_head_commit,
     get_latest_tag,
@@ -38,14 +32,13 @@ from headless_wheel_builder.version.git import (
     push_tag,
 )
 from headless_wheel_builder.version.semver import (
-    BumpType,
     SEMVER_PATTERN,
+    BumpType,
     Version,
     bump_version,
     compare_versions,
     parse_version,
 )
-
 
 # =============================================================================
 # SemVer Tests
@@ -325,7 +318,19 @@ class TestCommitType:
 
     def test_commit_types_exist(self):
         """Test that all expected commit types exist."""
-        expected = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"]
+        expected = [
+            "feat",
+            "fix",
+            "docs",
+            "style",
+            "refactor",
+            "perf",
+            "test",
+            "build",
+            "ci",
+            "chore",
+            "revert",
+        ]
         for t in expected:
             assert CommitType(t) is not None
 
@@ -574,7 +579,7 @@ class TestGitOperations:
             # For a real test, we'd need to mock all subprocess calls
             # This is a simplified test
             try:
-                tag = await get_latest_tag("/test/repo")
+                await get_latest_tag("/test/repo")
             except GitError:
                 pass  # Expected due to incomplete mocking
 

@@ -6,14 +6,15 @@ import asyncio
 import hashlib
 import mimetypes
 import os
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Literal
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Literal
 from urllib.parse import urljoin
 
 from headless_wheel_builder.exceptions import PublishError
 from headless_wheel_builder.publish.base import BasePublisher, PublishConfig, PublishResult
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 S3Provider = Literal["aws", "minio", "r2", "gcs", "custom"]
 
@@ -245,11 +246,13 @@ class S3Publisher(BasePublisher):
                     pkg_name = info["name"].lower().replace("-", "_")
                     if pkg_name not in packages:
                         packages[pkg_name] = []
-                    packages[pkg_name].append({
-                        "filename": path.name,
-                        "url": url,
-                        "sha256": checksums.get("sha256", ""),
-                    })
+                    packages[pkg_name].append(
+                        {
+                            "filename": path.name,
+                            "url": url,
+                            "sha256": checksums.get("sha256", ""),
+                        }
+                    )
 
             except Exception as e:
                 result.add_failed(path, str(e))

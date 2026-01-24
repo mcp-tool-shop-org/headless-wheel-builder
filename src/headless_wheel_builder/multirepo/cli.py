@@ -6,7 +6,7 @@ import asyncio
 import json
 import sys
 from pathlib import Path
-from typing import Any, Coroutine, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import click
 from rich.console import Console
@@ -19,6 +19,9 @@ from headless_wheel_builder.multirepo.config import (
     save_config,
 )
 from headless_wheel_builder.multirepo.manager import BatchResult, MultiRepoManager
+
+if TYPE_CHECKING:
+    from collections.abc import Coroutine
 
 console = Console()
 error_console = Console(stderr=True)
@@ -70,9 +73,8 @@ def init_config(name: str, output: str, parallel: int) -> None:
     )
 
     output_path = Path(output)
-    if output_path.exists():
-        if not click.confirm(f"{output} already exists. Overwrite?"):
-            raise SystemExit(1)
+    if output_path.exists() and not click.confirm(f"{output} already exists. Overwrite?"):
+        raise SystemExit(1)
 
     save_config(config, output_path)
     console.print(f"[green]Created configuration file:[/] {output}")
@@ -104,10 +106,7 @@ def add_repo(
     """
     config_path = Path(config)
 
-    if config_path.exists():
-        multi_config = load_config(config_path)
-    else:
-        multi_config = MultiRepoConfig()
+    multi_config = load_config(config_path) if config_path.exists() else MultiRepoConfig()
 
     repo = RepoConfig(
         name=repo_name,
@@ -160,10 +159,7 @@ def list_repos(config: str, tag: str | None, json_output: bool) -> None:
 
     multi_config = load_config(config_path)
 
-    if tag:
-        repos = multi_config.get_repos_by_tag(tag)
-    else:
-        repos = multi_config.repos
+    repos = multi_config.get_repos_by_tag(tag) if tag else multi_config.repos
 
     if json_output:
         output = [r.to_dict() for r in repos]
@@ -255,7 +251,7 @@ def build_all(
         return await manager.build_all(repos=repos_to_build, parallel=parallel)
 
     if not json_output:
-        console.print(f"\n[bold blue]Building repositories...[/]")
+        console.print("\n[bold blue]Building repositories...[/]")
         if repos_to_build:
             console.print(f"  Repos: {len(repos_to_build)}")
         console.print(f"  Parallel: {parallel}")
@@ -294,7 +290,7 @@ def sync_all(config: str, repo: tuple[str, ...], json_output: bool) -> None:
         return await manager.sync_all(repos=repos_to_sync)
 
     if not json_output:
-        console.print(f"\n[bold blue]Syncing repositories...[/]")
+        console.print("\n[bold blue]Syncing repositories...[/]")
         console.print()
 
     result = run_async(_sync())
@@ -316,10 +312,7 @@ def _print_batch_result(result: BatchResult) -> None:
     table.add_column("Message")
 
     for repo_result in result.results:
-        if repo_result.success:
-            status = "[green]Success[/]"
-        else:
-            status = "[red]Failed[/]"
+        status = "[green]Success[/]" if repo_result.success else "[red]Failed[/]"
 
         duration = f"{repo_result.duration_seconds:.1f}s"
         message = repo_result.message

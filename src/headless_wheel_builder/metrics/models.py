@@ -174,9 +174,7 @@ class MetricsReport:
         return {
             "summary": self.summary.to_dict(),
             "by_package": {k: v.to_dict() for k, v in self.by_package.items()},
-            "by_python_version": {
-                k: v.to_dict() for k, v in self.by_python_version.items()
-            },
+            "by_python_version": {k: v.to_dict() for k, v in self.by_python_version.items()},
             "by_platform": {k: v.to_dict() for k, v in self.by_platform.items()},
             "recent_failures": [f.to_dict() for f in self.recent_failures],
             "trends": self.trends,

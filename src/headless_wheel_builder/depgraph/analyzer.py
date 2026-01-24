@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import asyncio
 import re
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
@@ -19,6 +17,9 @@ from headless_wheel_builder.depgraph.models import (
     LicenseInfo,
     categorize_license,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass
@@ -139,11 +140,13 @@ class DependencyAnalyzer:
         info = await self.fetch_package_info(package, version)
         if not info:
             # Create minimal node for unknown package
-            graph.add_node(DependencyNode(
-                name=package,
-                version=version or "unknown",
-                dep_type=DependencyType.DIRECT,
-            ))
+            graph.add_node(
+                DependencyNode(
+                    name=package,
+                    version=version or "unknown",
+                    dep_type=DependencyType.DIRECT,
+                )
+            )
             return graph
 
         pkg_info = info.get("info", {})
@@ -158,7 +161,9 @@ class DependencyAnalyzer:
             license_info=LicenseInfo(
                 name=license_name,
                 category=categorize_license(license_name),
-            ) if license_name else None,
+            )
+            if license_name
+            else None,
             source=pkg_info.get("home_page", ""),
         )
         graph.add_node(root_node)
@@ -249,7 +254,9 @@ class DependencyAnalyzer:
                 license_info=LicenseInfo(
                     name=dep_license,
                     category=categorize_license(dep_license),
-                ) if dep_license else None,
+                )
+                if dep_license
+                else None,
                 extras=extras,
                 source=dep_pkg_info.get("home_page", ""),
             )
@@ -286,7 +293,7 @@ class DependencyAnalyzer:
                 elif neighbor in rec_stack:
                     # Found cycle
                     cycle_start = path.index(neighbor)
-                    cycle = path[cycle_start:] + [neighbor]
+                    cycle = [*path[cycle_start:], neighbor]
                     cycles.append(cycle)
 
             rec_stack.remove(node)
@@ -318,11 +325,13 @@ class DependencyAnalyzer:
         for package, versions in requirements.items():
             unique_versions = set(versions.values())
             if len(unique_versions) > 1:
-                graph.conflicts.append(ConflictInfo(
-                    package=package,
-                    required_versions=versions,
-                    message=f"Multiple versions required: {unique_versions}",
-                ))
+                graph.conflicts.append(
+                    ConflictInfo(
+                        package=package,
+                        required_versions=versions,
+                        message=f"Multiple versions required: {unique_versions}",
+                    )
+                )
 
     def _check_licenses(self, graph: DependencyGraph) -> None:
         """Check for license compatibility issues.
@@ -346,9 +355,7 @@ class DependencyAnalyzer:
             # Check for copyleft in permissive projects
             if root_license and root_license.category == LicenseCategory.PERMISSIVE:
                 if node.license_info.category == LicenseCategory.COPYLEFT:
-                    issues.append(
-                        f"{name}: GPL-licensed dependency in permissive project"
-                    )
+                    issues.append(f"{name}: GPL-licensed dependency in permissive project")
 
         graph.license_issues = issues
 
@@ -359,7 +366,7 @@ class DependencyAnalyzer:
             graph: Graph to populate build order
         """
         # Kahn's algorithm for topological sort
-        in_degree: dict[str, int] = {node: 0 for node in graph.nodes}
+        in_degree: dict[str, int] = dict.fromkeys(graph.nodes, 0)
 
         for targets in graph.edges.values():
             for target in targets:
@@ -410,12 +417,14 @@ class DependencyAnalyzer:
             graph = DependencyGraph(root=project_name)
 
             # Create root node
-            graph.add_node(DependencyNode(
-                name=project_name,
-                version=project_version,
-                dep_type=DependencyType.DIRECT,
-                source=str(project_path),
-            ))
+            graph.add_node(
+                DependencyNode(
+                    name=project_name,
+                    version=project_version,
+                    dep_type=DependencyType.DIRECT,
+                    source=str(project_path),
+                )
+            )
 
             # Process dependencies
             for dep in dependencies:
@@ -429,16 +438,20 @@ class DependencyAnalyzer:
                     dep_version = pkg_info.get("version", "unknown")
                     dep_license = pkg_info.get("license") or ""
 
-                    graph.add_node(DependencyNode(
-                        name=name,
-                        version=dep_version,
-                        dep_type=DependencyType.DIRECT,
-                        license_info=LicenseInfo(
-                            name=dep_license,
-                            category=categorize_license(dep_license),
-                        ) if dep_license else None,
-                        extras=extras,
-                    ))
+                    graph.add_node(
+                        DependencyNode(
+                            name=name,
+                            version=dep_version,
+                            dep_type=DependencyType.DIRECT,
+                            license_info=LicenseInfo(
+                                name=dep_license,
+                                category=categorize_license(dep_license),
+                            )
+                            if dep_license
+                            else None,
+                            extras=extras,
+                        )
+                    )
 
                     graph.add_edge(project_name, name)
 
@@ -451,10 +464,12 @@ class DependencyAnalyzer:
                         visited={f"{project_name}=={project_version}"},
                     )
                 else:
-                    graph.add_node(DependencyNode(
-                        name=name,
-                        dep_type=DependencyType.DIRECT,
-                    ))
+                    graph.add_node(
+                        DependencyNode(
+                            name=name,
+                            dep_type=DependencyType.DIRECT,
+                        )
+                    )
                     graph.add_edge(project_name, name)
 
             # Analyze
@@ -489,11 +504,13 @@ class DependencyAnalyzer:
         graph = DependencyGraph(root=project_path.name)
 
         # Create root node
-        graph.add_node(DependencyNode(
-            name=project_path.name,
-            dep_type=DependencyType.DIRECT,
-            source=str(project_path),
-        ))
+        graph.add_node(
+            DependencyNode(
+                name=project_path.name,
+                dep_type=DependencyType.DIRECT,
+                source=str(project_path),
+            )
+        )
 
         # Parse requirements
         content = requirements_file.read_text(encoding="utf-8")
@@ -510,21 +527,27 @@ class DependencyAnalyzer:
                 version = pkg_info.get("version", "unknown")
                 license_name = pkg_info.get("license") or ""
 
-                graph.add_node(DependencyNode(
-                    name=name,
-                    version=version,
-                    dep_type=DependencyType.DIRECT,
-                    license_info=LicenseInfo(
-                        name=license_name,
-                        category=categorize_license(license_name),
-                    ) if license_name else None,
-                    extras=extras,
-                ))
+                graph.add_node(
+                    DependencyNode(
+                        name=name,
+                        version=version,
+                        dep_type=DependencyType.DIRECT,
+                        license_info=LicenseInfo(
+                            name=license_name,
+                            category=categorize_license(license_name),
+                        )
+                        if license_name
+                        else None,
+                        extras=extras,
+                    )
+                )
             else:
-                graph.add_node(DependencyNode(
-                    name=name,
-                    dep_type=DependencyType.DIRECT,
-                ))
+                graph.add_node(
+                    DependencyNode(
+                        name=name,
+                        dep_type=DependencyType.DIRECT,
+                    )
+                )
 
             graph.add_edge(project_path.name, name)
 

@@ -11,6 +11,7 @@ This module provides:
 
 from __future__ import annotations
 
+from headless_wheel_builder.release.manager import ReleaseManager
 from headless_wheel_builder.release.models import (
     ApprovalState,
     ApprovalStep,
@@ -18,7 +19,6 @@ from headless_wheel_builder.release.models import (
     ReleaseConfig,
     ReleaseStatus,
 )
-from headless_wheel_builder.release.manager import ReleaseManager
 from headless_wheel_builder.release.workflow import ApprovalWorkflow
 
 __all__ = [

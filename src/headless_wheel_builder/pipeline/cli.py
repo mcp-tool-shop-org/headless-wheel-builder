@@ -5,8 +5,6 @@ from __future__ import annotations
 import asyncio
 import json
 import sys
-from pathlib import Path
-from typing import Any
 
 import click
 from rich.console import Console
@@ -96,7 +94,7 @@ def _display_result(result: PipelineResult, output_json: bool) -> None:
 
     # Summary panel
     if result.success:
-        summary_parts = [f"[green]✅ Pipeline completed successfully[/green]"]
+        summary_parts = ["[green]✅ Pipeline completed successfully[/green]"]
         if result.wheel_path:
             summary_parts.append(f"📦 Wheel: {result.wheel_path}")
         if result.release_url:
@@ -106,7 +104,7 @@ def _display_result(result: PipelineResult, output_json: bool) -> None:
 
         console.print(Panel("\n".join(summary_parts), title="Summary", border_style="green"))
     else:
-        error_parts = [f"[red]❌ Pipeline failed[/red]"]
+        error_parts = ["[red]❌ Pipeline failed[/red]"]
         for error in result.errors:
             error_parts.append(f"  • {error}")
 
@@ -133,7 +131,9 @@ def pipeline() -> None:
 @click.option("--files", "-f", multiple=True, help="Additional files to upload")
 @click.option("--python", "-p", help="Python version to build with")
 @click.option("--output", "-o", "output_dir", default="dist", help="Output directory")
-@click.option("--changelog", "generate_changelog", is_flag=True, help="Generate changelog from commits")
+@click.option(
+    "--changelog", "generate_changelog", is_flag=True, help="Generate changelog from commits"
+)
 @click.option("--changelog-from", help="Starting ref for changelog")
 @click.option("--test", "run_tests", is_flag=True, help="Run tests before release")
 @click.option("--test-command", help="Custom test command")

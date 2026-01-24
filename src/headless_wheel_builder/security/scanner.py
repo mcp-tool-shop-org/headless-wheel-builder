@@ -137,10 +137,7 @@ class SecurityScanner:
 
             # Filter ignored vulnerabilities
             if self.config.ignore_ids:
-                vulnerabilities = [
-                    v for v in vulnerabilities
-                    if v.id not in self.config.ignore_ids
-                ]
+                vulnerabilities = [v for v in vulnerabilities if v.id not in self.config.ignore_ids]
 
             return ScanResult(
                 scan_type=ScanType.VULNERABILITY,
@@ -161,9 +158,7 @@ class SecurityScanner:
                 duration_seconds=time.time() - start_time,
             )
 
-    def _parse_pip_audit_output(
-        self, data: list[dict[str, Any]]
-    ) -> list[VulnerabilityInfo]:
+    def _parse_pip_audit_output(self, data: list[dict[str, Any]]) -> list[VulnerabilityInfo]:
         """Parse pip-audit JSON output."""
         vulnerabilities: list[VulnerabilityInfo] = []
 
@@ -181,21 +176,21 @@ class SecurityScanner:
                 _aliases = vuln.get("aliases", [])
                 severity = Severity.UNKNOWN
 
-                vulnerabilities.append(VulnerabilityInfo(
-                    id=vuln_id,
-                    package=package,
-                    installed_version=version,
-                    fixed_version=fixed,
-                    severity=severity,
-                    description=vuln.get("description", ""),
-                    url=vuln.get("url"),
-                ))
+                vulnerabilities.append(
+                    VulnerabilityInfo(
+                        id=vuln_id,
+                        package=package,
+                        installed_version=version,
+                        fixed_version=fixed,
+                        severity=severity,
+                        description=vuln.get("description", ""),
+                        url=vuln.get("url"),
+                    )
+                )
 
         return vulnerabilities
 
-    def _count_by_severity(
-        self, vulnerabilities: list[VulnerabilityInfo]
-    ) -> dict[str, int]:
+    def _count_by_severity(self, vulnerabilities: list[VulnerabilityInfo]) -> dict[str, int]:
         """Count vulnerabilities by severity."""
         counts: dict[str, int] = {}
         for vuln in vulnerabilities:
@@ -232,7 +227,8 @@ class SecurityScanner:
                 "bandit",
                 "-r",
                 target,
-                "-f", "json",
+                "-f",
+                "json",
                 "-q",
             ]
 
@@ -291,25 +287,27 @@ class SecurityScanner:
         results = data.get("results", [])
         for result in results:
             severity_str = result.get("issue_severity", "MEDIUM").lower()
-            severity = Severity(severity_str) if severity_str in [
-                s.value for s in Severity
-            ] else Severity.UNKNOWN
+            severity = (
+                Severity(severity_str)
+                if severity_str in [s.value for s in Severity]
+                else Severity.UNKNOWN
+            )
 
-            issues.append(SecurityIssue(
-                type=result.get("test_id", "UNKNOWN"),
-                severity=severity,
-                message=result.get("issue_text", ""),
-                file=result.get("filename"),
-                line=result.get("line_number"),
-                code=result.get("code"),
-                confidence=result.get("issue_confidence", "MEDIUM").lower(),
-            ))
+            issues.append(
+                SecurityIssue(
+                    type=result.get("test_id", "UNKNOWN"),
+                    severity=severity,
+                    message=result.get("issue_text", ""),
+                    file=result.get("filename"),
+                    line=result.get("line_number"),
+                    code=result.get("code"),
+                    confidence=result.get("issue_confidence", "MEDIUM").lower(),
+                )
+            )
 
         return issues
 
-    def _count_issues_by_severity(
-        self, issues: list[SecurityIssue]
-    ) -> dict[str, int]:
+    def _count_issues_by_severity(self, issues: list[SecurityIssue]) -> dict[str, int]:
         """Count issues by severity."""
         counts: dict[str, int] = {}
         for issue in issues:

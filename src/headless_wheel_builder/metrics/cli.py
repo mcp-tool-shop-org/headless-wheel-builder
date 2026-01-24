@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 import click
@@ -30,7 +29,8 @@ def metrics() -> None:
 
 @metrics.command("summary")
 @click.option(
-    "--range", "time_range",
+    "--range",
+    "time_range",
     type=click.Choice(["hour", "day", "week", "month", "all"]),
     default="all",
     help="Time range",
@@ -46,24 +46,27 @@ def show_summary(time_range: str, json_output: bool) -> None:
         return
 
     console.print()
-    console.print(Panel(
-        f"[bold]Time Range:[/] {time_range}\n"
-        f"[bold]Total Builds:[/] {summary.total_builds}\n"
-        f"[bold]Successful:[/] [green]{summary.successful_builds}[/]\n"
-        f"[bold]Failed:[/] [red]{summary.failed_builds}[/]\n"
-        f"[bold]Success Rate:[/] {summary.success_rate:.1%}\n"
-        f"[bold]Avg Duration:[/] {summary.avg_duration_seconds:.1f}s\n"
-        f"[bold]Total Built:[/] {_format_bytes(summary.total_bytes_built)}\n"
-        f"[bold]Packages:[/] {summary.packages_built}",
-        title="Build Metrics Summary",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"[bold]Time Range:[/] {time_range}\n"
+            f"[bold]Total Builds:[/] {summary.total_builds}\n"
+            f"[bold]Successful:[/] [green]{summary.successful_builds}[/]\n"
+            f"[bold]Failed:[/] [red]{summary.failed_builds}[/]\n"
+            f"[bold]Success Rate:[/] {summary.success_rate:.1%}\n"
+            f"[bold]Avg Duration:[/] {summary.avg_duration_seconds:.1f}s\n"
+            f"[bold]Total Built:[/] {_format_bytes(summary.total_bytes_built)}\n"
+            f"[bold]Packages:[/] {summary.packages_built}",
+            title="Build Metrics Summary",
+            border_style="blue",
+        )
+    )
     console.print()
 
 
 @metrics.command("report")
 @click.option(
-    "--range", "time_range",
+    "--range",
+    "time_range",
     type=click.Choice(["hour", "day", "week", "month", "all"]),
     default="week",
     help="Time range",
@@ -82,14 +85,16 @@ def show_report(time_range: str, json_output: bool) -> None:
 
     # Summary
     summary = report.summary
-    console.print(Panel(
-        f"Total: {summary.total_builds} | "
-        f"Success: [green]{summary.successful_builds}[/] | "
-        f"Failed: [red]{summary.failed_builds}[/] | "
-        f"Rate: {summary.success_rate:.1%}",
-        title=f"Summary ({time_range})",
-        border_style="blue",
-    ))
+    console.print(
+        Panel(
+            f"Total: {summary.total_builds} | "
+            f"Success: [green]{summary.successful_builds}[/] | "
+            f"Failed: [red]{summary.failed_builds}[/] | "
+            f"Rate: {summary.success_rate:.1%}",
+            title=f"Summary ({time_range})",
+            border_style="blue",
+        )
+    )
 
     # By package
     if report.by_package:
@@ -105,7 +110,13 @@ def show_report(time_range: str, json_output: bool) -> None:
             key=lambda x: x[1].total_builds,
             reverse=True,
         )[:10]:
-            rate_style = "green" if stats.success_rate >= 0.9 else "yellow" if stats.success_rate >= 0.7 else "red"
+            rate_style = (
+                "green"
+                if stats.success_rate >= 0.9
+                else "yellow"
+                if stats.success_rate >= 0.7
+                else "red"
+            )
             table.add_row(
                 pkg,
                 str(stats.total_builds),
@@ -249,7 +260,8 @@ def list_metrics(
 @metrics.command("export")
 @click.argument("output_file", type=click.Path(path_type=Path))
 @click.option(
-    "--format", "output_format",
+    "--format",
+    "output_format",
     type=click.Choice(["json", "csv"]),
     default="json",
     help="Export format",
@@ -265,9 +277,8 @@ def export_metrics(output_file: Path, output_format: str) -> None:
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation")
 def clear_metrics(yes: bool) -> None:
     """Clear all stored metrics."""
-    if not yes:
-        if not click.confirm("Clear all stored metrics?"):
-            raise SystemExit(0)
+    if not yes and not click.confirm("Clear all stored metrics?"):
+        raise SystemExit(0)
 
     storage = MetricsStorage()
     storage.clear()

@@ -12,10 +12,10 @@ from headless_wheel_builder.actions.templates import (
 )
 
 __all__ = [
-    "generate_workflow",
-    "get_template",
-    "list_templates",
     "TEMPLATES",
     "WorkflowConfig",
     "WorkflowTemplate",
+    "generate_workflow",
+    "get_template",
+    "list_templates",
 ]

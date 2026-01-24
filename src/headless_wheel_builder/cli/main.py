@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import click
 from rich.console import Console
@@ -27,9 +26,6 @@ from headless_wheel_builder.notify.cli import notify as notify_group
 from headless_wheel_builder.pipeline.cli import pipeline as pipeline_group
 from headless_wheel_builder.release.cli import release as release_group
 from headless_wheel_builder.security.cli import security as security_group
-
-if TYPE_CHECKING:
-    pass
 
 console = Console()
 error_console = Console(stderr=True)
@@ -64,7 +60,7 @@ def cli(ctx: click.Context, verbose: int, quiet: bool, json_output: bool, no_col
     ctx.obj["no_color"] = no_color
 
     if no_color:
-        console._force_terminal = False  # noqa: SLF001
+        console._force_terminal = False
 
 
 @cli.command()
@@ -213,6 +209,7 @@ def build(
 
         if json_output:
             import json
+
             output = {
                 "success": result.success,
                 "wheel": {
@@ -224,7 +221,9 @@ def build(
                     "platform_tag": result.platform_tag,
                     "sha256": result.sha256,
                     "size_bytes": result.size_bytes,
-                } if result.wheel_path else None,
+                }
+                if result.wheel_path
+                else None,
                 "sdist": str(result.sdist_path) if result.sdist_path else None,
                 "duration_seconds": result.duration_seconds,
                 "error": result.error,
@@ -243,6 +242,7 @@ def build(
     except HWBError as e:
         if json_output:
             import json
+
             click.echo(json.dumps({"success": False, "error": str(e)}))
         else:
             error_console.print(f"\n[bold red]Error:[/] {e}")
@@ -257,11 +257,13 @@ def build(
     except Exception as e:
         if json_output:
             import json
+
             click.echo(json.dumps({"success": False, "error": str(e)}))
         else:
             error_console.print(f"\n[bold red]Unexpected error:[/] {e}")
             if verbose:
                 import traceback
+
                 error_console.print(traceback.format_exc())
         sys.exit(1)
 
@@ -281,10 +283,7 @@ def _print_success(result: BuildResult, verbose: int) -> None:
 
         if result.size_bytes:
             size_kb = result.size_bytes / 1024
-            if size_kb > 1024:
-                size_str = f"{size_kb / 1024:.1f} MB"
-            else:
-                size_str = f"{size_kb:.1f} KB"
+            size_str = f"{size_kb / 1024:.1f} MB" if size_kb > 1024 else f"{size_kb:.1f} KB"
             table.add_row("Size", size_str)
 
         if result.python_tag:
@@ -308,11 +307,13 @@ def _print_success(result: BuildResult, verbose: int) -> None:
 def _print_failure(result: BuildResult, verbose: int) -> None:
     """Print failed build result."""
     console.print()
-    console.print(Panel(
-        f"[red]{result.error}[/]",
-        title="[red]Build Failed[/]",
-        border_style="red",
-    ))
+    console.print(
+        Panel(
+            f"[red]{result.error}[/]",
+            title="[red]Build Failed[/]",
+            border_style="red",
+        )
+    )
 
     if verbose and result.build_log:
         console.print("\n[dim]Build log:[/]")
@@ -349,6 +350,7 @@ def inspect(ctx: click.Context, source: str, output_format: str, check: bool) ->
 
         if output_format == "json":
             import json
+
             output = {
                 "name": metadata.name,
                 "version": metadata.version,
@@ -409,19 +411,19 @@ def _print_inspect_result(metadata, source_path: Path) -> None:
 
     # Optional dependencies
     if metadata.optional_dependencies:
-        console.print(f"\n[bold underline]Optional Dependencies[/]")
+        console.print("\n[bold underline]Optional Dependencies[/]")
         for group, deps in metadata.optional_dependencies.items():
             console.print(f"  {group}: {len(deps)} packages")
 
     # Extensions
     if metadata.has_extension_modules:
-        console.print(f"\n[bold underline]Extension Modules[/]")
+        console.print("\n[bold underline]Extension Modules[/]")
         console.print(f"  Languages: {', '.join(metadata.extension_languages)}")
     else:
-        console.print(f"\n[dim]Pure Python package (no extensions)[/]")
+        console.print("\n[dim]Pure Python package (no extensions)[/]")
 
     # Files
-    console.print(f"\n[bold underline]Configuration Files[/]")
+    console.print("\n[bold underline]Configuration Files[/]")
     files = [
         ("pyproject.toml", metadata.has_pyproject),
         ("setup.py", metadata.has_setup_py),
@@ -490,14 +492,17 @@ def list_images(check: bool) -> None:
     console.print("\n[bold]Usage:[/]")
     console.print("  hwb build --isolation docker")
     console.print("  hwb build --isolation docker --platform manylinux")
-    console.print("  hwb build --isolation docker --docker-image quay.io/pypa/manylinux_2_28_x86_64")
+    console.print(
+        "  hwb build --isolation docker --docker-image quay.io/pypa/manylinux_2_28_x86_64"
+    )
     console.print()
 
 
 @cli.command()
 @click.argument("files", nargs=-1, type=click.Path(exists=True, path_type=Path))
 @click.option(
-    "--repository", "-r",
+    "--repository",
+    "-r",
     type=click.Choice(["pypi", "testpypi", "s3"]),
     default="pypi",
     help="Target repository",
@@ -605,6 +610,7 @@ def publish(
 
         if json_output:
             import json
+
             output = {
                 "success": result.success,
                 "published": [str(p) for p in result.files_published],
@@ -625,6 +631,7 @@ def publish(
     except HWBError as e:
         if json_output:
             import json
+
             click.echo(json.dumps({"success": False, "error": str(e)}))
         else:
             error_console.print(f"\n[bold red]Error:[/] {e}")
@@ -633,11 +640,13 @@ def publish(
     except Exception as e:
         if json_output:
             import json
+
             click.echo(json.dumps({"success": False, "error": str(e)}))
         else:
             error_console.print(f"\n[bold red]Unexpected error:[/] {e}")
             if verbose:
                 import traceback
+
                 error_console.print(traceback.format_exc())
         sys.exit(1)
 
@@ -710,15 +719,15 @@ def version_next(
         hwb version-next --changelog         # Generate changelog
     """
     from headless_wheel_builder.version import (
-        get_latest_tag,
-        get_commits_since_tag,
-        parse_commit,
         determine_bump_from_commits,
-        parse_version,
         generate_changelog,
+        get_commits_since_tag,
+        get_latest_tag,
+        parse_commit,
+        parse_version,
     )
 
-    verbose = ctx.obj.get("verbose", 0)
+    ctx.obj.get("verbose", 0)
     json_output = ctx.obj.get("json", False)
 
     async def _version_next():
@@ -784,7 +793,8 @@ def version_next(
 
         # Create tag if requested
         if tag and not dry_run:
-            from headless_wheel_builder.version.git import create_tag as git_create_tag, push_tag
+            from headless_wheel_builder.version.git import create_tag as git_create_tag
+            from headless_wheel_builder.version.git import push_tag
 
             message = f"Release {next_version}"
             await git_create_tag(repo_path, next_tag, message=message)
@@ -801,6 +811,7 @@ def version_next(
 
         if json_output:
             import json
+
             click.echo(json.dumps(result, indent=2))
         else:
             console.print()
@@ -829,6 +840,7 @@ def version_next(
     except HWBError as e:
         if json_output:
             import json
+
             click.echo(json.dumps({"error": str(e)}))
         else:
             error_console.print(f"[red]Error:[/] {e}")

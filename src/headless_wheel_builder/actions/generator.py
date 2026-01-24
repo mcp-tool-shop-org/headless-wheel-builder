@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any, cast
 
 from headless_wheel_builder.actions.templates import (
-    TEMPLATES,
     WorkflowTemplate,
     get_template,
 )
@@ -102,7 +101,7 @@ def generate_workflow(
         if placeholder in content:
             if isinstance(value, list):
                 # Format list as YAML array - cast to list[object] for type safety
-                items = cast(list[object], value)
+                items = cast("list[object]", value)
                 formatted = repr([str(item) for item in items])
                 content = content.replace(placeholder, formatted)
             else:

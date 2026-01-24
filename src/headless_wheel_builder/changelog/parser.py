@@ -181,12 +181,16 @@ class ConventionalCommit:
     @property
     def is_notable(self) -> bool:
         """Check if this commit should appear in changelog."""
-        return self.type in (
-            CommitType.FEAT,
-            CommitType.FIX,
-            CommitType.PERF,
-            CommitType.REVERT,
-        ) or self.breaking
+        return (
+            self.type
+            in (
+                CommitType.FEAT,
+                CommitType.FIX,
+                CommitType.PERF,
+                CommitType.REVERT,
+            )
+            or self.breaking
+        )
 
 
 def parse_commit(message: str, sha: str | None = None) -> ConventionalCommit | None:

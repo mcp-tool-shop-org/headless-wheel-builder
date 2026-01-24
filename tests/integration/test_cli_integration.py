@@ -5,17 +5,16 @@ These tests exercise the CLI commands with real project builds.
 
 from __future__ import annotations
 
-import asyncio
 import subprocess
-import sys
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-
 from click.testing import CliRunner
 
 from headless_wheel_builder.cli.main import cli
 
+if TYPE_CHECKING:
+    from pathlib import Path
 
 # Mark all tests as integration tests
 pytestmark = pytest.mark.integration
@@ -61,15 +60,21 @@ where = ["src"]
         assert result.exit_code == 0
         assert "Build" in result.output
 
-    def test_build_command_with_project(self, runner: CliRunner, sample_project: Path, tmp_path: Path):
+    def test_build_command_with_project(
+        self, runner: CliRunner, sample_project: Path, tmp_path: Path
+    ):
         """Test building a project via CLI."""
         output_dir = tmp_path / "dist"
 
-        result = runner.invoke(cli, [
-            "build",
-            str(sample_project),
-            "--output", str(output_dir),  # Correct option is --output, not --output-dir
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "build",
+                str(sample_project),
+                "--output",
+                str(output_dir),  # Correct option is --output, not --output-dir
+            ],
+        )
 
         # Should succeed
         assert result.exit_code == 0, f"Build failed: {result.output}"
@@ -79,25 +84,35 @@ where = ["src"]
         assert len(wheels) == 1
         assert "cli_test_project" in wheels[0].name
 
-    def test_build_command_with_isolation(self, runner: CliRunner, sample_project: Path, tmp_path: Path):
+    def test_build_command_with_isolation(
+        self, runner: CliRunner, sample_project: Path, tmp_path: Path
+    ):
         """Test building with venv isolation via CLI."""
         output_dir = tmp_path / "dist"
 
-        result = runner.invoke(cli, [
-            "build",
-            str(sample_project),
-            "--output", str(output_dir),
-            "--isolation", "venv",
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "build",
+                str(sample_project),
+                "--output",
+                str(output_dir),
+                "--isolation",
+                "venv",
+            ],
+        )
 
         assert result.exit_code == 0, f"Build failed: {result.output}"
 
     def test_build_command_nonexistent_source(self, runner: CliRunner, tmp_path: Path):
         """Test build command with non-existent source."""
-        result = runner.invoke(cli, [
-            "build",
-            str(tmp_path / "nonexistent"),
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "build",
+                str(tmp_path / "nonexistent"),
+            ],
+        )
 
         assert result.exit_code != 0
 
@@ -173,21 +188,33 @@ class TestVersionCommand:
 
         # Initialize git repo
         subprocess.run(["git", "init"], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo_path, capture_output=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@example.com"], cwd=repo_path, capture_output=True
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Test User"], cwd=repo_path, capture_output=True
+        )
 
         # Create initial commit
         (repo_path / "README.md").write_text("# Test Project")
         subprocess.run(["git", "add", "README.md"], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "chore: initial commit"], cwd=repo_path, capture_output=True)
+        subprocess.run(
+            ["git", "commit", "-m", "chore: initial commit"], cwd=repo_path, capture_output=True
+        )
 
         # Create a tag
-        subprocess.run(["git", "tag", "-a", "v1.0.0", "-m", "Release 1.0.0"], cwd=repo_path, capture_output=True)
+        subprocess.run(
+            ["git", "tag", "-a", "v1.0.0", "-m", "Release 1.0.0"],
+            cwd=repo_path,
+            capture_output=True,
+        )
 
         # Add a feature commit
         (repo_path / "feature.py").write_text("# feature")
         subprocess.run(["git", "add", "feature.py"], cwd=repo_path, capture_output=True)
-        subprocess.run(["git", "commit", "-m", "feat: add feature"], cwd=repo_path, capture_output=True)
+        subprocess.run(
+            ["git", "commit", "-m", "feat: add feature"], cwd=repo_path, capture_output=True
+        )
 
         return repo_path
 
@@ -198,11 +225,15 @@ class TestVersionCommand:
 
     def test_version_next_from_git(self, runner: CliRunner, git_repo: Path):
         """Test calculating next version from git commits."""
-        result = runner.invoke(cli, [
-            "version-next",
-            "--path", str(git_repo),
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "version-next",
+                "--path",
+                str(git_repo),
+                "--dry-run",
+            ],
+        )
 
         assert result.exit_code == 0
         # Should detect the feature commit and suggest minor bump
@@ -226,17 +257,23 @@ class TestPublishCommand:
 
         with zipfile.ZipFile(wheel_path, "w") as whl:
             # Add WHEEL metadata
-            whl.writestr("sample_pkg-0.1.0.dist-info/WHEEL", """Wheel-Version: 1.0
+            whl.writestr(
+                "sample_pkg-0.1.0.dist-info/WHEEL",
+                """Wheel-Version: 1.0
 Generator: test
 Root-Is-Purelib: true
 Tag: py3-none-any
-""")
+""",
+            )
             # Add METADATA
-            whl.writestr("sample_pkg-0.1.0.dist-info/METADATA", """Metadata-Version: 2.1
+            whl.writestr(
+                "sample_pkg-0.1.0.dist-info/METADATA",
+                """Metadata-Version: 2.1
 Name: sample-pkg
 Version: 0.1.0
 Summary: Sample package
-""")
+""",
+            )
             # Add RECORD
             whl.writestr("sample_pkg-0.1.0.dist-info/RECORD", "")
             # Add package
@@ -251,14 +288,21 @@ Summary: Sample package
 
     def test_publish_dry_run(self, runner: CliRunner, sample_wheel: Path):
         """Test publish command with dry run."""
-        result = runner.invoke(cli, [
-            "publish",
-            str(sample_wheel),
-            "--dry-run",
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "publish",
+                str(sample_wheel),
+                "--dry-run",
+            ],
+        )
 
         # Should indicate dry run mode
-        assert result.exit_code == 0 or "dry" in result.output.lower() or "skip" in result.output.lower()
+        assert (
+            result.exit_code == 0
+            or "dry" in result.output.lower()
+            or "skip" in result.output.lower()
+        )
 
 
 class TestCLIViaRunner:
@@ -305,10 +349,15 @@ where = ["src"]
         """Test build command via CLI runner."""
         output_dir = tmp_path / "dist"
 
-        result = runner.invoke(cli, [
-            "build", str(sample_project),
-            "--output", str(output_dir),
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "build",
+                str(sample_project),
+                "--output",
+                str(output_dir),
+            ],
+        )
 
         assert result.exit_code == 0, f"Build failed: {result.output}"
 
@@ -318,9 +367,13 @@ where = ["src"]
 
     def test_cli_inspect(self, runner: CliRunner, sample_project: Path):
         """Test inspect command via CLI runner."""
-        result = runner.invoke(cli, [
-            "inspect", str(sample_project),
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "inspect",
+                str(sample_project),
+            ],
+        )
 
         assert result.exit_code == 0
         assert "subprocess-test" in result.output
@@ -359,11 +412,15 @@ where = ["src"]
 
         output_dir = tmp_path / "dist"
 
-        result = runner.invoke(cli, [
-            "build",
-            str(project_dir),
-            "--output", str(output_dir),
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "build",
+                str(project_dir),
+                "--output",
+                str(output_dir),
+            ],
+        )
 
         assert result.exit_code == 0
 
@@ -401,16 +458,21 @@ where = ["src"]
 
         output_dir = tmp_path / "dist"
 
-        result = runner.invoke(cli, [
-            "build",
-            str(project_dir),
-            "--output", str(output_dir),
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "build",
+                str(project_dir),
+                "--output",
+                str(output_dir),
+            ],
+        )
 
         assert result.exit_code == 0
 
         # Check wheel contains data file
         import zipfile
+
         wheels = list(output_dir.glob("*.whl"))
         with zipfile.ZipFile(wheels[0]) as whl:
             names = whl.namelist()

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -339,9 +339,7 @@ class TestPipeline:
         assert "No assets" in result.message
 
     @pytest.mark.asyncio
-    async def test_notify_skipped_when_no_targets(
-        self, basic_config: PipelineConfig
-    ) -> None:
+    async def test_notify_skipped_when_no_targets(self, basic_config: PipelineConfig) -> None:
         """Test notify skipped when no targets configured."""
         pipeline = Pipeline(basic_config)
         result = await pipeline._run_notify()

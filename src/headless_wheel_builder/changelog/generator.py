@@ -6,14 +6,16 @@ import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from headless_wheel_builder.changelog.parser import (
     CommitType,
     ConventionalCommit,
     parse_commits,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class ChangelogFormat(Enum):
@@ -119,12 +121,8 @@ class Changelog:
     config: ChangelogConfig
     commits: list[ConventionalCommit]
     breaking_changes: list[ConventionalCommit] = field(default_factory=lambda: [])
-    entries_by_type: dict[CommitType, list[ChangelogEntry]] = field(
-        default_factory=lambda: {}
-    )
-    generated_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    entries_by_type: dict[CommitType, list[ChangelogEntry]] = field(default_factory=lambda: {})
+    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def __post_init__(self) -> None:
         """Process commits into entries."""
@@ -247,9 +245,7 @@ class Changelog:
 
         # Other changes (collapsed)
         other_types = [
-            t
-            for t in CommitType
-            if t not in (CommitType.FEAT, CommitType.FIX, CommitType.PERF)
+            t for t in CommitType if t not in (CommitType.FEAT, CommitType.FIX, CommitType.PERF)
         ]
         other_entries: list[ChangelogEntry] = []
         for commit_type in other_types:
@@ -329,10 +325,7 @@ def get_commits_between(
     Returns:
         List of (sha, message) tuples
     """
-    if from_ref:
-        git_range = f"{from_ref}..{to_ref}"
-    else:
-        git_range = f"-20 {to_ref}"
+    git_range = f"{from_ref}..{to_ref}" if from_ref else f"-20 {to_ref}"
 
     try:
         result = subprocess.run(
