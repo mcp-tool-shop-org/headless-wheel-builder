@@ -89,7 +89,7 @@ jobs:
       - name: Generate SBOM
         run: |
           pip install cyclonedx-bom
-          cyclonedx-py environment -o sbom.json --format json
+          cyclonedx-py environment --output-format JSON -o sbom.json
           echo "✅ SBOM generated"
 
       - name: Upload build artifacts
