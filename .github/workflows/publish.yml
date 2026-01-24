@@ -134,18 +134,22 @@ jobs:
           path: dist/
 
       - name: Install package
+        shell: bash
         run: pip install dist/*.whl
 
       - name: Install test dependencies
+        shell: bash
         run: pip install pytest pytest-asyncio pytest-mock
 
       - name: Run smoke tests
+        shell: bash
         run: |
           python -c "import headless_wheel_builder; print(headless_wheel_builder.__version__)"
           hwb --version
           hwb --help
 
       - name: Run unit tests
+        shell: bash
         run: pytest tests/unit/ -v --tb=short
 
   # ==========================================================================
