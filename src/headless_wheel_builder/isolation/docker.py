@@ -294,7 +294,12 @@ class DockerIsolation(BaseIsolation):
                 raise IsolationError(f"Failed to pull Docker image {image}:\n{stdout.decode()}")
 
     def _get_container_python(self, version: str) -> str:
-        """Get Python path inside manylinux container."""
+        """
+        Get Python path inside manylinux container.
+
+        Raises:
+            IsolationError: If the python_version is not supported.
+        """
         # Try exact match first
         if version in MANYLINUX_PYTHON_PATHS:
             return MANYLINUX_PYTHON_PATHS[version]
@@ -306,8 +311,12 @@ class DockerIsolation(BaseIsolation):
             if short_version in MANYLINUX_PYTHON_PATHS:
                 return MANYLINUX_PYTHON_PATHS[short_version]
 
-        # Default to 3.12
-        return MANYLINUX_PYTHON_PATHS.get("3.12", "/opt/python/cp312-cp312/bin/python")
+        # Unsupported version - raise with helpful message
+        supported = sorted(MANYLINUX_PYTHON_PATHS.keys())
+        raise IsolationError(
+            f"Unsupported Python version: {version}. "
+            f"Supported versions: {', '.join(supported)}"
+        )
 
     def _build_env_vars(self) -> dict[str, str]:
         """Build environment variables for container."""

@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from headless_wheel_builder.exceptions import IsolationError
 from headless_wheel_builder.isolation.docker import (
     DEFAULT_IMAGES,
     MANYLINUX_IMAGES,
@@ -197,12 +198,12 @@ class TestDockerIsolation:
         path = isolation._get_container_python("3.11.5")
         assert path == "/opt/python/cp311-cp311/bin/python"
 
-    def test_get_container_python_fallback(self):
-        """Test getting Python path with unknown version falls back to 3.12."""
+    def test_get_container_python_unsupported_raises(self):
+        """Test getting Python path with unknown version raises IsolationError."""
         isolation = DockerIsolation()
 
-        path = isolation._get_container_python("3.99")
-        assert path == "/opt/python/cp312-cp312/bin/python"
+        with pytest.raises(IsolationError, match="Unsupported Python version: 3.99"):
+            isolation._get_container_python("3.99")
 
     def test_build_env_vars(self):
         """Test environment variable generation."""

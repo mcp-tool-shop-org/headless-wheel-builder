@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import os
 import shutil
 import tempfile
 import time
@@ -16,6 +17,40 @@ from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadat
 from headless_wheel_builder.core.source import ResolvedSource, SourceResolver, SourceSpec
 from headless_wheel_builder.exceptions import BuildError
 from headless_wheel_builder.isolation.venv import VenvIsolation
+
+
+def _is_dangerous_cleanup_path(path: Path) -> bool:
+    """
+    Check if a path is dangerous to clean (delete files from).
+
+    Returns True if the path is:
+    - Root directory (/, C:\\)
+    - Home directory (~)
+    - Common system directories
+
+    This is a defensive guard to prevent accidental data loss.
+    """
+    resolved = path.resolve()
+
+    # Check for root directory
+    if resolved == Path(resolved.anchor):
+        return True
+
+    # Check for home directory
+    home = Path.home()
+    if resolved == home:
+        return True
+
+    # Check for common dangerous directories (cross-platform)
+    dangerous_names = {"Windows", "System32", "Program Files", "usr", "bin", "etc", "var"}
+    if resolved.name in dangerous_names:
+        return True
+
+    # On Windows, check for drive root
+    if os.name == "nt" and len(resolved.parts) == 1:
+        return True
+
+    return False
 
 if TYPE_CHECKING:
     from headless_wheel_builder.isolation.base import BuildEnvironment, IsolationStrategy
@@ -120,6 +155,13 @@ class BuildEngine:
 
         # Clean output directory if requested
         if self.config.clean_output:
+            # Defensive guard: refuse to clean dangerous directories
+            if _is_dangerous_cleanup_path(output_dir):
+                raise BuildError(
+                    f"Refusing to clean dangerous directory: {output_dir}. "
+                    "Use a dedicated output directory for build artifacts."
+                )
+            # Only delete *.whl and *.tar.gz files, nothing else
             for f in output_dir.glob("*.whl"):
                 f.unlink()
             for f in output_dir.glob("*.tar.gz"):
