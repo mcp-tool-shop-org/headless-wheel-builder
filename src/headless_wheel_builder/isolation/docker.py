@@ -6,78 +6,20 @@ import asyncio
 import json
 import shutil
 import tempfile
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Literal
 
 from headless_wheel_builder.exceptions import IsolationError
 from headless_wheel_builder.isolation.base import BaseIsolation, BuildEnvironment
-from headless_wheel_builder.security_validation import (
-    validate_python_version,
-    ensure_deterministic_image,
+from headless_wheel_builder.isolation.docker_commands import (
+    build_docker_command,
+    generate_build_script,
 )
-
-# Official manylinux images from PyPA
-# https://github.com/pypa/manylinux
-MANYLINUX_IMAGES = {
-    # manylinux2014 - CentOS 7 based (oldest, most compatible)
-    "manylinux2014_x86_64": "quay.io/pypa/manylinux2014_x86_64",
-    "manylinux2014_i686": "quay.io/pypa/manylinux2014_i686",
-    "manylinux2014_aarch64": "quay.io/pypa/manylinux2014_aarch64",
-    # manylinux_2_28 - AlmaLinux 8 based (recommended for new projects)
-    "manylinux_2_28_x86_64": "quay.io/pypa/manylinux_2_28_x86_64",
-    "manylinux_2_28_aarch64": "quay.io/pypa/manylinux_2_28_aarch64",
-    # manylinux_2_34 - AlmaLinux 9 based (newest glibc)
-    "manylinux_2_34_x86_64": "quay.io/pypa/manylinux_2_34_x86_64",
-    "manylinux_2_34_aarch64": "quay.io/pypa/manylinux_2_34_aarch64",
-    # musllinux - Alpine based (for musl libc distros)
-    "musllinux_1_1_x86_64": "quay.io/pypa/musllinux_1_1_x86_64",
-    "musllinux_1_1_aarch64": "quay.io/pypa/musllinux_1_1_aarch64",
-    "musllinux_1_2_x86_64": "quay.io/pypa/musllinux_1_2_x86_64",
-    "musllinux_1_2_aarch64": "quay.io/pypa/musllinux_1_2_aarch64",
-}
-
-# Python paths in manylinux images
-MANYLINUX_PYTHON_PATHS = {
-    "3.9": "/opt/python/cp39-cp39/bin/python",
-    "3.10": "/opt/python/cp310-cp310/bin/python",
-    "3.11": "/opt/python/cp311-cp311/bin/python",
-    "3.12": "/opt/python/cp312-cp312/bin/python",
-    "3.13": "/opt/python/cp313-cp313/bin/python",
-}
-
-# Default image for each platform type
-DEFAULT_IMAGES = {
-    "manylinux": "manylinux_2_28_x86_64",
-    "musllinux": "musllinux_1_2_x86_64",
-}
-
-PlatformType = Literal["manylinux", "musllinux", "auto"]
-
-
-@dataclass
-class DockerConfig:
-    """Configuration for Docker isolation."""
-
-    # Platform selection
-    platform: PlatformType = "auto"
-    image: str | None = None  # Override specific image
-    architecture: str = "x86_64"  # x86_64, aarch64, i686
-
-    # Container settings
-    network: bool = True  # Enable network for pip installs
-    memory_limit: str | None = None  # e.g., "4g"
-    cpu_limit: float | None = None  # e.g., 2.0 for 2 CPUs
-
-    # Build settings
-    repair_wheel: bool = True  # Run auditwheel/delocate
-    strip_binaries: bool = True  # Strip debug symbols
-
-    # Volume mounts
-    extra_mounts: dict[str, str] = field(default_factory=dict)
-
-    # Environment variables
-    extra_env: dict[str, str] = field(default_factory=dict)
+from headless_wheel_builder.isolation.docker_config import DockerConfig, PlatformType
+from headless_wheel_builder.isolation.docker_images import (
+    get_container_python,
+    list_available_images,
+    select_image,
+)
 
 
 class DockerIsolation(BaseIsolation):
@@ -144,16 +86,20 @@ class DockerIsolation(BaseIsolation):
             )
 
         # Select appropriate image
-        image = await self._select_image(python_version)
+        image = await select_image(
+            self.config.image,
+            self.config.platform,
+            self.config.architecture,
+        )
 
         # Create temp directory for build context
         work_dir = Path(tempfile.mkdtemp(prefix="hwb_docker_"))
 
         # Get Python path in container
-        python_path = self._get_container_python(python_version)
+        python_path = get_container_python(python_version)
 
         # Build environment variables
-        env_vars = self._build_env_vars()
+        env_vars = {}
 
         async def cleanup() -> None:
             if work_dir.exists():
@@ -195,14 +141,15 @@ class DockerIsolation(BaseIsolation):
         output_dir.mkdir(parents=True, exist_ok=True)
 
         # Build the container command
-        docker_cmd = await self._build_docker_command(
+        docker_cmd = await build_docker_command(
+            config=self.config,
             image=image,
             source_dir=source_dir,
             output_dir=output_dir,
         )
 
         # Build script to run inside container
-        build_script = self._generate_build_script(
+        build_script = generate_build_script(
             python_path=python_path,
             build_requirements=build_reqs,
             build_wheel=build_wheel,
@@ -237,235 +184,9 @@ class DockerIsolation(BaseIsolation):
 
         return wheel_path, sdist_path, build_log
 
-    async def _select_image(self, python_version: str) -> str:
-        """Select the appropriate Docker image."""
-        # Use explicit image if provided
-        if self.config.image:
-            return self.config.image
-
-        # Select based on platform type
-        platform = self.config.platform
-        arch = self.config.architecture
-
-        if platform == "auto":
-            # Default to manylinux_2_28 for broadest compatibility
-            platform = "manylinux"
-
-        # Get the default for this platform
-        platform_key = DEFAULT_IMAGES.get(platform, "manylinux_2_28_x86_64")
-
-        # Adjust for architecture
-        if arch != "x86_64":
-            platform_key = platform_key.replace("x86_64", arch)
-
-        # Get the full image URL
-        image = MANYLINUX_IMAGES.get(platform_key)
-        if not image:
-            raise IsolationError(
-                f"Unknown platform: {platform_key}. Available: {', '.join(MANYLINUX_IMAGES.keys())}"
-            )
-
-        # Pull image if needed
-        await self._ensure_image(image)
-
-        return image
-
-    async def _ensure_image(self, image: str) -> None:
-        """Pull Docker image if not present locally."""
-        # Check if image exists
-        process = await asyncio.create_subprocess_exec(
-            "docker",
-            "image",
-            "inspect",
-            image,
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.DEVNULL,
-        )
-        await process.communicate()
-
-        if process.returncode != 0:
-            # Pull the image
-            process = await asyncio.create_subprocess_exec(
-                "docker",
-                "pull",
-                image,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.STDOUT,
-            )
-            stdout, _ = await process.communicate()
-
-            if process.returncode != 0:
-                raise IsolationError(f"Failed to pull Docker image {image}:\n{stdout.decode()}")
-
-    def _get_container_python(self, version: str) -> str:
-        """
-        Get Python path inside manylinux container.
-
-        Raises:
-            IsolationError: If the python_version is not supported.
-        """
-        # SECURITY: Validate python version upfront before lookup
-        validate_python_version(version)
-
-        # Try exact match first
-        if version in MANYLINUX_PYTHON_PATHS:
-            return MANYLINUX_PYTHON_PATHS[version]
-
-        # Try major.minor match
-        parts = version.split(".")
-        if len(parts) >= 2:
-            short_version = f"{parts[0]}.{parts[1]}"
-            if short_version in MANYLINUX_PYTHON_PATHS:
-                return MANYLINUX_PYTHON_PATHS[short_version]
-
-        # Unsupported version - raise with helpful message
-        supported = sorted(MANYLINUX_PYTHON_PATHS.keys())
-        raise IsolationError(
-            f"Unsupported Python version: {version}. "
-            f"Supported versions: {', '.join(supported)}"
-        )
-
-    def _build_env_vars(self) -> dict[str, str]:
-        """Build environment variables for container."""
-        env = {
-            # Disable interactive prompts
-            "DEBIAN_FRONTEND": "noninteractive",
-            # Pip settings
-            "PIP_NO_CACHE_DIR": "1",
-            "PIP_DISABLE_PIP_VERSION_CHECK": "1",
-            # Build settings
-            "PYTHONDONTWRITEBYTECODE": "1",
-        }
-
-        # Add extra env vars from config
-        if self.config.extra_env:
-            env.update(self.config.extra_env)
-
-        return env
-
-    async def _build_docker_command(
-        self,
-        image: str,
-        source_dir: Path,
-        output_dir: Path,
-    ) -> list[str]:
-        """Build the docker run command."""
-        cmd = ["docker", "run", "--rm"]
-
-        # Resource limits
-        if self.config.memory_limit:
-            cmd.extend(["--memory", self.config.memory_limit])
-        if self.config.cpu_limit:
-            cmd.extend(["--cpus", str(self.config.cpu_limit)])
-
-        # Network
-        if not self.config.network:
-            cmd.append("--network=none")
-
-        # Mount source directory
-        cmd.extend(["-v", f"{source_dir.absolute()}:/src:ro"])
-
-        # Mount output directory
-        cmd.extend(["-v", f"{output_dir.absolute()}:/output:rw"])
-
-        # Extra mounts
-        for host_path, container_path in self.config.extra_mounts.items():
-            cmd.extend(["-v", f"{host_path}:{container_path}"])
-
-        # Environment variables
-        env_vars = self._build_env_vars()
-        for key, value in env_vars.items():
-            if not key.startswith("__HWB_"):  # Skip internal vars
-                cmd.extend(["-e", f"{key}={value}"])
-
-        # Working directory
-        cmd.extend(["-w", "/src"])
-
-        # Image
-        cmd.append(image)
-
-        return cmd
-
-    def _generate_build_script(
-        self,
-        python_path: str,
-        build_requirements: list[str],
-        build_wheel: bool,
-        build_sdist: bool,
-        config_settings: dict[str, str] | None,
-        repair_wheel: bool,
-    ) -> str:
-        """Generate the build script to run inside container."""
-        lines = [
-            "set -ex",  # Exit on error, print commands
-            "",
-            "# Upgrade pip and install build tools",
-            f"{python_path} -m pip install --upgrade pip build auditwheel",
-        ]
-
-        # Install build requirements
-        if build_requirements:
-            reqs_str = " ".join(f'"{r}"' for r in build_requirements)
-            lines.append(f"{python_path} -m pip install {reqs_str}")
-
-        lines.append("")
-        lines.append("# Build the package")
-
-        # Build command
-        build_cmd = f"{python_path} -m build"
-
-        if build_wheel and not build_sdist:
-            build_cmd += " --wheel"
-        elif build_sdist and not build_wheel:
-            build_cmd += " --sdist"
-
-        # Config settings
-        if config_settings:
-            for key, value in config_settings.items():
-                build_cmd += f" --config-setting={key}={value}"
-
-        build_cmd += " --outdir /tmp/dist"
-        lines.append(build_cmd)
-
-        # Repair wheel with auditwheel
-        if repair_wheel and build_wheel:
-            lines.extend(
-                [
-                    "",
-                    "# Repair wheel for manylinux compatibility",
-                    "for whl in /tmp/dist/*.whl; do",
-                    '    if [ -f "$whl" ]; then',
-                    '        auditwheel repair "$whl" --plat auto -w /output/ || cp "$whl" /output/',
-                    "    fi",
-                    "done",
-                ]
-            )
-        else:
-            lines.extend(
-                [
-                    "",
-                    "# Copy artifacts to output",
-                    "cp /tmp/dist/* /output/ 2>/dev/null || true",
-                ]
-            )
-
-        # Copy sdist if built
-        if build_sdist:
-            lines.append("cp /tmp/dist/*.tar.gz /output/ 2>/dev/null || true")
-
-        lines.extend(
-            [
-                "",
-                "# List output",
-                "ls -la /output/",
-            ]
-        )
-
-        return "\n".join(lines)
-
     async def list_available_images(self) -> dict[str, str]:
         """List available manylinux/musllinux images."""
-        return MANYLINUX_IMAGES.copy()
+        return list_available_images()
 
     async def get_image_info(self, image: str) -> dict:
         """Get information about a Docker image."""

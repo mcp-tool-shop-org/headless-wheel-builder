@@ -206,7 +206,7 @@ def version() -> None:
 )
 def list_images(check: bool) -> None:
     """List available Docker images for builds."""
-    from headless_wheel_builder.isolation.docker import MANYLINUX_IMAGES
+    from headless_wheel_builder.isolation.docker_images import MANYLINUX_IMAGES
 
     if check:
         # Check image availability
