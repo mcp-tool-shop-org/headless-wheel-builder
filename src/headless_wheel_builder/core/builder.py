@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 
 from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadata
 from headless_wheel_builder.core.source import ResolvedSource, SourceResolver, SourceSpec
+from headless_wheel_builder.core.builder_metadata import extract_wheel_metadata
 from headless_wheel_builder.exceptions import BuildError
 from headless_wheel_builder.isolation.venv import VenvIsolation
 from headless_wheel_builder.security_validation import validate_wheel_path
@@ -513,17 +514,8 @@ else:
 
     def _extract_wheel_metadata(self, wheel_path: Path, result: BuildResult) -> None:
         """Extract metadata from wheel filename and contents."""
-        # Parse wheel filename
-        # Format: {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl
-        name = wheel_path.stem
-        parts = name.split("-")
-
-        if len(parts) >= 5:
-            result.name = parts[0].replace("_", "-")
-            result.version = parts[1]
-            result.python_tag = parts[-3]
-            result.abi_tag = parts[-2]
-            result.platform_tag = parts[-1]
+        # Use builder_metadata module for extraction
+        extract_wheel_metadata(wheel_path, result)
 
         # Calculate SHA256
         result.sha256 = hashlib.sha256(wheel_path.read_bytes()).hexdigest()
