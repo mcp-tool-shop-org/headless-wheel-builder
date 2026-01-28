@@ -12,6 +12,10 @@ from typing import Literal
 
 from headless_wheel_builder.exceptions import IsolationError
 from headless_wheel_builder.isolation.base import BaseIsolation, BuildEnvironment
+from headless_wheel_builder.security_validation import (
+    validate_python_version,
+    ensure_deterministic_image,
+)
 
 # Official manylinux images from PyPA
 # https://github.com/pypa/manylinux
@@ -300,6 +304,9 @@ class DockerIsolation(BaseIsolation):
         Raises:
             IsolationError: If the python_version is not supported.
         """
+        # SECURITY: Validate python version upfront before lookup
+        validate_python_version(version)
+
         # Try exact match first
         if version in MANYLINUX_PYTHON_PATHS:
             return MANYLINUX_PYTHON_PATHS[version]
