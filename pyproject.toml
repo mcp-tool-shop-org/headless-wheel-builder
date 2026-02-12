@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "headless-wheel-builder"
-version = "0.3.0"
+version = "0.3.1"
 description = "Universal Python wheel builder with headless GitHub operations for CI/CD pipelines"
 readme = "README.md"
 license = "MIT"
@@ -78,10 +78,10 @@ all = [
 hwb = "headless_wheel_builder.cli.main:cli"
 
 [project.urls]
-Homepage = "https://github.com/mcp-tool-shop/headless-wheel-builder"
-Documentation = "https://github.com/mcp-tool-shop/headless-wheel-builder#readme"
-Repository = "https://github.com/mcp-tool-shop/headless-wheel-builder"
-Changelog = "https://github.com/mcp-tool-shop/headless-wheel-builder/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/mcp-tool-shop-org/headless-wheel-builder"
+Documentation = "https://github.com/mcp-tool-shop-org/headless-wheel-builder#readme"
+Repository = "https://github.com/mcp-tool-shop-org/headless-wheel-builder"
+Changelog = "https://github.com/mcp-tool-shop-org/headless-wheel-builder/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/headless_wheel_builder"]
