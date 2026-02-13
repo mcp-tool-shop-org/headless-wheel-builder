@@ -51,6 +51,15 @@ A universal, headless Python wheel builder with integrated GitHub operations, re
 
 ## Installation
 
+### Via Homebrew (macOS/Linux) - Recommended
+
+```bash
+brew tap mcp-tool-shop-org/mcp-tools
+brew install headless-wheel-builder
+```
+
+### Via Local Development
+
 ```bash
 # With pip
 pip install headless-wheel-builder
