@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-from pathlib import Path
-from unittest.mock import AsyncMock, patch
+from typing import TYPE_CHECKING
+from unittest.mock import AsyncMock
 
 import pytest
 
 from headless_wheel_builder.exceptions import IsolationError
 from headless_wheel_builder.isolation.docker import (
-    DockerConfig,
-    DockerIsolation,
     MANYLINUX_IMAGES,
     MANYLINUX_PYTHON_PATHS,
+    DockerConfig,
+    DockerIsolation,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.mark.asyncio

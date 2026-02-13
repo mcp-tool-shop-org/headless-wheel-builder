@@ -62,7 +62,7 @@ class TestSafeCleanupIntegration:
                 ("setup.py", False),
             ]
 
-            for filename, should_delete in artifacts:
+            for filename, _should_delete in artifacts:
                 (project / filename).touch()
 
             deleted = safe_cleanup_wheels(project)

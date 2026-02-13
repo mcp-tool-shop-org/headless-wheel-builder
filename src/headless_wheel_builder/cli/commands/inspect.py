@@ -14,7 +14,6 @@ from rich.panel import Panel
 from rich.table import Table
 
 from headless_wheel_builder.core.analyzer import ProjectAnalyzer
-from headless_wheel_builder.exceptions import HWBError
 
 console = Console()
 error_console = Console(stderr=True)
@@ -62,7 +61,6 @@ async def execute_inspect(
 
     # Print results based on format
     if output_format == "json":
-        import json
 
         data = {
             "name": metadata.name,

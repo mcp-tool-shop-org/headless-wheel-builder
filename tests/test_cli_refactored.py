@@ -6,11 +6,11 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from headless_wheel_builder.cli.main import cli
 from headless_wheel_builder.cli.commands.build import (
     _parse_config_settings,
     validate_build_options,
 )
+from headless_wheel_builder.cli.main import cli
 
 
 class TestBuildCommandValidation:

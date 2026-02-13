@@ -3,12 +3,11 @@
 import pytest
 
 from headless_wheel_builder.core.builder_metadata import (
-    extract_wheel_metadata,
+    get_wheel_compatibility,
+    is_manylinux_wheel,
+    is_universal_wheel,
     parse_wheel_filename,
     validate_wheel_filename,
-    get_wheel_compatibility,
-    is_universal_wheel,
-    is_manylinux_wheel,
 )
 
 
