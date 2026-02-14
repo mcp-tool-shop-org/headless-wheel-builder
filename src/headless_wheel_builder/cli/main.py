@@ -7,7 +7,6 @@ Actual command logic is delegated to focused modules in the commands package.
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
 import click
 from rich.console import Console
@@ -23,7 +22,7 @@ from headless_wheel_builder.cli.commands import (
     validate_build_options,
 )
 from headless_wheel_builder.depgraph.cli import deps as deps_group
-from headless_wheel_builder.exceptions import BuildError, HWBError
+from headless_wheel_builder.exceptions import HWBError
 from headless_wheel_builder.github.cli import github as github_group
 from headless_wheel_builder.metrics.cli import metrics as metrics_group
 from headless_wheel_builder.multirepo.cli import multirepo as multirepo_group
@@ -234,7 +233,7 @@ def version_next(current_version: str, part: str) -> None:
 
     try:
         current = Version(current_version)
-    except Exception as e:
+    except Exception:
         error_console.print(f"[red]Invalid version: {current_version}[/red]")
         raise SystemExit(1)
 

@@ -8,13 +8,11 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Any
 
 import click
 from rich.console import Console
 
 from headless_wheel_builder.core.builder import BuildConfig, BuildEngine
-from headless_wheel_builder.exceptions import BuildError, HWBError
 
 console = Console()
 error_console = Console(stderr=True)
@@ -63,12 +61,11 @@ def validate_build_options(
         )
 
     # Docker-specific validation
-    if isolation == "docker":
-        if docker_image and platform != "auto":
-            raise click.BadParameter(
-                "Cannot use both --docker-image and --platform",
-                param_hint="docker-image",
-            )
+    if isolation == "docker" and docker_image and platform != "auto":
+        raise click.BadParameter(
+            "Cannot use both --docker-image and --platform",
+            param_hint="docker-image",
+        )
 
 
 def run_async(coro):
