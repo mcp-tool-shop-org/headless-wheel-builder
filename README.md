@@ -1,11 +1,21 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/headless-wheel-builder/main/logo.png" alt="MCP Tool Shop" width="200" />
+</p>
+
 # Headless Wheel Builder
 
 [![PyPI version](https://badge.fury.io/py/headless-wheel-builder.svg)](https://badge.fury.io/py/headless-wheel-builder)
 [![Python versions](https://img.shields.io/pypi/pyversions/headless-wheel-builder.svg)](https://pypi.org/project/headless-wheel-builder/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://github.com/mcp-tool-shop/headless-wheel-builder/workflows/CI/badge.svg)](https://github.com/mcp-tool-shop/headless-wheel-builder/actions)
+[![Tests](https://github.com/mcp-tool-shop-org/headless-wheel-builder/workflows/CI/badge.svg)](https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions)
 
 A universal, headless Python wheel builder with integrated GitHub operations, release management, and full CI/CD pipeline automation. Build wheels, manage releases with approval workflows, analyze dependencies, and orchestrate multi-repository operations — all without touching the web UI.
+
+Part of [MCP Tool Shop](https://mcp-tool-shop.github.io/) -- practical developer tools that stay out of your way.
+
+## Why Headless Wheel Builder?
+
+Most Python build tools stop at `python -m build`. Headless Wheel Builder keeps going: draft releases with approval workflows, dependency analysis with license compliance, multi-repo coordination, and registry publishing -- all from a single CLI. If you run CI/CD pipelines for Python packages, this replaces a patchwork of scripts with one tool.
 
 ## What's New in v0.3.0
 
@@ -322,7 +332,7 @@ See the [docs/](docs/) directory for comprehensive documentation:
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License -- see [LICENSE](LICENSE) for details.
 
 ## Contributing
 

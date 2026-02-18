@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "headless-wheel-builder"
-version = "0.3.1"
+version = "0.3.2"
 description = "Universal Python wheel builder with headless GitHub operations for CI/CD pipelines"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "MCP Tool Shop", email = "64996768+mcp-tool-shop@users.noreply.github.com" }
+    { name = "mcp-tool-shop", email = "64996768+mcp-tool-shop@users.noreply.github.com" }
 ]
 keywords = [
     "wheel",
