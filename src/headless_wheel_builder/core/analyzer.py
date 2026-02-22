@@ -157,7 +157,7 @@ class ProjectAnalyzer:
     def _parse_pyproject(self, path: Path, metadata: ProjectMetadata) -> None:
         """Parse pyproject.toml for metadata."""
         try:
-            with open(path, "rb") as f:
+            with path.open("rb") as f:
                 data = tomllib.load(f)
         except tomllib.TOMLDecodeError as e:
             raise ProjectError(f"Invalid pyproject.toml: {e}") from e

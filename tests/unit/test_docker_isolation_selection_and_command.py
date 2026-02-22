@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-from pathlib import Path
-from unittest.mock import AsyncMock, patch
+from typing import TYPE_CHECKING
+from unittest.mock import AsyncMock
 
 import pytest
 
 from headless_wheel_builder.exceptions import IsolationError
 from headless_wheel_builder.isolation.docker import (
-    DockerConfig,
-    DockerIsolation,
     MANYLINUX_IMAGES,
     MANYLINUX_PYTHON_PATHS,
+    DockerConfig,
+    DockerIsolation,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.mark.asyncio
@@ -82,7 +85,7 @@ def test_get_container_python_major_minor_match() -> None:
 def test_get_container_python_unsupported_version() -> None:
     """Unsupported Python versions should raise IsolationError with supported list."""
     iso = DockerIsolation()
-    with pytest.raises(IsolationError, match="Unsupported Python version: 2.7") as exc_info:
+    with pytest.raises(IsolationError, match=r"Unsupported Python version: 2\.7") as exc_info:
         iso._get_container_python("2.7")
 
     # Error message should list supported versions
@@ -94,7 +97,7 @@ def test_get_container_python_unsupported_version() -> None:
 def test_get_container_python_unsupported_future_version() -> None:
     """Future unsupported versions should raise IsolationError."""
     iso = DockerIsolation()
-    with pytest.raises(IsolationError, match="Unsupported Python version: 3.99"):
+    with pytest.raises(IsolationError, match=r"Unsupported Python version: 3\.99"):
         iso._get_container_python("3.99")
 
 

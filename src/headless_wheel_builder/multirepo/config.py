@@ -167,7 +167,7 @@ def load_config(path: str | Path) -> MultiRepoConfig:
 
                 data = dict(tomli.loads(content))  # type: ignore[reportUnknownMemberType]
             except ImportError:
-                raise ImportError("tomllib or tomli required for TOML support")
+                raise ImportError("tomllib or tomli required for TOML support") from None
     else:
         data = json.loads(content)
 

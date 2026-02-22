@@ -218,14 +218,14 @@ class WheelRegistry:
         async with client.stream("GET", entry.url) as response:
             response.raise_for_status()
 
-            with open(dest_path, "wb") as f:
+            with dest_path.open("wb") as f:
                 async for chunk in response.aiter_bytes():
                     f.write(chunk)
 
         # Verify hash
         if verify_hash and entry.sha256:
             sha256 = hashlib.sha256()
-            with open(dest_path, "rb") as f:
+            with dest_path.open("rb") as f:
                 for chunk in iter(lambda: f.read(8192), b""):
                     sha256.update(chunk)
 
@@ -262,7 +262,7 @@ class WheelRegistry:
 
         # Calculate hash
         sha256 = hashlib.sha256()
-        with open(wheel_path, "rb") as f:
+        with wheel_path.open("rb") as f:
             content = f.read()
             sha256.update(content)
 

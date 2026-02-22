@@ -95,7 +95,7 @@ async def get_latest_tag(
 async def get_commits_since_tag(
     repo_path: Path | str = ".",
     tag: str | None = None,
-    include_hash: bool = True,
+    _include_hash: bool = True,
 ) -> list[tuple[str, str]]:
     """
     Get all commits since a tag.

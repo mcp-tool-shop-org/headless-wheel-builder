@@ -1,5 +1,7 @@
 """Tests for Phase 1.4: Docker image determinism."""
 
+from typing import ClassVar
+
 import pytest
 
 from headless_wheel_builder.exceptions import IsolationError
@@ -9,7 +11,7 @@ from headless_wheel_builder.security_validation import ensure_deterministic_imag
 class TestDockerImageDeterminism:
     """Test Docker image selection for determinism."""
 
-    IMAGES = {
+    IMAGES: ClassVar[dict[str, str]] = {
         "manylinux2014_x86_64": "quay.io/pypa/manylinux2014_x86_64",
         "manylinux_2_28_x86_64": "quay.io/pypa/manylinux_2_28_x86_64",
         "manylinux_2_34_x86_64": "quay.io/pypa/manylinux_2_34_x86_64",

@@ -153,7 +153,7 @@ class TestSourceResolution:
         """Test resolving non-existent path."""
         resolver = SourceResolver()
 
-        with pytest.raises(Exception):  # Should raise an error
+        with pytest.raises(Exception, match=r".+"):  # Should raise an error
             resolver.parse_source(str(tmp_path / "nonexistent"))
 
 
@@ -504,7 +504,7 @@ class TestErrorHandling:
         analyzer = ProjectAnalyzer()
 
         # Should handle gracefully
-        with pytest.raises(Exception):  # Should raise some error
+        with pytest.raises(Exception, match=r".+"):  # Should raise some error
             await analyzer.analyze(empty_dir)
 
     @pytest.mark.asyncio
@@ -518,7 +518,7 @@ class TestErrorHandling:
 
         analyzer = ProjectAnalyzer()
 
-        with pytest.raises(Exception):  # Should raise parsing error
+        with pytest.raises(Exception, match=r".+"):  # Should raise parsing error
             await analyzer.analyze(project_dir)
 
     @pytest.mark.asyncio

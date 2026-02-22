@@ -34,16 +34,16 @@ __all__ = [
     "MANYLINUX_IMAGES",
     "MANYLINUX_PYTHON_PATHS",
     "DockerConfig",
+    "DockerIsolation",
     "PlatformType",
     "build_docker_command",
     "build_env_vars",
     "ensure_image_available",
     "generate_build_script",
     "get_container_python",
+    "get_docker_isolation",
     "list_available_images",
     "select_image",
-    "DockerIsolation",
-    "get_docker_isolation",
 ]
 
 
@@ -67,7 +67,7 @@ class DockerIsolation(BaseIsolation):
         self._docker_available: bool | None = None
         self._docker_path: str | None = None
 
-    async def _select_image(self, python_version: str) -> str:
+    async def _select_image(self, _python_version: str) -> str:
         """Select Docker image based on current config."""
         return await select_image(
             self.config.image,

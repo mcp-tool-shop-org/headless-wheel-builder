@@ -105,7 +105,7 @@ class TestProjectAnalyzer:
         """Test analyzing an empty directory."""
         analyzer = ProjectAnalyzer()
 
-        with pytest.raises(ProjectError, match="No pyproject.toml or setup.py"):
+        with pytest.raises(ProjectError, match=r"No pyproject\.toml or setup\.py"):
             await analyzer.analyze(empty_dir)
 
     @pytest.mark.asyncio
@@ -117,7 +117,7 @@ class TestProjectAnalyzer:
 
         analyzer = ProjectAnalyzer()
 
-        with pytest.raises(ProjectError, match="Invalid pyproject.toml"):
+        with pytest.raises(ProjectError, match=r"Invalid pyproject\.toml"):
             await analyzer.analyze(project_dir)
 
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, ClassVar
 
 import httpx
 
@@ -97,14 +97,14 @@ class SlackProvider(BaseProvider):
     Sends notifications via Slack incoming webhooks.
     """
 
-    STATUS_COLORS = {
+    STATUS_COLORS: ClassVar[dict[str, str]] = {
         "info": "#2196F3",
         "success": "#4CAF50",
         "warning": "#FF9800",
         "error": "#F44336",
     }
 
-    STATUS_EMOJI = {
+    STATUS_EMOJI: ClassVar[dict[str, str]] = {
         "info": ":information_source:",
         "success": ":white_check_mark:",
         "warning": ":warning:",
@@ -152,15 +152,15 @@ class DiscordProvider(BaseProvider):
     Sends notifications via Discord webhooks with embeds.
     """
 
-    STATUS_COLORS = {
+    STATUS_COLORS: ClassVar[dict[str, int]] = {
         "info": 0x2196F3,
         "success": 0x4CAF50,
         "warning": 0xFF9800,
         "error": 0xF44336,
     }
 
-    STATUS_EMOJI = {
-        "info": "ℹ️",
+    STATUS_EMOJI: ClassVar[dict[str, str]] = {
+        "info": "ℹ️",  # noqa: RUF001
         "success": "✅",
         "warning": "⚠️",
         "error": "❌",
@@ -169,7 +169,7 @@ class DiscordProvider(BaseProvider):
     def build_payload(self, event: NotificationEvent) -> dict[str, Any]:
         """Build Discord webhook payload."""
         color = self.STATUS_COLORS.get(event.status, 0x2196F3)
-        emoji = self.STATUS_EMOJI.get(event.status, "ℹ️")
+        emoji = self.STATUS_EMOJI.get(event.status, "ℹ️")  # noqa: RUF001
 
         # Build fields from event data
         fields: list[dict[str, Any]] = []
