@@ -6,11 +6,11 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from headless_wheel_builder.cli.main import cli
 from headless_wheel_builder.cli.commands.build import (
     _parse_config_settings,
     validate_build_options,
 )
+from headless_wheel_builder.cli.main import cli
 
 
 class TestBuildCommandValidation:
@@ -18,7 +18,7 @@ class TestBuildCommandValidation:
 
     def test_validate_missing_source(self):
         """Test validation rejects missing source directory."""
-        with pytest.raises(Exception):  # click.BadParameter
+        with pytest.raises(Exception, match=r".+"):  # click.BadParameter
             validate_build_options(
                 source="/nonexistent/path",
                 output_dir="dist",
@@ -30,10 +30,9 @@ class TestBuildCommandValidation:
 
     def test_validate_missing_pyproject_toml(self):
         """Test validation requires pyproject.toml."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with pytest.raises(Exception):  # click.BadParameter
-                validate_build_options(
-                    source=tmpdir,
+        with tempfile.TemporaryDirectory() as tmpdir, pytest.raises(Exception, match=r".+"):  # click.BadParameter
+            validate_build_options(
+                source=tmpdir,
                     output_dir="dist",
                     python="3.12",
                     isolation="venv",
@@ -63,7 +62,7 @@ class TestBuildCommandValidation:
             project_dir = Path(tmpdir)
             (project_dir / "pyproject.toml").touch()
 
-            with pytest.raises(Exception):  # click.BadParameter
+            with pytest.raises(Exception, match=r".+"):  # click.BadParameter
                 validate_build_options(
                     source=str(project_dir),
                     output_dir="dist",
@@ -79,7 +78,7 @@ class TestBuildCommandValidation:
             project_dir = Path(tmpdir)
             (project_dir / "pyproject.toml").touch()
 
-            with pytest.raises(Exception):  # click.BadParameter
+            with pytest.raises(Exception, match=r".+"):  # click.BadParameter
                 validate_build_options(
                     source=str(project_dir),
                     output_dir="dist",
@@ -110,7 +109,7 @@ class TestConfigSettingsParsing:
 
     def test_parse_invalid_setting(self):
         """Test that invalid settings raise error."""
-        with pytest.raises(Exception):  # click.BadParameter
+        with pytest.raises(Exception, match=r".+"):  # click.BadParameter
             _parse_config_settings(("no_equals",))
 
     def test_parse_empty_settings(self):

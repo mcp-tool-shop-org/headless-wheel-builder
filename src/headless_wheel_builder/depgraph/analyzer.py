@@ -122,7 +122,7 @@ class DependencyAnalyzer:
         self,
         package: str,
         version: str | None = None,
-        include_dev: bool = False,
+        _include_dev: bool = False,
     ) -> DependencyGraph:
         """Build dependency graph for a package.
 
@@ -353,9 +353,12 @@ class DependencyAnalyzer:
                 continue
 
             # Check for copyleft in permissive projects
-            if root_license and root_license.category == LicenseCategory.PERMISSIVE:
-                if node.license_info.category == LicenseCategory.COPYLEFT:
-                    issues.append(f"{name}: GPL-licensed dependency in permissive project")
+            if (
+                root_license
+                and root_license.category == LicenseCategory.PERMISSIVE
+                and node.license_info.category == LicenseCategory.COPYLEFT
+            ):
+                issues.append(f"{name}: GPL-licensed dependency in permissive project")
 
         graph.license_issues = issues
 

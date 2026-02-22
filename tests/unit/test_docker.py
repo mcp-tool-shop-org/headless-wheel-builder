@@ -152,9 +152,8 @@ class TestDockerIsolation:
         mock_process.returncode = 1
         mock_process.communicate = AsyncMock(return_value=(b"", b""))
 
-        with patch("shutil.which", return_value="/usr/bin/docker"):
-            with patch("asyncio.create_subprocess_exec", return_value=mock_process):
-                result = await isolation.check_available()
+        with patch("shutil.which", return_value="/usr/bin/docker"), patch("asyncio.create_subprocess_exec", return_value=mock_process):
+            result = await isolation.check_available()
 
         assert result is False
 
@@ -167,9 +166,8 @@ class TestDockerIsolation:
         mock_process.returncode = 0
         mock_process.communicate = AsyncMock(return_value=(b"", b""))
 
-        with patch("shutil.which", return_value="/usr/bin/docker"):
-            with patch("asyncio.create_subprocess_exec", return_value=mock_process):
-                result = await isolation.check_available()
+        with patch("shutil.which", return_value="/usr/bin/docker"), patch("asyncio.create_subprocess_exec", return_value=mock_process):
+            result = await isolation.check_available()
 
         assert result is True
         assert isolation._docker_available is True
@@ -202,7 +200,7 @@ class TestDockerIsolation:
         """Test getting Python path with unknown version raises IsolationError."""
         isolation = DockerIsolation()
 
-        with pytest.raises(IsolationError, match="Unsupported Python version: 3.99"):
+        with pytest.raises(IsolationError, match=r"Unsupported Python version: 3\.99"):
             isolation._get_container_python("3.99")
 
     def test_build_env_vars(self):

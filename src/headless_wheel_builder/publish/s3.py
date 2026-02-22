@@ -96,7 +96,7 @@ class S3Publisher(BasePublisher):
             raise PublishError(
                 "boto3 is required for S3 publishing. "
                 "Install with: pip install headless-wheel-builder[s3]"
-            )
+            ) from None
 
         # Build client kwargs
         kwargs = {
@@ -202,9 +202,9 @@ class S3Publisher(BasePublisher):
                     try:
                         await loop.run_in_executor(
                             None,
-                            lambda: client.head_object(
+                            lambda _key=key: client.head_object(
                                 Bucket=self.config.bucket,
-                                Key=key,
+                                Key=_key,
                             ),
                         )
                         result.add_skipped(path, "Already exists")
@@ -230,11 +230,11 @@ class S3Publisher(BasePublisher):
                 # Upload
                 await loop.run_in_executor(
                     None,
-                    lambda: client.upload_file(
-                        str(path),
+                    lambda _path=path, _key=key, _extra_args=extra_args: client.upload_file(
+                        str(_path),
                         self.config.bucket,
-                        key,
-                        ExtraArgs=extra_args,
+                        _key,
+                        ExtraArgs=_extra_args,
                     ),
                 )
 
@@ -305,7 +305,7 @@ class S3Publisher(BasePublisher):
         md5 = hashlib.md5()
         sha256 = hashlib.sha256()
 
-        with open(path, "rb") as f:
+        with path.open("rb") as f:
             for chunk in iter(lambda: f.read(8192), b""):
                 md5.update(chunk)
                 sha256.update(chunk)
@@ -328,10 +328,10 @@ class S3Publisher(BasePublisher):
 
             await loop.run_in_executor(
                 None,
-                lambda: client.put_object(
+                lambda _key=key, _html=html: client.put_object(
                     Bucket=self.config.bucket,
-                    Key=key,
-                    Body=html.encode(),
+                    Key=_key,
+                    Body=_html.encode(),
                     ContentType="text/html",
                     ACL=self.config.acl,
                 ),

@@ -14,12 +14,37 @@ from headless_wheel_builder.isolation.docker_commands import (
     build_docker_command,
     generate_build_script,
 )
-from headless_wheel_builder.isolation.docker_config import DockerConfig, PlatformType
+from headless_wheel_builder.isolation.docker_config import (
+    DockerConfig,
+    PlatformType,
+    build_env_vars,
+)
 from headless_wheel_builder.isolation.docker_images import (
+    DEFAULT_IMAGES,
+    MANYLINUX_IMAGES,
+    MANYLINUX_PYTHON_PATHS,
+    ensure_image_available,
     get_container_python,
     list_available_images,
     select_image,
 )
+
+__all__ = [
+    "DEFAULT_IMAGES",
+    "MANYLINUX_IMAGES",
+    "MANYLINUX_PYTHON_PATHS",
+    "DockerConfig",
+    "DockerIsolation",
+    "PlatformType",
+    "build_docker_command",
+    "build_env_vars",
+    "ensure_image_available",
+    "generate_build_script",
+    "get_container_python",
+    "get_docker_isolation",
+    "list_available_images",
+    "select_image",
+]
 
 
 class DockerIsolation(BaseIsolation):
@@ -42,18 +67,69 @@ class DockerIsolation(BaseIsolation):
         self._docker_available: bool | None = None
         self._docker_path: str | None = None
 
+    async def _select_image(self, _python_version: str) -> str:
+        """Select Docker image based on current config."""
+        return await select_image(
+            self.config.image,
+            self.config.platform,
+            self.config.architecture,
+        )
+
+    async def _ensure_image(self, image: str) -> None:
+        """Pull Docker image if not present locally."""
+        await ensure_image_available(image)
+
+    def _get_container_python(self, version: str) -> str:
+        """Get Python path inside manylinux container."""
+        return get_container_python(version)
+
+    def _build_env_vars(self) -> dict[str, str]:
+        """Build environment variables for Docker container."""
+        return build_env_vars(self.config)
+
+    async def _build_docker_command(
+        self,
+        image: str,
+        source_dir: Path,
+        output_dir: Path,
+    ) -> list[str]:
+        """Build the docker run command."""
+        return await build_docker_command(
+            config=self.config,
+            image=image,
+            source_dir=source_dir,
+            output_dir=output_dir,
+        )
+
+    def _generate_build_script(
+        self,
+        python_path: str,
+        build_requirements: list[str],
+        build_wheel: bool,
+        build_sdist: bool,
+        config_settings: dict[str, str] | None,
+        repair_wheel: bool,
+    ) -> str:
+        """Generate the build script to run inside container."""
+        return generate_build_script(
+            python_path=python_path,
+            build_requirements=build_requirements,
+            build_wheel=build_wheel,
+            build_sdist=build_sdist,
+            config_settings=config_settings,
+            repair_wheel=repair_wheel,
+        )
+
     async def check_available(self) -> bool:
         """Check if Docker is available and running."""
         if self._docker_available is not None:
             return self._docker_available
 
-        # Check for docker executable
         self._docker_path = shutil.which("docker")
         if not self._docker_path:
             self._docker_available = False
             return False
 
-        # Check if Docker daemon is running
         try:
             process = await asyncio.create_subprocess_exec(
                 "docker",
@@ -76,7 +152,7 @@ class DockerIsolation(BaseIsolation):
         """
         Create a Docker-based build environment.
 
-        This doesn't actually start the container - it prepares the
+        Does not actually start the container -- it prepares the
         configuration. The actual build happens in build_in_container().
         """
         if not await self.check_available():
@@ -85,35 +161,23 @@ class DockerIsolation(BaseIsolation):
                 "the Docker daemon is running."
             )
 
-        # Select appropriate image
-        image = await select_image(
-            self.config.image,
-            self.config.platform,
-            self.config.architecture,
-        )
-
-        # Create temp directory for build context
+        image = await self._select_image(python_version)
         work_dir = Path(tempfile.mkdtemp(prefix="hwb_docker_"))
-
-        # Get Python path in container
-        python_path = get_container_python(python_version)
-
-        # Build environment variables
-        env_vars = {}
+        python_path = self._get_container_python(python_version)
+        env_vars: dict[str, str] = {}
 
         async def cleanup() -> None:
             if work_dir.exists():
                 shutil.rmtree(work_dir, ignore_errors=True)
 
-        # Store Docker-specific info in env_vars for build_in_container
         env_vars["__HWB_DOCKER_IMAGE__"] = image
         env_vars["__HWB_DOCKER_PYTHON__"] = python_path
         env_vars["__HWB_DOCKER_WORKDIR__"] = str(work_dir)
         env_vars["__HWB_BUILD_REQS__"] = json.dumps(build_requirements)
 
         return BuildEnvironment(
-            python_path=Path(python_path),  # Path inside container
-            site_packages=Path("/tmp/site-packages"),  # Placeholder
+            python_path=Path(python_path),
+            site_packages=Path("/tmp/site-packages"),
             env_vars=env_vars,
             _cleanup=cleanup,
         )
@@ -137,19 +201,15 @@ class DockerIsolation(BaseIsolation):
         python_path = env.env_vars["__HWB_DOCKER_PYTHON__"]
         build_reqs = json.loads(env.env_vars["__HWB_BUILD_REQS__"])
 
-        # Ensure output directory exists
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Build the container command
-        docker_cmd = await build_docker_command(
-            config=self.config,
+        docker_cmd = await self._build_docker_command(
             image=image,
             source_dir=source_dir,
             output_dir=output_dir,
         )
 
-        # Build script to run inside container
-        build_script = generate_build_script(
+        build_script = self._generate_build_script(
             python_path=python_path,
             build_requirements=build_reqs,
             build_wheel=build_wheel,
@@ -158,7 +218,6 @@ class DockerIsolation(BaseIsolation):
             repair_wheel=self.config.repair_wheel,
         )
 
-        # Run the build
         full_cmd = [*docker_cmd, "bash", "-c", build_script]
 
         process = await asyncio.create_subprocess_exec(
@@ -172,7 +231,6 @@ class DockerIsolation(BaseIsolation):
         if process.returncode != 0:
             raise IsolationError(f"Docker build failed:\n{build_log}")
 
-        # Find built artifacts
         wheel_path = None
         sdist_path = None
 
@@ -213,7 +271,6 @@ class DockerIsolation(BaseIsolation):
         }
 
 
-# Convenience function
 async def get_docker_isolation(
     platform: PlatformType = "auto",
     architecture: str = "x86_64",

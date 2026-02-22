@@ -6,10 +6,11 @@ separating this concern from the main build engine.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from headless_wheel_builder.core.builder import BuildResult
 
 

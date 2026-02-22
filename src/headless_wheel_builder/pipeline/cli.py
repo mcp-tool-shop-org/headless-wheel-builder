@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import pathlib
 import sys
 
 import click
@@ -250,7 +251,7 @@ def build_only_cmd(
 @click.argument("result_file", type=click.Path(exists=True))
 def status_cmd(result_file: str) -> None:
     """Show status of a previous pipeline run from JSON file."""
-    with open(result_file) as f:
+    with pathlib.Path(result_file).open() as f:
         data = json.load(f)
 
     console.print(json.dumps(data, indent=2))

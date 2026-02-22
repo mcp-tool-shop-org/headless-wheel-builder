@@ -3,18 +3,19 @@
 import os
 import tempfile
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
-from headless_wheel_builder.exceptions import IsolationError, BuildError
+from headless_wheel_builder.exceptions import BuildError, IsolationError
 from headless_wheel_builder.security_validation import (
     SUPPORTED_PYTHON_VERSIONS,
+    AtomicFileWriter,
+    ensure_deterministic_image,
+    safe_cleanup_wheels,
+    validate_cleanup_path,
     validate_python_version,
     validate_wheel_path,
-    validate_cleanup_path,
-    safe_cleanup_wheels,
-    ensure_deterministic_image,
-    AtomicFileWriter,
 )
 
 
@@ -113,9 +114,8 @@ class TestValidateCleanupPath:
 
     def test_file_path_rejected(self):
         """Test that file paths (not directories) are rejected."""
-        with tempfile.NamedTemporaryFile() as tmpfile:
-            with pytest.raises(BuildError, match="not a directory"):
-                validate_cleanup_path(tmpfile.name)
+        with tempfile.NamedTemporaryFile() as tmpfile, pytest.raises(BuildError, match="not a directory"):
+            validate_cleanup_path(tmpfile.name)
 
 
 class TestSafeCleanupWheels:
@@ -163,7 +163,7 @@ class TestSafeCleanupWheels:
 class TestEnsureDeterministicImage:
     """Test Docker image determinism."""
 
-    IMAGES = {
+    IMAGES: ClassVar[dict[str, str]] = {
         "manylinux_2_28_x86_64": "quay.io/pypa/manylinux_2_28_x86_64",
         "manylinux_2_34_x86_64": "quay.io/pypa/manylinux_2_34_x86_64",
     }
@@ -199,9 +199,8 @@ class TestAtomicFileWriter:
         with tempfile.TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "output.txt"
 
-            with AtomicFileWriter(target, binary=False) as temp_path:
-                with open(temp_path, "w") as f:
-                    f.write("test data")
+            with AtomicFileWriter(target, binary=False) as temp_path, temp_path.open("w") as f:
+                f.write("test data")
 
             assert target.exists()
             assert target.read_text() == "test data"
@@ -213,7 +212,7 @@ class TestAtomicFileWriter:
 
             try:
                 with AtomicFileWriter(target, binary=False) as temp_path:
-                    with open(temp_path, "w") as f:
+                    with temp_path.open("w") as f:
                         f.write("partial data")
                     raise ValueError("Simulated error")
             except ValueError:
@@ -232,9 +231,8 @@ class TestAtomicFileWriter:
             target = Path(tmpdir) / "output.bin"
             test_data = b"binary test data"
 
-            with AtomicFileWriter(target, binary=True) as temp_path:
-                with open(temp_path, "wb") as f:
-                    f.write(test_data)
+            with AtomicFileWriter(target, binary=True) as temp_path, temp_path.open("wb") as f:
+                f.write(test_data)
 
             assert target.exists()
             assert target.read_bytes() == test_data

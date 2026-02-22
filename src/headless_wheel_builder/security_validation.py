@@ -9,13 +9,12 @@ This module provides enhanced validation and safety checks for:
 
 from __future__ import annotations
 
+import contextlib
 import os
 import tempfile
 from pathlib import Path
-from typing import Set
 
-from headless_wheel_builder.exceptions import IsolationError, BuildError
-
+from headless_wheel_builder.exceptions import BuildError, IsolationError
 
 # Supported Python versions in manylinux images
 SUPPORTED_PYTHON_VERSIONS = {"3.9", "3.10", "3.11", "3.12", "3.13"}
@@ -59,10 +58,7 @@ def validate_python_version(version: str) -> None:
 
     # Extract major.minor version if patch version provided
     parts = str(version).split(".")
-    if len(parts) >= 2:
-        short_version = f"{parts[0]}.{parts[1]}"
-    else:
-        short_version = version
+    short_version = f"{parts[0]}.{parts[1]}" if len(parts) >= 2 else version
 
     if short_version not in SUPPORTED_PYTHON_VERSIONS:
         supported_str = ", ".join(sorted(SUPPORTED_PYTHON_VERSIONS))
@@ -93,12 +89,12 @@ def validate_wheel_path(wheel_path: Path | str) -> None:
         >>> validate_wheel_path("/etc/passwd")    # Raises BuildError
     """
     wheel_path_str = str(wheel_path)
-    
+
     # Only validate relative paths - skip absolute path check for UNC paths
     # that don't start with drive letters (UNC paths are allowed in some contexts)
     is_absolute = Path(wheel_path_str).is_absolute()
     is_unc_path = wheel_path_str.startswith("\\\\")
-    
+
     # Check for absolute paths (but allow UNC paths for network drives)
     if is_absolute and not is_unc_path and not wheel_path_str.startswith("//"):
         raise BuildError(
@@ -215,7 +211,7 @@ def safe_cleanup_wheels(output_dir: Path | str) -> int:
 
     if errors:
         raise BuildError(
-            f"Failed to delete some files during cleanup:\n" + "\n".join(errors)
+            "Failed to delete some files during cleanup:\n" + "\n".join(errors)
         )
 
     return deleted
@@ -316,10 +312,8 @@ class AtomicFileWriter:
         if exc_type is not None:
             # Exception occurred, delete temp file
             if self.temp_path and self.temp_path.exists():
-                try:
+                with contextlib.suppress(OSError):
                     self.temp_path.unlink()
-                except OSError:
-                    pass  # Best effort cleanup
             return False
 
         # No exception, promote temp file to final location
@@ -329,10 +323,8 @@ class AtomicFileWriter:
                 self.temp_path.replace(self.target_path)
             except OSError as e:
                 # Clean up temp file if rename failed
-                try:
+                with contextlib.suppress(OSError):
                     self.temp_path.unlink()
-                except OSError:
-                    pass
                 raise BuildError(f"Failed to finalize {self.target_path}: {e}") from e
 
         return False

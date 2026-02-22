@@ -30,7 +30,7 @@ class PyPIConfig:
     repository_url: str | None = None  # Override URL for custom registries
 
     # Authentication
-    # Priority: token > username/password > keyring > environment
+    # Authentication priority: token, then username/password, then keyring, then environment
     token: str | None = None  # API token (preferred)
     username: str | None = None
     password: str | None = None
@@ -282,9 +282,9 @@ class PyPIPublisher(BasePublisher):
         except urllib.error.HTTPError as e:
             if e.code == 404:
                 return False
-            raise PublishError(f"Failed to check package: {e}")
+            raise PublishError(f"Failed to check package: {e}") from e
         except Exception as e:
-            raise PublishError(f"Failed to check package: {e}")
+            raise PublishError(f"Failed to check package: {e}") from e
 
 
 # Convenience function
