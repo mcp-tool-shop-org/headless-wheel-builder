@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import hashlib
 import re
 import shutil
@@ -61,10 +62,8 @@ class ResolvedSource:
     def cleanup(self) -> None:
         """Clean up temporary resources."""
         for callback in self._cleanup_callbacks:
-            try:
+            with contextlib.suppress(Exception):
                 callback()
-            except Exception:
-                pass  # Best effort cleanup
 
     def __enter__(self) -> ResolvedSource:
         return self

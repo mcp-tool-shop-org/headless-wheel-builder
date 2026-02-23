@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from datetime import date
 from unittest.mock import AsyncMock, patch
 
@@ -578,10 +579,8 @@ class TestGitOperations:
             # Note: This will fail after tag list because we need to mock multiple calls
             # For a real test, we'd need to mock all subprocess calls
             # This is a simplified test
-            try:
+            with contextlib.suppress(GitError):
                 await get_latest_tag("/test/repo")
-            except GitError:
-                pass  # Expected due to incomplete mocking
 
     @pytest.mark.asyncio
     async def test_get_latest_tag_no_tags(self):

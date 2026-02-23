@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import zipfile
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
 from headless_wheel_builder.core.builder import BuildEngine, BuildResult
 from headless_wheel_builder.exceptions import BuildError
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _write_minimal_wheel(path: Path, unsafe: bool = False) -> None:

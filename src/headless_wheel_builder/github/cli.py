@@ -544,7 +544,7 @@ def workflow_cmd(
     workflow: str | None,
     ref: str,
     inputs: tuple[str, ...],
-    watch: bool,
+    _watch: bool,
 ) -> None:
     """Manage GitHub Actions workflows.
 

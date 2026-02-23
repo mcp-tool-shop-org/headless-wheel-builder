@@ -100,7 +100,7 @@ class TestSourceResolver:
         resolver = SourceResolver()
         spec = SourceSpec(type=SourceType.LOCAL_PATH, location=str(empty_dir))
 
-        with pytest.raises(SourceError, match="No pyproject.toml"):
+        with pytest.raises(SourceError, match=r"No pyproject\.toml"):
             await resolver.resolve(spec)
 
     @pytest.mark.asyncio

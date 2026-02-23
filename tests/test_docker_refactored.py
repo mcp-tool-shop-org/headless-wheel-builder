@@ -9,11 +9,9 @@ from headless_wheel_builder.isolation.docker_commands import (
 )
 from headless_wheel_builder.isolation.docker_config import (
     DockerConfig,
-    PlatformType,
     build_env_vars,
 )
 from headless_wheel_builder.isolation.docker_images import (
-    DEFAULT_IMAGES,
     MANYLINUX_IMAGES,
     MANYLINUX_PYTHON_PATHS,
     get_container_python,
@@ -130,7 +128,7 @@ class TestDockerImages:
         try:
             # Use a key from available images
             image = await select_image("manylinux_2_28_x86_64", "auto", "x86_64")
-            assert "quay.io/pypa/manylinux_2_28_x86_64" == image
+            assert image == "quay.io/pypa/manylinux_2_28_x86_64"
         finally:
             docker_images.ensure_image_available = original
 
@@ -183,7 +181,7 @@ class TestDockerCommands:
         assert "--rm" in cmd
         assert "-w" in cmd
         assert "/src" in cmd
-        assert "test:image" == cmd[-1]
+        assert cmd[-1] == "test:image"
 
     @pytest.mark.asyncio
     async def test_build_docker_command_with_limits(self, tmp_path):

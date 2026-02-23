@@ -14,7 +14,6 @@ from rich.panel import Panel
 from rich.table import Table
 
 from headless_wheel_builder.core.analyzer import ProjectAnalyzer
-from headless_wheel_builder.exceptions import HWBError
 
 console = Console()
 error_console = Console(stderr=True)
@@ -41,16 +40,15 @@ async def execute_inspect(
         raise click.BadParameter(f"Source is not a directory: {source}")
 
     # Analyze project
-    analyzer = ProjectAnalyzer(source_path)
-    metadata = await analyzer.analyze()
+    analyzer = ProjectAnalyzer()
+    metadata = await analyzer.analyze(source_path)
 
     if check:
         # Just verify structure is valid
-        if metadata.errors:
+        if not metadata.has_pyproject and not metadata.has_setup_py:
             error_console.print(
                 Panel(
-                    "Project has configuration errors:\n"
-                    + "\n".join(f"  • {e}" for e in metadata.errors),
+                    "Project has configuration errors:\n  • No pyproject.toml or setup.py found",
                     style="red",
                     title="✗ Validation Failed",
                 )
@@ -62,17 +60,16 @@ async def execute_inspect(
 
     # Print results based on format
     if output_format == "json":
-        import json
 
         data = {
             "name": metadata.name,
             "version": metadata.version,
-            "python_requires": metadata.python_requires,
+            "requires_python": metadata.requires_python,
             "dependencies": metadata.dependencies,
             "optional_dependencies": metadata.optional_dependencies,
-            "has_py_typed": metadata.has_py_typed,
-            "has_tests": metadata.has_tests,
-            "errors": metadata.errors,
+            "has_pyproject": metadata.has_pyproject,
+            "has_setup_py": metadata.has_setup_py,
+            "has_extension_modules": metadata.has_extension_modules,
         }
         console.print_json(data=data)
     elif output_format == "table":
@@ -81,7 +78,9 @@ async def execute_inspect(
         _print_inspect_text(metadata, source_path)
 
 
-def _print_inspect_text(metadata, source_path: Path) -> None:
+from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadata
+
+def _print_inspect_text(metadata: ProjectMetadata, source_path: Path) -> None:
     """Print inspection results in text format.
 
     Args:
@@ -92,8 +91,8 @@ def _print_inspect_text(metadata, source_path: Path) -> None:
     console.print(f"Version: {metadata.version}")
     console.print(f"Location: {source_path}")
 
-    if metadata.python_requires:
-        console.print(f"Python: {metadata.python_requires}")
+    if metadata.requires_python:
+        console.print(f"Python: {metadata.requires_python}")
 
     if metadata.dependencies:
         console.print("\n[bold]Dependencies:[/bold]")
@@ -107,15 +106,14 @@ def _print_inspect_text(metadata, source_path: Path) -> None:
             for dep in deps:
                 console.print(f"    • {dep}")
 
-    if metadata.errors:
+    if not metadata.has_pyproject and not metadata.has_setup_py:
         error_console.print("\n[bold red]Issues:[/bold red]")
-        for error in metadata.errors:
-            error_console.print(f"  ✗ {error}")
+        error_console.print("  ✗ No pyproject.toml or setup.py found")
     else:
         console.print("\n[green]✓ No configuration issues detected[/green]")
 
 
-def _print_inspect_table(metadata, source_path: Path) -> None:
+def _print_inspect_table(metadata: ProjectMetadata, source_path: Path) -> None:
     """Print inspection results in table format.
 
     Args:
@@ -129,22 +127,21 @@ def _print_inspect_table(metadata, source_path: Path) -> None:
     table.add_row("Name", metadata.name or "[dim]Unknown[/dim]")
     table.add_row("Version", metadata.version or "[dim]Unknown[/dim]")
     table.add_row("Location", str(source_path))
-    table.add_row("Python Version", metadata.python_requires or "[dim]Any[/dim]")
+    table.add_row("Python Version", metadata.requires_python or "[dim]Any[/dim]")
     table.add_row(
         "Dependencies",
         str(len(metadata.dependencies)) if metadata.dependencies else "0",
     )
     table.add_row(
-        "Type Hints",
-        "[green]Yes[/green]" if metadata.has_py_typed else "[dim]No[/dim]",
+        "pyproject.toml",
+        "[green]Yes[/green]" if metadata.has_pyproject else "[dim]No[/dim]",
     )
     table.add_row(
-        "Tests", "[green]Yes[/green]" if metadata.has_tests else "[dim]No[/dim]"
+        "setup.py", "[green]Yes[/green]" if metadata.has_setup_py else "[dim]No[/dim]"
     )
 
     console.print(table)
 
-    if metadata.errors:
+    if not metadata.has_pyproject and not metadata.has_setup_py:
         error_console.print("\n[bold red]Configuration Issues:[/bold red]")
-        for error in metadata.errors:
-            error_console.print(f"  ✗ {error}")
+        error_console.print("  ✗ No pyproject.toml or setup.py found")

@@ -14,11 +14,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadata
-from headless_wheel_builder.core.source import ResolvedSource, SourceResolver, SourceSpec
 from headless_wheel_builder.core.builder_metadata import extract_wheel_metadata
+from headless_wheel_builder.core.source import ResolvedSource, SourceResolver, SourceSpec
 from headless_wheel_builder.exceptions import BuildError
 from headless_wheel_builder.isolation.venv import VenvIsolation
-from headless_wheel_builder.security_validation import validate_wheel_path
 
 
 def _is_dangerous_cleanup_path(path: Path) -> bool:
@@ -49,10 +48,7 @@ def _is_dangerous_cleanup_path(path: Path) -> bool:
         return True
 
     # On Windows, check for drive root
-    if os.name == "nt" and len(resolved.parts) == 1:
-        return True
-
-    return False
+    return bool(os.name == "nt" and len(resolved.parts) == 1)
 
 if TYPE_CHECKING:
     from headless_wheel_builder.isolation.base import BuildEnvironment, IsolationStrategy
@@ -317,7 +313,7 @@ class BuildEngine:
                 backend_module=metadata.backend.module
                 if metadata.backend
                 else "setuptools.build_meta",
-                source_path=source_path,
+                _source_path=source_path,
                 output_path=temp_path,
                 config_settings=self.config.config_settings,
             )
@@ -327,7 +323,7 @@ class BuildEngine:
                 str(env.python_path),
                 "-c",
                 build_script,
-                cwd=source_path,
+                cwd=str(source_path),
                 env=env.env_vars,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
@@ -389,7 +385,7 @@ class BuildEngine:
                 backend_module=metadata.backend.module
                 if metadata.backend
                 else "setuptools.build_meta",
-                source_path=source_path,
+                _source_path=source_path,
                 output_path=temp_path,
                 config_settings=self.config.config_settings,
             )
@@ -398,7 +394,7 @@ class BuildEngine:
                 str(env.python_path),
                 "-c",
                 build_script,
-                cwd=source_path,
+                cwd=str(source_path),
                 env=env.env_vars,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
@@ -430,7 +426,7 @@ class BuildEngine:
     def _create_build_script(
         self,
         backend_module: str,
-        source_path: Path,
+        _source_path: Path,
         output_path: Path,
         config_settings: dict[str, str] | None = None,
     ) -> str:
@@ -458,7 +454,7 @@ else:
     def _create_sdist_script(
         self,
         backend_module: str,
-        source_path: Path,
+        _source_path: Path,
         output_path: Path,
         config_settings: dict[str, str] | None = None,
     ) -> str:

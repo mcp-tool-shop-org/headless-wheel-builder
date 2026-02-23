@@ -365,7 +365,8 @@ class VenvIsolation(BaseIsolation):
         if self._uv_available is not None:
             return self._uv_available
 
-        self._uv_path = shutil.which("uv")
+        uv_path = shutil.which("uv")
+        self._uv_path = Path(uv_path) if uv_path else None
         self._uv_available = self._uv_path is not None
         return self._uv_available
 

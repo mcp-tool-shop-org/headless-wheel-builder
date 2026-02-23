@@ -586,7 +586,7 @@ class TestMetricsCLI:
         with patch.object(
             MetricsStorage,
             "__init__",
-            lambda self, **kwargs: setattr(self, "path", tmp_path / "m.json")
+            lambda self, **_kwargs: setattr(self, "path", tmp_path / "m.json")
             or setattr(self, "max_entries", 10000)
             or None,
         ), patch.object(MetricsStorage, "_load", return_value=[]):

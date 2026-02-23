@@ -8,13 +8,11 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Any
 
 import click
 from rich.console import Console
 
 from headless_wheel_builder.core.builder import BuildConfig, BuildEngine
-from headless_wheel_builder.exceptions import BuildError, HWBError
 
 console = Console()
 error_console = Console(stderr=True)
@@ -63,15 +61,18 @@ def validate_build_options(
         )
 
     # Docker-specific validation
-    if isolation == "docker":
-        if docker_image and platform != "auto":
-            raise click.BadParameter(
-                "Cannot use both --docker-image and --platform",
-                param_hint="docker-image",
-            )
+    if isolation == "docker" and docker_image and platform != "auto":
+        raise click.BadParameter(
+            "Cannot use both --docker-image and --platform",
+            param_hint="docker-image",
+        )
 
 
-def run_async(coro):
+from typing import Any, Coroutine, TypeVar
+
+T = TypeVar("T")
+
+def run_async(coro: Coroutine[Any, Any, T]) -> T:
     """Run an async function synchronously.
 
     On Windows, uses ProactorEventLoop which supports subprocess operations.
@@ -126,24 +127,27 @@ async def execute_build(
 
     # Create build config
     config = BuildConfig(
-        source=source_path,
-        output=output_path,
+        output_dir=output_path,
         python_version=python,
         build_wheel=wheel,
         build_sdist=sdist,
         clean_output=clean,
-        isolation_strategy=isolation,
+        use_docker=isolation == "docker",
         docker_platform=platform,
         docker_image=docker_image,
-        docker_arch=arch,
-        no_dependencies=no_deps,
+        docker_architecture=arch,
         config_settings=dict(_parse_config_settings(config_settings)),
-        verbose=verbose,
     )
 
     # Execute build
     engine = BuildEngine(config=config)
-    result = await engine.build()
+    result = await engine.build(
+        source=source_path,
+        output_dir=output_path,
+        python_version=python,
+        wheel=wheel,
+        sdist=sdist,
+    )
 
     # Print results
     if result.success:
@@ -179,7 +183,9 @@ def _parse_config_settings(
     return parsed
 
 
-def _print_build_success(result, verbose: int) -> None:
+from headless_wheel_builder.core.builder import BuildConfig, BuildEngine, BuildResult
+
+def _print_build_success(result: BuildResult, verbose: int) -> None:
     """Print successful build results.
 
     Args:
@@ -216,7 +222,7 @@ def _print_build_success(result, verbose: int) -> None:
         console.print(f"Output: {result.wheel_path or result.sdist_path}")
 
 
-def _print_build_failure(result, verbose: int) -> None:
+def _print_build_failure(result: BuildResult, verbose: int) -> None:
     """Print failed build results.
 
     Args:

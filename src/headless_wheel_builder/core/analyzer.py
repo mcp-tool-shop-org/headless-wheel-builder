@@ -13,7 +13,7 @@ from headless_wheel_builder.exceptions import ProjectError
 if sys.version_info >= (3, 11):
     import tomllib
 else:
-    import tomli as tomllib
+    import tomli as tomllib  # type: ignore
 
 
 @dataclass
@@ -157,7 +157,7 @@ class ProjectAnalyzer:
     def _parse_pyproject(self, path: Path, metadata: ProjectMetadata) -> None:
         """Parse pyproject.toml for metadata."""
         try:
-            with open(path, "rb") as f:
+            with Path(path).open("rb") as f:
                 data = tomllib.load(f)
         except tomllib.TOMLDecodeError as e:
             raise ProjectError(f"Invalid pyproject.toml: {e}") from e

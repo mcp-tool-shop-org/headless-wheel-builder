@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from headless_wheel_builder.isolation.docker_config import DockerConfig, build_env_vars
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 async def build_docker_command(
