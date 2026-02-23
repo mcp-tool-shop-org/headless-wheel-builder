@@ -118,6 +118,7 @@ class TestDockerImages:
         """Test explicit image selection."""
         # Mock ensure_image_available to avoid actual Docker calls
         import headless_wheel_builder.isolation.docker_images as docker_images
+
         original = docker_images.ensure_image_available
 
         async def mock_ensure(image: str) -> None:
@@ -136,6 +137,7 @@ class TestDockerImages:
     async def test_select_image_auto_platform(self):
         """Test automatic platform selection."""
         import headless_wheel_builder.isolation.docker_images as docker_images
+
         original = docker_images.ensure_image_available
 
         async def mock_ensure(image: str) -> None:

@@ -114,7 +114,10 @@ class TestValidateCleanupPath:
 
     def test_file_path_rejected(self):
         """Test that file paths (not directories) are rejected."""
-        with tempfile.NamedTemporaryFile() as tmpfile, pytest.raises(BuildError, match="not a directory"):
+        with (
+            tempfile.NamedTemporaryFile() as tmpfile,
+            pytest.raises(BuildError, match="not a directory"),
+        ):
             validate_cleanup_path(tmpfile.name)
 
 
@@ -175,9 +178,7 @@ class TestEnsureDeterministicImage:
 
     def test_full_image_url(self):
         """Test that full image URLs are recognized."""
-        result = ensure_deterministic_image(
-            "quay.io/pypa/manylinux_2_28_x86_64", self.IMAGES
-        )
+        result = ensure_deterministic_image("quay.io/pypa/manylinux_2_28_x86_64", self.IMAGES)
         assert result == "quay.io/pypa/manylinux_2_28_x86_64"
 
     def test_unknown_image_key(self):
@@ -199,7 +200,10 @@ class TestAtomicFileWriter:
         with tempfile.TemporaryDirectory() as tmpdir:
             target = Path(tmpdir) / "output.txt"
 
-            with AtomicFileWriter(target, binary=False) as temp_path, Path(temp_path).open("w") as f:
+            with (
+                AtomicFileWriter(target, binary=False) as temp_path,
+                Path(temp_path).open("w") as f,
+            ):
                 f.write("test data")
 
             assert target.exists()
@@ -211,7 +215,10 @@ class TestAtomicFileWriter:
             target = Path(tmpdir) / "output.txt"
 
             try:
-                with AtomicFileWriter(target, binary=False) as temp_path, Path(temp_path).open("w") as f:
+                with (
+                    AtomicFileWriter(target, binary=False) as temp_path,
+                    Path(temp_path).open("w") as f,
+                ):
                     f.write("partial data")
                     raise ValueError("Simulated error")
             except ValueError:
@@ -230,7 +237,10 @@ class TestAtomicFileWriter:
             target = Path(tmpdir) / "output.bin"
             test_data = b"binary test data"
 
-            with AtomicFileWriter(target, binary=True) as temp_path, Path(temp_path).open("wb") as f:
+            with (
+                AtomicFileWriter(target, binary=True) as temp_path,
+                Path(temp_path).open("wb") as f,
+            ):
                 f.write(test_data)
 
             assert target.exists()

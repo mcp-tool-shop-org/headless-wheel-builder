@@ -68,10 +68,7 @@ class TestDockerImageDeterminism:
 
     def test_determinism_with_large_image_registry(self):
         """Test determinism with a large registry of images."""
-        large_registry = {
-            f"image_{i}": f"quay.io/pypa/image_{i}"
-            for i in range(100)
-        }
+        large_registry = {f"image_{i}": f"quay.io/pypa/image_{i}" for i in range(100)}
 
         # Should return consistent results
         for key in list(large_registry.keys())[:10]:
@@ -98,9 +95,7 @@ class TestDockerImageDeterminism:
     def test_canonical_url_preservation(self):
         """Test that canonical URLs are preserved exactly."""
         canonical = "quay.io/pypa/manylinux_2_28_x86_64:latest"
-        images = {
-            "manylinux_2_28": canonical
-        }
+        images = {"manylinux_2_28": canonical}
 
         result = ensure_deterministic_image("manylinux_2_28", images)
         assert result == canonical

@@ -21,6 +21,7 @@ error_console = Console(stderr=True)
 
 T = TypeVar("T")
 
+
 def validate_build_options(
     source: str,
     output_dir: str,  # noqa: ARG001
@@ -69,6 +70,7 @@ def validate_build_options(
             "Cannot use both --docker-image and --platform",
             param_hint="docker-image",
         )
+
 
 def run_async(coro: Coroutine[Any, Any, T]) -> T:
     """Run an async function synchronously.
@@ -179,6 +181,7 @@ def _parse_config_settings(
         key, value = setting.split("=", 1)
         parsed.append((key, value))
     return parsed
+
 
 def _print_build_success(result: BuildResult, verbose: int) -> None:
     """Print successful build results.

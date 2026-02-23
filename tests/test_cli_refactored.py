@@ -30,7 +30,10 @@ class TestBuildCommandValidation:
 
     def test_validate_missing_pyproject_toml(self):
         """Test validation requires pyproject.toml."""
-        with tempfile.TemporaryDirectory() as tmpdir, pytest.raises(Exception, match=""):  # click.BadParameter
+        with (
+            tempfile.TemporaryDirectory() as tmpdir,
+            pytest.raises(Exception, match=""),
+        ):  # click.BadParameter
             validate_build_options(
                 source=tmpdir,
                 output_dir="dist",

@@ -60,7 +60,6 @@ async def execute_inspect(
 
     # Print results based on format
     if output_format == "json":
-
         data = {
             "name": metadata.name,
             "version": metadata.version,
@@ -76,6 +75,7 @@ async def execute_inspect(
         _print_inspect_table(metadata, source_path)
     else:  # text
         _print_inspect_text(metadata, source_path)
+
 
 def _print_inspect_text(metadata: ProjectMetadata, source_path: Path) -> None:
     """Print inspection results in text format.
@@ -133,9 +133,7 @@ def _print_inspect_table(metadata: ProjectMetadata, source_path: Path) -> None:
         "pyproject.toml",
         "[green]Yes[/green]" if metadata.has_pyproject else "[dim]No[/dim]",
     )
-    table.add_row(
-        "setup.py", "[green]Yes[/green]" if metadata.has_setup_py else "[dim]No[/dim]"
-    )
+    table.add_row("setup.py", "[green]Yes[/green]" if metadata.has_setup_py else "[dim]No[/dim]")
 
     console.print(table)
 

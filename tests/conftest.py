@@ -8,6 +8,7 @@ import pytest
 
 if TYPE_CHECKING:
     from pathlib import Path
+
     pass
 
 

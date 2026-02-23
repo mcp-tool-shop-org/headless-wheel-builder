@@ -25,12 +25,14 @@ SUPPORTED_PYTHON_VERSIONS = {"3.9", "3.10", "3.11", "3.12", "3.13"}
 _UNIX_DANGEROUS = {"/", "/home", "/root", "/tmp", "/var", "/opt", "/usr"}
 _WIN_DANGEROUS = {"C:\\", "C:\\Windows", "C:\\Program Files"}
 
+
 def _get_dangerous_cleanup_paths() -> set[str]:
     """Get platform-specific dangerous paths."""
     paths = _UNIX_DANGEROUS.copy()
     if os.name == "nt":  # Windows
         paths.update(_WIN_DANGEROUS)
     return paths
+
 
 DANGEROUS_CLEANUP_PATHS = _get_dangerous_cleanup_paths()
 
@@ -52,10 +54,7 @@ def validate_python_version(version: str) -> None:
     # Check for empty or None version
     if not version or not str(version).strip():
         supported_str = ", ".join(sorted(SUPPORTED_PYTHON_VERSIONS))
-        raise IsolationError(
-            f"Python version cannot be empty\n"
-            f"Supported versions: {supported_str}"
-        )
+        raise IsolationError(f"Python version cannot be empty\nSupported versions: {supported_str}")
 
     # Extract major.minor version if patch version provided
     parts = str(version).split(".")
@@ -99,8 +98,7 @@ def validate_wheel_path(wheel_path: Path | str) -> None:
     # Check for absolute paths (but allow UNC paths for network drives)
     if is_absolute and not is_unc_path and not wheel_path_str.startswith("//"):
         raise BuildError(
-            f"Absolute paths not allowed in wheel: {wheel_path}\n"
-            f"Use relative paths only."
+            f"Absolute paths not allowed in wheel: {wheel_path}\nUse relative paths only."
         )
 
     # Check for directory traversal attempts
@@ -140,7 +138,9 @@ def validate_cleanup_path(output_dir: Path | str) -> None:
     # Check against dangerous root directories (Unix)
     unix_roots = {"/", "/home", "/root", "/var", "/opt", "/usr"}
     for dangerous_root in unix_roots:
-        if output_str == dangerous_root.lower() or output_str.startswith(dangerous_root.lower() + "/"):
+        if output_str == dangerous_root.lower() or output_str.startswith(
+            dangerous_root.lower() + "/"
+        ):
             raise BuildError(
                 f"Cannot clean critical system directory: {output_dir}\n"
                 f"For safety, cleanup is restricted to project directories only."
@@ -149,7 +149,9 @@ def validate_cleanup_path(output_dir: Path | str) -> None:
     # Check against dangerous Windows directories
     win_dangerous = {"\\", "c:\\", "c:\\windows", "c:\\program files"}
     for dangerous_win in win_dangerous:
-        if output_str == dangerous_win.lower() or output_str.startswith(dangerous_win.lower() + "\\"):
+        if output_str == dangerous_win.lower() or output_str.startswith(
+            dangerous_win.lower() + "\\"
+        ):
             raise BuildError(
                 f"Cannot clean critical system directory: {output_dir}\n"
                 f"For safety, cleanup is restricted to project directories only."
@@ -211,9 +213,7 @@ def safe_cleanup_wheels(output_dir: Path | str) -> int:
                 errors.append(f"Failed to delete {file_path}: {e}")
 
     if errors:
-        raise BuildError(
-            "Failed to delete some files during cleanup:\n" + "\n".join(errors)
-        )
+        raise BuildError("Failed to delete some files during cleanup:\n" + "\n".join(errors))
 
     return deleted
 
@@ -245,8 +245,7 @@ def ensure_deterministic_image(image: str, available_images: dict[str, str]) -> 
         if image not in available_images.values():
             available_keys = ", ".join(sorted(available_images.keys()))
             raise IsolationError(
-                f"Unknown or unsupported image: {image}\n"
-                f"Supported image keys: {available_keys}"
+                f"Unknown or unsupported image: {image}\nSupported image keys: {available_keys}"
             )
         return image
 

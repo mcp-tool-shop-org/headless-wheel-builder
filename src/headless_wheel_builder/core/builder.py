@@ -50,8 +50,10 @@ def _is_dangerous_cleanup_path(path: Path) -> bool:
     # On Windows, check for drive root
     return bool(os.name == "nt" and len(resolved.parts) == 1)
 
+
 if TYPE_CHECKING:
     from headless_wheel_builder.isolation.base import BuildEnvironment, IsolationStrategy
+
     pass
 
 

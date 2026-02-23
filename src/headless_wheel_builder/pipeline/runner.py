@@ -164,7 +164,11 @@ class Pipeline:
 
         # Check source exists
         source_path = Path(self.config.source)
-        if self.config.source != "." and not source_path.exists() and not self.config.source.startswith(("http://", "https://", "git@")):
+        if (
+            self.config.source != "."
+            and not source_path.exists()
+            and not self.config.source.startswith(("http://", "https://", "git@"))
+        ):
             errors.append(f"Source not found: {self.config.source}")
 
         # Check repo format if specified

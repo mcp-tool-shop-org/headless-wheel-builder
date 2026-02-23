@@ -31,9 +31,7 @@ class TestParseWheelFilename:
 
     def test_parse_manylinux_wheel(self):
         """Test parsing manylinux wheel."""
-        result = parse_wheel_filename(
-            "package-1.0-cp310-cp310-manylinux_2_28_x86_64.whl"
-        )
+        result = parse_wheel_filename("package-1.0-cp310-cp310-manylinux_2_28_x86_64.whl")
         assert result["name"] == "package"
         assert result["python_tag"] == "cp310"
         assert result["abi_tag"] == "cp310"

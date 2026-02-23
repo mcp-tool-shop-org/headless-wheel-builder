@@ -101,4 +101,6 @@ class TestDangerousCleanupPath:
         with tempfile.TemporaryDirectory() as tmpdir:
             project_dir = Path(tmpdir) / "my_project" / "dist"
             project_dir.mkdir(parents=True)
-            assert not _is_dangerous_cleanup_path(project_dir), "Project dir should not be dangerous"
+            assert not _is_dangerous_cleanup_path(project_dir), (
+                "Project dir should not be dangerous"
+            )

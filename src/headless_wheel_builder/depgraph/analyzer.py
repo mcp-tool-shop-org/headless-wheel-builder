@@ -353,7 +353,11 @@ class DependencyAnalyzer:
                 continue
 
             # Check for copyleft in permissive projects
-            if root_license and root_license.category == LicenseCategory.PERMISSIVE and node.license_info.category == LicenseCategory.COPYLEFT:
+            if (
+                root_license
+                and root_license.category == LicenseCategory.PERMISSIVE
+                and node.license_info.category == LicenseCategory.COPYLEFT
+            ):
                 issues.append(f"{name}: GPL-licensed dependency in permissive project")
 
         graph.license_issues = issues

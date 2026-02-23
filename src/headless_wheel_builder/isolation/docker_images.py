@@ -76,8 +76,7 @@ def get_container_python(version: str) -> str:
     # Unsupported version - raise with helpful message
     supported = sorted(MANYLINUX_PYTHON_PATHS.keys())
     raise IsolationError(
-        f"Unsupported Python version: {version}. "
-        f"Supported versions: {', '.join(supported)}"
+        f"Unsupported Python version: {version}. Supported versions: {', '.join(supported)}"
     )
 
 
@@ -121,8 +120,7 @@ async def select_image(
     image = MANYLINUX_IMAGES.get(platform_key)
     if not image:
         raise IsolationError(
-            f"Unknown platform: {platform_key}. "
-            f"Available: {', '.join(MANYLINUX_IMAGES.keys())}"
+            f"Unknown platform: {platform_key}. Available: {', '.join(MANYLINUX_IMAGES.keys())}"
         )
 
     # Pull image if needed
@@ -165,9 +163,7 @@ async def ensure_image_available(image: str) -> None:
         stdout, _ = await process.communicate()
 
         if process.returncode != 0:
-            raise IsolationError(
-                f"Failed to pull Docker image {image}:\n{stdout.decode()}"
-            )
+            raise IsolationError(f"Failed to pull Docker image {image}:\n{stdout.decode()}")
 
 
 def list_available_images() -> dict[str, str]:

@@ -537,7 +537,10 @@ class TestCacheCLI:
     def test_packages(self, tmp_path: Path) -> None:
         """Test packages command."""
         runner = CliRunner()
-        with patch.object(ArtifactCache, "list_packages", return_value=["alpha", "beta"]), patch.object(ArtifactCache, "list_versions", return_value=["1.0.0"]):
+        with (
+            patch.object(ArtifactCache, "list_packages", return_value=["alpha", "beta"]),
+            patch.object(ArtifactCache, "list_versions", return_value=["1.0.0"]),
+        ):
             result = runner.invoke(cache, ["packages"])
             assert result.exit_code == 0
             assert "alpha" in result.output
@@ -555,7 +558,10 @@ class TestCacheCLI:
         )
         mock_path = tmp_path / "wheel.whl"
 
-        with patch.object(ArtifactCache, "get", return_value=(entry, mock_path)), patch.object(ArtifactCache, "copy_to", return_value=mock_path):
+        with (
+            patch.object(ArtifactCache, "get", return_value=(entry, mock_path)),
+            patch.object(ArtifactCache, "copy_to", return_value=mock_path),
+        ):
             result = runner.invoke(cache, ["get", "pkg", "1.0.0"])
             assert result.exit_code == 0
             assert "Copied" in result.output
@@ -571,7 +577,10 @@ class TestCacheCLI:
     def test_remove_confirmed(self, tmp_path: Path) -> None:
         """Test remove with confirmation."""
         runner = CliRunner()
-        with patch.object(ArtifactCache, "contains", return_value=True), patch.object(ArtifactCache, "remove", return_value=1) as mock_remove:
+        with (
+            patch.object(ArtifactCache, "contains", return_value=True),
+            patch.object(ArtifactCache, "remove", return_value=1) as mock_remove,
+        ):
             result = runner.invoke(cache, ["remove", "pkg", "1.0.0", "--yes"])
             assert result.exit_code == 0
             mock_remove.assert_called_once()

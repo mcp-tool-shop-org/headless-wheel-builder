@@ -583,13 +583,18 @@ class TestMetricsCLI:
     def test_summary_empty(self, tmp_path: Path) -> None:
         """Test summary with no data."""
         runner = CliRunner()
-        with patch.object(
-            MetricsStorage,
-            "__init__",
-            lambda self, **_kwargs: setattr(self, "path", tmp_path / "m.json")
-            or setattr(self, "max_entries", 10000)
-            or None,
-        ), patch.object(MetricsStorage, "_load", return_value=[]):
+        with (
+            patch.object(
+                MetricsStorage,
+                "__init__",
+                lambda self, **_kwargs: (
+                    setattr(self, "path", tmp_path / "m.json")
+                    or setattr(self, "max_entries", 10000)
+                    or None
+                ),
+            ),
+            patch.object(MetricsStorage, "_load", return_value=[]),
+        ):
             result = runner.invoke(metrics, ["summary"])
             assert result.exit_code == 0
             assert "0" in result.output  # total builds
