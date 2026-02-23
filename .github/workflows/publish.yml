@@ -1,6 +1,9 @@
-name: Publish to PyPI
+name: Publish
 
 on:
+  push:
+    tags:
+      - "v*.*.*"
   release:
     types: [published]
   workflow_dispatch:
@@ -19,20 +22,78 @@ on:
         default: false
         type: boolean
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   PYTHON_VERSION: "3.12"
+  UV_SYSTEM_PYTHON: 1
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 permissions:
   contents: read
-  id-token: write  # Required for trusted publishing
-  attestations: write  # Required for artifact attestations
+  id-token: write
+  attestations: write
+  packages: write
 
 jobs:
+  # ==========================================================================
+  # Validate Release
+  # ==========================================================================
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Releasing version: $VERSION"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv pip install -e ".[all]"
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short
+
+      - name: Build package
+        run: |
+          uv pip install build
+          python -m build
+
+      - name: Check built artifacts
+        run: |
+          ls -la dist/
+          pip install twine
+          twine check dist/*
+
   # ==========================================================================
   # Build Package
   # ==========================================================================
   build:
     name: Build Package
+    needs: validate
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -42,7 +103,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for version detection
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -57,7 +118,7 @@ jobs:
         run: |
           VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Building version: $VERSION"
+          echo "Building version: $VERSION"
 
       - name: Build package
         id: build
@@ -67,30 +128,29 @@ jobs:
           SDIST_NAME=$(ls dist/*.tar.gz | head -1 | xargs basename)
           echo "wheel_name=$WHEEL_NAME" >> $GITHUB_OUTPUT
           echo "sdist_name=$SDIST_NAME" >> $GITHUB_OUTPUT
-          echo "📦 Built: $WHEEL_NAME"
-          echo "📦 Built: $SDIST_NAME"
+          echo "Built: $WHEEL_NAME"
+          echo "Built: $SDIST_NAME"
 
       - name: Check package metadata
         run: |
           twine check dist/*
-          echo "✅ Package metadata validated"
+          echo "Package metadata validated"
 
       - name: Verify package contents
         run: |
           pip install dist/*.whl
           python -c "import headless_wheel_builder; print(f'Version: {headless_wheel_builder.__version__}')"
           python -c "from headless_wheel_builder.cli.main import cli; print('CLI loaded successfully')"
-          # Verify new modules are included
           python -c "from headless_wheel_builder.pipeline import Pipeline; print('Pipeline module OK')"
           python -c "from headless_wheel_builder.release import ReleaseManager; print('Release module OK')"
           python -c "from headless_wheel_builder.depgraph import DependencyAnalyzer; print('Depgraph module OK')"
-          echo "✅ Package verification passed"
+          echo "Package verification passed"
 
       - name: Generate SBOM
         run: |
           pip install cyclonedx-bom
           cyclonedx-py environment --output-format JSON -o sbom.json
-          echo "✅ SBOM generated"
+          echo "SBOM generated"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -107,17 +167,17 @@ jobs:
           retention-days: 90
 
   # ==========================================================================
-  # Run Tests on Built Package
+  # Test Built Package
   # ==========================================================================
   test-package:
-    name: Test Package
+    name: Test Package (${{ matrix.os }}, Python ${{ matrix.python-version }})
     needs: build
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -189,7 +249,7 @@ jobs:
         continue-on-error: true
 
       - name: Summary
-        run: echo "✅ Security scan completed"
+        run: echo "Security scan completed"
 
   # ==========================================================================
   # Publish to TestPyPI
@@ -225,10 +285,10 @@ jobs:
 
       - name: Verify installation from TestPyPI
         run: |
-          sleep 30  # Wait for package to be available
+          sleep 30
           pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ headless-wheel-builder==${{ needs.build.outputs.version }}
           hwb --version
-          echo "✅ TestPyPI verification passed"
+          echo "TestPyPI verification passed"
 
   # ==========================================================================
   # Publish to PyPI
@@ -239,6 +299,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       (github.event_name == 'release') ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
       (github.event_name == 'workflow_dispatch' &&
        github.event.inputs.target == 'pypi' &&
        github.event.inputs.dry_run != 'true')
@@ -267,13 +328,53 @@ jobs:
 
       - name: Verify installation from PyPI
         run: |
-          sleep 60  # Wait for package to be available
+          sleep 60
           pip install headless-wheel-builder==${{ needs.build.outputs.version }}
           hwb --version
-          echo "✅ PyPI verification passed"
+          echo "PyPI verification passed"
 
   # ==========================================================================
-  # Create GitHub Release Assets
+  # Docker (GHCR)
+  # ==========================================================================
+  docker:
+    name: Build & Push Docker Image
+    needs: [build, test-package]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ==========================================================================
+  # Release Assets
   # ==========================================================================
   release-assets:
     name: Upload Release Assets
@@ -302,29 +403,3 @@ jobs:
             dist/*.whl
             dist/*.tar.gz
             sbom.json
-
-  # ==========================================================================
-  # Notify on Completion
-  # ==========================================================================
-  notify:
-    name: Notify
-    needs: [build, publish-pypi]
-    runs-on: ubuntu-latest
-    if: always() && github.event_name == 'release'
-    steps:
-      - name: Generate summary
-        run: |
-          echo "## 📦 Release Published" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ needs.build.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Wheel**: ${{ needs.build.outputs.wheel_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Source**: ${{ needs.build.outputs.sdist_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
-          echo "- [PyPI](https://pypi.org/project/headless-wheel-builder/${{ needs.build.outputs.version }}/)" >> $GITHUB_STEP_SUMMARY
-          echo "- [Documentation](https://github.com/mcp-tool-shop/headless-wheel-builder#readme)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📥 Install" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "pip install headless-wheel-builder==${{ needs.build.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY

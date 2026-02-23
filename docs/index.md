@@ -56,4 +56,4 @@ pip install headless-wheel-builder[dev,test]
 
 ## License
 
-MIT License - see [LICENSE](https://github.com/your-org/headless-wheel-builder/blob/main/LICENSE) for details.
+MIT License - see [LICENSE](https://github.com/mcp-tool-shop-org/headless-wheel-builder/blob/main/LICENSE) for details.
