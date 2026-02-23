@@ -7,20 +7,23 @@ into wheels and source distributions.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Coroutine  # noqa: TC003
 from pathlib import Path
+from typing import Any, TypeVar
 
 import click
 from rich.console import Console
 
-from headless_wheel_builder.core.builder import BuildConfig, BuildEngine
+from headless_wheel_builder.core.builder import BuildConfig, BuildEngine, BuildResult
 
 console = Console()
 error_console = Console(stderr=True)
 
+T = TypeVar("T")
 
 def validate_build_options(
     source: str,
-    output_dir: str,
+    output_dir: str,  # noqa: ARG001
     python: str,
     isolation: str,
     docker_image: str | None,
@@ -67,11 +70,6 @@ def validate_build_options(
             param_hint="docker-image",
         )
 
-
-from typing import Any, Coroutine, TypeVar
-
-T = TypeVar("T")
-
 def run_async(coro: Coroutine[Any, Any, T]) -> T:
     """Run an async function synchronously.
 
@@ -99,7 +97,7 @@ async def execute_build(
     platform: str,
     docker_image: str | None,
     arch: str,
-    no_deps: bool,
+    no_deps: bool,  # noqa: ARG001
     verbose: int,
 ) -> None:
     """Execute the build operation.
@@ -181,9 +179,6 @@ def _parse_config_settings(
         key, value = setting.split("=", 1)
         parsed.append((key, value))
     return parsed
-
-
-from headless_wheel_builder.core.builder import BuildConfig, BuildEngine, BuildResult
 
 def _print_build_success(result: BuildResult, verbose: int) -> None:
     """Print successful build results.

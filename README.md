@@ -7,7 +7,8 @@
 [![PyPI version](https://badge.fury.io/py/headless-wheel-builder.svg)](https://badge.fury.io/py/headless-wheel-builder)
 [![Python versions](https://img.shields.io/pypi/pyversions/headless-wheel-builder.svg)](https://pypi.org/project/headless-wheel-builder/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://github.com/mcp-tool-shop-org/headless-wheel-builder/workflows/CI/badge.svg)](https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions)
+[![Tests](https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml)
+[![Docs](https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/docs.yml/badge.svg)](https://mcp-tool-shop-org.github.io/headless-wheel-builder/)
 
 A universal, headless Python wheel builder with integrated GitHub operations, release management, and full CI/CD pipeline automation. Build wheels, manage releases with approval workflows, analyze dependencies, and orchestrate multi-repository operations — all without touching the web UI.
 

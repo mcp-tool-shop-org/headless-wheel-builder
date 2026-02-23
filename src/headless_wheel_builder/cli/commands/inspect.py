@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from headless_wheel_builder.core.analyzer import ProjectAnalyzer
+from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadata
 
 console = Console()
 error_console = Console(stderr=True)
@@ -76,9 +76,6 @@ async def execute_inspect(
         _print_inspect_table(metadata, source_path)
     else:  # text
         _print_inspect_text(metadata, source_path)
-
-
-from headless_wheel_builder.core.analyzer import ProjectAnalyzer, ProjectMetadata
 
 def _print_inspect_text(metadata: ProjectMetadata, source_path: Path) -> None:
     """Print inspection results in text format.
