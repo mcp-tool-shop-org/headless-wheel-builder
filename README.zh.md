@@ -13,57 +13,57 @@
   <a href="https://mcp-tool-shop-org.github.io/headless-wheel-builder/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
 </p>
 
-A universal, headless Python wheel builder with integrated GitHub operations, release management, and full CI/CD pipeline automation. Build wheels, manage releases with approval workflows, analyze dependencies, and orchestrate multi-repository operations — all without touching the web UI.
+一个通用的、无界面的 Python wheel 构建工具，集成了 GitHub 操作、发布管理以及完整的 CI/CD 流水线自动化功能。它可以构建 wheel 文件，通过审批流程管理发布，分析依赖关系，并协调多个仓库的操作——所有这些都可以在不使用 Web 界面的情况下完成。
 
-Part of [MCP Tool Shop](https://mcp-tool-shop.github.io/) -- practical developer tools that stay out of your way.
+它是 [MCP Tool Shop](https://mcp-tool-shop.github.io/) 的一部分，提供实用且不干扰开发的工具。
 
-## Why Headless Wheel Builder?
+## 为什么选择无界面 wheel 构建工具？
 
-Most Python build tools stop at `python -m build`. Headless Wheel Builder keeps going: draft releases with approval workflows, dependency analysis with license compliance, multi-repo coordination, and registry publishing -- all from a single CLI. If you run CI/CD pipelines for Python packages, this replaces a patchwork of scripts with one tool.
+大多数 Python 构建工具都止步于 `python -m build`。无界面 wheel 构建工具可以做得更多：它可以创建带有审批流程的草稿版本，进行依赖分析（包括许可证合规性），协调多个仓库的操作，并通过单个命令行界面进行注册发布。如果您为 Python 包运行 CI/CD 流水线，那么它可以用一个工具替换掉一系列脚本。
 
-## What's New in v0.3.0
+## v0.3.0 的新功能
 
-- **Release Management**: Draft releases with multi-stage approval workflows
-- **Dependency Analysis**: Full dependency graph with license compliance checking
-- **CI/CD Pipelines**: Build-to-release pipeline orchestration
-- **Multi-Repo Operations**: Coordinate builds across repositories
-- **Notifications**: Slack, Discord, and webhook integrations
-- **Security Scanning**: SBOM generation, license audits, vulnerability checks
-- **Metrics & Analytics**: Build performance tracking and reporting
-- **Artifact Caching**: LRU cache with registry integration
+- **发布管理：** 创建带有多阶段审批流程的草稿版本。
+- **依赖分析：** 完整的依赖关系图，并进行许可证合规性检查。
+- **CI/CD 流水线：** 构建到发布的流水线编排。
+- **多仓库操作：** 协调跨仓库的构建。
+- **通知：** Slack、Discord 和 webhook 集成。
+- **安全扫描：** SBOM（软件物料清单）生成、许可证审计、漏洞检查。
+- **指标与分析：** 构建性能跟踪和报告。
+- **工件缓存：** LRU（最近最少使用）缓存，并与注册表集成。
 
-## Features
+## 功能
 
-### Core Building
-- **Build from anywhere**: Local paths, git URLs (with branch/tag), tarballs
-- **Build isolation**: venv (uv-powered, 10-100x faster) or Docker (manylinux/musllinux)
-- **Multi-platform**: Build matrix for Python 3.10-3.14, Linux/macOS/Windows
-- **Publishing**: PyPI Trusted Publishers (OIDC), DevPi, Artifactory, S3
+### 核心构建
+- **从任何地方构建：** 本地路径、Git URL（包含分支/标签）、tarball 文件。
+- **构建隔离：** venv（基于 uv，速度可达 10-100 倍），或 Docker（manylinux/musllinux）。
+- **多平台：** 构建矩阵，支持 Python 3.10-3.14，Linux/macOS/Windows。
+- **发布：** PyPI 信任发布者（OIDC）、DevPi、Artifactory、S3。
 
-### Release Management
-- **Draft releases**: Create, review, and approve releases before publishing
-- **Approval workflows**: Simple, two-stage, or enterprise (QA → Security → Release)
-- **Rollback support**: Easily revert published releases
-- **Changelog generation**: Auto-generate from Conventional Commits
+### 发布管理
+- **草稿版本：** 创建、审查和批准发布版本，然后再发布。
+- **审批流程：** 简单、两阶段，或企业级（QA → 安全 → 发布）。
+- **回滚支持：** 轻松回滚已发布的版本。
+- **变更日志生成：** 从 Conventional Commits 自动生成。
 
 ### DevOps & CI/CD
-- **Pipeline orchestration**: Chain build → test → release → publish
-- **GitHub Actions generator**: Create optimized CI workflows
-- **Multi-repo operations**: Coordinate releases across repositories
-- **Artifact caching**: Reduce build times with intelligent caching
+- **流水线编排：** 链接构建 → 测试 → 发布 → 发布。
+- **GitHub Actions 生成器：** 创建优化的 CI 工作流。
+- **多仓库操作：** 协调跨仓库的发布。
+- **工件缓存：** 通过智能缓存减少构建时间。
 
-### Analysis & Security
-- **Dependency graphs**: Visualize and analyze package dependencies
-- **License compliance**: Detect GPL in permissive projects, unknown licenses
-- **Security scanning**: Vulnerability detection, SBOM generation
-- **Metrics dashboard**: Track build times, success rates, cache hits
+### 分析与安全
+- **依赖关系图：** 可视化和分析包的依赖关系。
+- **许可证合规性：** 检测项目中是否存在 GPL 许可证，以及识别未知的许可证。
+- **安全扫描：** 漏洞检测、SBOM 生成。
+- **指标仪表板：** 跟踪构建时间、成功率、缓存命中率。
 
-### Integrations
-- **Notifications**: Slack, Discord, Microsoft Teams, custom webhooks
-- **Headless GitHub**: Releases, PRs, issues, workflows — fully scriptable
-- **Registry support**: PyPI, TestPyPI, private registries, S3
+### 集成
+- **通知：** Slack、Discord、Microsoft Teams、自定义 webhook。
+- **无界面 GitHub：** 发布、拉取请求、问题、工作流——完全可脚本化。
+- **注册表支持：** PyPI、TestPyPI、私有注册表、S3。
 
-## Installation
+## 安装
 
 ```bash
 # With pip
@@ -76,9 +76,9 @@ uv pip install headless-wheel-builder
 pip install headless-wheel-builder[all]
 ```
 
-## Quick Start
+## 快速开始
 
-### Build Wheels
+### 构建 Wheel 文件
 
 ```bash
 # Build from current directory
@@ -94,7 +94,7 @@ hwb build https://github.com/user/repo@v2.0.0 --isolation docker
 hwb build --python 3.11 --python 3.12
 ```
 
-### Release Management
+### 发布管理
 
 ```bash
 # Create a draft release
@@ -114,7 +114,7 @@ hwb release publish rel-abc123
 hwb release pending
 ```
 
-### Dependency Analysis
+### 依赖分析
 
 ```bash
 # Show dependency tree
@@ -130,7 +130,7 @@ hwb deps cycles ./my-project
 hwb deps order ./my-project
 ```
 
-### Pipeline Automation
+### 流水线自动化
 
 ```bash
 # Run a complete build-to-release pipeline
@@ -143,7 +143,7 @@ hwb pipeline run my-pipeline.yml --stage build --stage test
 hwb actions generate ./my-project --output .github/workflows/ci.yml
 ```
 
-### Notifications
+### 通知
 
 ```bash
 # Configure Slack notifications
@@ -156,7 +156,7 @@ hwb notify send slack "Build completed successfully" --status success
 hwb notify test discord
 ```
 
-### Security Scanning
+### 安全扫描
 
 ```bash
 # Full security audit
@@ -169,7 +169,7 @@ hwb security sbom ./my-project --format cyclonedx
 hwb security licenses ./my-project --policy permissive
 ```
 
-### Multi-Repo Operations
+### 多仓库操作
 
 ```bash
 # Build multiple repositories
@@ -182,7 +182,7 @@ hwb multirepo sync --version 2.0.0
 hwb multirepo release --tag v2.0.0
 ```
 
-### Metrics & Analytics
+### 指标与分析
 
 ```bash
 # Show build metrics
@@ -195,7 +195,7 @@ hwb metrics export --format prometheus
 hwb metrics trends --period 30d
 ```
 
-### Cache Management
+### 缓存管理
 
 ```bash
 # Show cache statistics
@@ -208,7 +208,7 @@ hwb cache list
 hwb cache prune --max-size 1G
 ```
 
-## Headless GitHub Operations
+## 无界面 GitHub 操作
 
 ```bash
 # Create a release with assets
@@ -267,9 +267,9 @@ async def analyze_deps():
 asyncio.run(build())
 ```
 
-## Configuration
+## 配置
 
-Configure in `pyproject.toml`:
+在 `pyproject.toml` 文件中进行配置：
 
 ```toml
 [tool.hwb]
@@ -295,49 +295,49 @@ max-size = "1G"
 max-age = "30d"
 ```
 
-## CLI Commands
+## 命令行
 
-| Command | Description |
-|---------|-------------|
-| `hwb build` | Build wheels from source |
-| `hwb publish` | Publish to PyPI/registries |
-| `hwb inspect` | Analyze project configuration |
-| `hwb github` | GitHub operations (releases, PRs, issues) |
-| `hwb release` | Draft release management |
-| `hwb pipeline` | CI/CD pipeline orchestration |
-| `hwb deps` | Dependency graph analysis |
-| `hwb actions` | GitHub Actions generator |
-| `hwb multirepo` | Multi-repository operations |
-| `hwb notify` | Notification management |
-| `hwb security` | Security scanning |
-| `hwb metrics` | Build metrics & analytics |
-| `hwb cache` | Artifact cache management |
-| `hwb changelog` | Changelog generation |
+| 命令 | 描述 |
+| --------- | ------------- |
+| `hwb build` | 从源代码构建 wheel 文件 |
+| `hwb publish` | 发布到 PyPI/注册表 |
+| `hwb inspect` | 分析项目配置 |
+| `hwb github` | GitHub 操作（发布、拉取请求、问题） |
+| `hwb release` | 草稿发布管理 |
+| `hwb pipeline` | CI/CD 流水线编排 |
+| `hwb deps` | 依赖关系图分析 |
+| `hwb actions` | GitHub Actions 生成器 |
+| `hwb multirepo` | 多仓库操作 |
+| `hwb notify` | 通知管理 |
+| `hwb security` | 安全扫描 |
+| `hwb metrics` | 构建指标与分析 |
+| `hwb cache` | 构建产物缓存管理 |
+| `hwb changelog` | 变更日志生成 |
 
-## Requirements
+## 需求
 
 - Python 3.10+
-- Git (for git source support)
-- Docker (optional, for manylinux builds)
-- uv (optional, for faster builds)
+- Git（用于支持 Git 源代码）
+- Docker（可选，用于构建 manylinux 镜像）
+- uv（可选，用于加速构建）
 
-## Documentation
+## 文档
 
-See the [docs/](docs/) directory for comprehensive documentation:
+请参阅 [docs/](docs/) 目录中的详细文档：
 
-- [ROADMAP.md](docs/ROADMAP.md) - Development phases and milestones
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System design and components
-- [API.md](docs/API.md) - CLI and Python API reference
-- [SECURITY.md](docs/SECURITY.md) - Security model and best practices
-- [PUBLISHING.md](docs/PUBLISHING.md) - Registry publishing workflows
-- [ISOLATION.md](docs/ISOLATION.md) - Build isolation strategies
-- [VERSIONING.md](docs/VERSIONING.md) - Semantic versioning and changelog
-- [CONTRIBUTING.md](docs/CONTRIBUTING.md) - Development guidelines
+- [ROADMAP.md](docs/ROADMAP.md) - 开发阶段和里程碑
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - 系统设计和组件
+- [API.md](docs/API.md) - CLI 和 Python API 参考
+- [SECURITY.md](docs/SECURITY.md) - 安全模型和最佳实践
+- [PUBLISHING.md](docs/PUBLISHING.md) - 注册表发布工作流程
+- [ISOLATION.md](docs/ISOLATION.md) - 构建隔离策略
+- [VERSIONING.md](docs/VERSIONING.md) - 语义版本控制和变更日志
+- [CONTRIBUTING.md](docs/CONTRIBUTING.md) - 开发指南
 
-## License
+## 许可证
 
-MIT License -- see [LICENSE](LICENSE) for details.
+MIT 许可证，详情请参阅 [LICENSE](LICENSE)。
 
-## Contributing
+## 贡献
 
-Contributions are welcome! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
+欢迎贡献！请参阅 [CONTRIBUTING.md](docs/CONTRIBUTING.md) 了解指南。

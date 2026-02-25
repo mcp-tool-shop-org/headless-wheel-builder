@@ -69,7 +69,8 @@ venv.bak/
 .ropeproject
 
 # mkdocs documentation
-/site
+site/dist/
+site/node_modules/
 
 # mypy
 .mypy_cache/
@@ -107,3 +108,4 @@ headless-wheel-builder-main-deliverables/
 
 # uv lockfile
 uv.lock
+site/.astro/
