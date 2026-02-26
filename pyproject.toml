@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "headless-wheel-builder"
-version = "0.3.5"
+version = "0.3.6"
 description = "Universal Python wheel builder with headless GitHub operations for CI/CD pipelines"
 readme = "README.md"
 license = "MIT"
