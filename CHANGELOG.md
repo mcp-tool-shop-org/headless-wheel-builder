@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-02-27
+
 ### Added
 - SECURITY.md with vulnerability reporting policy and supported versions
 - Threat model section in README (data touched, data NOT touched, permissions)
@@ -18,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - CLI error output now shows error code and hint for HWBError exceptions
 - Exit codes follow Shipcheck contract: 0 ok, 1 user error, 2 runtime error
+- Promoted to v1.0.0 — all Shipcheck hard gates pass
+- Development Status classifier updated to "Production/Stable"
 
 ## [0.3.0] - 2026-01-24
 

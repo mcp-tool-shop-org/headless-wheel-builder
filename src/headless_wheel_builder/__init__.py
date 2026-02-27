@@ -3,7 +3,7 @@
 from headless_wheel_builder.core.builder import BuildResult, build_wheel
 from headless_wheel_builder.core.source import ResolvedSource, SourceSpec, SourceType
 
-__version__ = "0.3.0"
+__version__ = "1.0.0"
 
 __all__ = [
     "BuildResult",
