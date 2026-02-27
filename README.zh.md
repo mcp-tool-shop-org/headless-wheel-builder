@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
+  <a href="README.ja.md">日本語</a> | <a href="README.md">English</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
 </p>
 
 <p align="center">
@@ -8,18 +8,19 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder"><img src="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder/branch/main/graph/badge.svg" alt="codecov"></a>
   <a href="https://pypi.org/project/headless-wheel-builder/"><img src="https://img.shields.io/pypi/v/headless-wheel-builder" alt="PyPI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/headless-wheel-builder/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
 </p>
 
-一个通用的、无界面的 Python wheel 构建工具，集成了 GitHub 操作、发布管理以及完整的 CI/CD 流水线自动化功能。它可以构建 wheel 文件，通过审批流程管理发布，分析依赖关系，并协调多个仓库的操作——所有这些都可以在不使用 Web 界面的情况下完成。
+一个通用的、无界面的 Python wheel 构建工具，集成了 GitHub 操作、发布管理以及完整的 CI/CD 流水线自动化功能。它可以构建 wheel 文件，通过审批流程管理发布，分析依赖关系，并协调跨仓库的操作——所有这些都可以在不使用 Web 界面的情况下完成。
 
 它是 [MCP Tool Shop](https://mcp-tool-shop.github.io/) 的一部分，提供实用且不干扰开发的工具。
 
 ## 为什么选择无界面 wheel 构建工具？
 
-大多数 Python 构建工具都止步于 `python -m build`。无界面 wheel 构建工具可以做得更多：它可以创建带有审批流程的草稿版本，进行依赖分析（包括许可证合规性），协调多个仓库的操作，并通过单个命令行界面进行注册发布。如果您为 Python 包运行 CI/CD 流水线，那么它可以用一个工具替换掉一系列脚本。
+大多数 Python 构建工具都止步于 `python -m build`。无界面 wheel 构建工具可以做得更多：它可以创建带有审批流程的草稿版本，进行依赖分析（包括许可证合规性），协调多仓库操作，并通过单个命令行界面进行注册发布。如果您为 Python 包运行 CI/CD 流水线，那么它可以用一个工具替代一系列脚本。
 
 ## v0.3.0 的新功能
 
@@ -37,14 +38,14 @@
 ### 核心构建
 - **从任何地方构建：** 本地路径、Git URL（包含分支/标签）、tarball 文件。
 - **构建隔离：** venv（基于 uv，速度可达 10-100 倍），或 Docker（manylinux/musllinux）。
-- **多平台：** 构建矩阵，支持 Python 3.10-3.14，Linux/macOS/Windows。
+- **多平台：** 构建矩阵，支持 Python 3.10-3.14、Linux/macOS/Windows。
 - **发布：** PyPI 信任发布者（OIDC）、DevPi、Artifactory、S3。
 
 ### 发布管理
-- **草稿版本：** 创建、审查和批准发布版本，然后再发布。
+- **草稿版本：** 创建、审查和批准发布版本，然后再进行发布。
 - **审批流程：** 简单、两阶段，或企业级（QA → 安全 → 发布）。
 - **回滚支持：** 轻松回滚已发布的版本。
-- **变更日志生成：** 从 Conventional Commits 自动生成。
+- **变更日志生成：** 从符合规范的提交自动生成。
 
 ### DevOps & CI/CD
 - **流水线编排：** 链接构建 → 测试 → 发布 → 发布。
@@ -78,7 +79,7 @@ pip install headless-wheel-builder[all]
 
 ## 快速开始
 
-### 构建 Wheel 文件
+### 构建 wheel 文件
 
 ```bash
 # Build from current directory
@@ -298,12 +299,12 @@ max-age = "30d"
 ## 命令行
 
 | 命令 | 描述 |
-| --------- | ------------- |
+|---------|-------------|
 | `hwb build` | 从源代码构建 wheel 文件 |
 | `hwb publish` | 发布到 PyPI/注册表 |
 | `hwb inspect` | 分析项目配置 |
 | `hwb github` | GitHub 操作（发布、拉取请求、问题） |
-| `hwb release` | 草稿发布管理 |
+| `hwb release` | 草稿版本管理 |
 | `hwb pipeline` | CI/CD 流水线编排 |
 | `hwb deps` | 依赖关系图分析 |
 | `hwb actions` | GitHub Actions 生成器 |
@@ -318,7 +319,7 @@ max-age = "30d"
 
 - Python 3.10+
 - Git（用于支持 Git 源代码）
-- Docker（可选，用于构建 manylinux 镜像）
+- Docker（可选，用于构建适用于 manylinux 的镜像）
 - uv（可选，用于加速构建）
 
 ## 文档
@@ -334,6 +335,14 @@ max-age = "30d"
 - [VERSIONING.md](docs/VERSIONING.md) - 语义版本控制和变更日志
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) - 开发指南
 
+## 安全与隐私
+
+**访问的数据：** Python 源代码（只读，用于分析）、构建产物（dist/ 目录）、pyproject.toml 文件、Git 历史记录、Docker 容器、包注册表 API。
+
+**未访问的数据：** 用户凭据（直接使用环境变量和 OIDC 令牌）、项目外部的系统文件。 不会收集或发送任何遥测数据。 令牌仅从环境变量中读取，并且绝不记录。
+
+**权限：** 构建过程需要文件系统读写权限，可选的 Docker 套接字，以及用于注册表发布和 GitHub API 的网络访问。 详细权限请参阅 [SECURITY.md](SECURITY.md)。
+
 ## 许可证
 
 MIT 许可证，详情请参阅 [LICENSE](LICENSE)。
@@ -341,3 +350,7 @@ MIT 许可证，详情请参阅 [LICENSE](LICENSE)。
 ## 贡献
 
 欢迎贡献！请参阅 [CONTRIBUTING.md](docs/CONTRIBUTING.md) 了解指南。
+
+---
+
+由 <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a> 构建。

@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
+  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.md">English</a>
 </p>
 
 <p align="center">
@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder"><img src="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder/branch/main/graph/badge.svg" alt="codecov"></a>
   <a href="https://pypi.org/project/headless-wheel-builder/"><img src="https://img.shields.io/pypi/v/headless-wheel-builder" alt="PyPI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/headless-wheel-builder/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
@@ -15,48 +16,48 @@
 
 Um construtor universal de pacotes Python (wheels) que funciona sem interface gráfica, com integração com o GitHub, gerenciamento de lançamentos e automação completa de pipelines de CI/CD. Crie pacotes, gerencie lançamentos com fluxos de aprovação, analise dependências e coordene operações em vários repositórios — tudo isso sem precisar usar a interface web.
 
-Parte da [MCP Tool Shop](https://mcp-tool-shop.github.io/) -- ferramentas práticas para desenvolvedores que não atrapalham o seu fluxo de trabalho.
+Parte do [MCP Tool Shop](https://mcp-tool-shop.github.io/) -- ferramentas práticas para desenvolvedores que não atrapalham o seu fluxo de trabalho.
 
 ## Por que um construtor de pacotes sem interface gráfica?
 
-A maioria das ferramentas de construção do Python para apenas `python -m build`. O construtor de pacotes sem interface gráfica vai além: permite criar versões de lançamento com fluxos de aprovação, análise de dependências com verificação de conformidade de licenças, coordenação entre vários repositórios e publicação em registros — tudo a partir de uma única linha de comando. Se você usa pipelines de CI/CD para pacotes Python, esta ferramenta substitui um conjunto de scripts por uma única ferramenta.
+A maioria das ferramentas de construção do Python para apenas `python -m build`. O construtor de pacotes sem interface gráfica vai além: permite criar lançamentos com fluxos de aprovação, análise de dependências com verificação de conformidade de licenças, coordenação entre vários repositórios e publicação em registros — tudo a partir de uma única linha de comando. Se você usa pipelines de CI/CD para pacotes Python, esta ferramenta substitui um conjunto de scripts por uma única ferramenta.
 
 ## O que há de novo na versão 0.3.0
 
-- **Gerenciamento de Lançamentos**: Criação de versões de lançamento com fluxos de aprovação em várias etapas.
+- **Gerenciamento de Lançamentos**: Criação de lançamentos com fluxos de aprovação em várias etapas.
 - **Análise de Dependências**: Gráfico completo de dependências com verificação de conformidade de licenças.
 - **Pipelines de CI/CD**: Orquestração de pipelines de construção para lançamento.
 - **Operações em Vários Repositórios**: Coordenação de construções entre repositórios.
 - **Notificações**: Integrações com Slack, Discord e webhooks.
 - **Análise de Segurança**: Geração de SBOM (Software Bill of Materials), auditoria de licenças, verificação de vulnerabilidades.
 - **Métricas e Análises**: Rastreamento e relatórios de desempenho da construção.
-- **Cache de Artefatos**: Cache LRU com integração com registros.
+- **Cache de Artefatos**: Cache LRU (Least Recently Used) com integração com o registro.
 
-## Recursos
+## Funcionalidades
 
 ### Construção Central
-- **Construção de qualquer lugar**: Caminhos locais, URLs do Git (com branch/tag), arquivos tarball.
+- **Construa de qualquer lugar**: Caminhos locais, URLs do Git (com branch/tag), arquivos tarball.
 - **Isolamento da construção**: venv (impulsionado por uv, 10 a 100 vezes mais rápido) ou Docker (manylinux/musllinux).
 - **Multiplataforma**: Matriz de construção para Python 3.10-3.14, Linux/macOS/Windows.
 - **Publicação**: PyPI Trusted Publishers (OIDC), DevPi, Artifactory, S3.
 
 ### Gerenciamento de Lançamentos
-- **Criação de versões de lançamento**: Crie, revise e aprove versões antes de publicá-las.
+- **Lançamentos preliminares**: Crie, revise e aprove lançamentos antes de publicá-los.
 - **Fluxos de aprovação**: Simples, de duas etapas ou corporativos (QA → Segurança → Lançamento).
-- **Suporte para reversão**: Reverter facilmente versões publicadas.
+- **Suporte para reversão**: Reverter facilmente lançamentos publicados.
 - **Geração de changelog**: Geração automática a partir de commits convencionais.
 
 ### DevOps e CI/CD
-- **Orquestração de pipelines**: Crie uma sequência de construção → teste → lançamento → publicação.
+- **Orquestração de pipelines**: Crie uma cadeia de construção → teste → lançamento → publicação.
 - **Gerador de ações do GitHub**: Crie fluxos de CI otimizados.
 - **Operações em vários repositórios**: Coordene lançamentos entre repositórios.
 - **Cache de artefatos**: Reduza os tempos de construção com cache inteligente.
 
 ### Análise e Segurança
 - **Gráficos de dependências**: Visualize e analise as dependências dos pacotes.
-- **Conformidade de licenças**: Detecte GPL em projetos permissivos, licenças desconhecidas.
+- **Conformidade de licenças**: Detecte licenças GPL em projetos permissivos, licenças desconhecidas.
 - **Análise de segurança**: Detecção de vulnerabilidades, geração de SBOM.
-- **Painel de métricas**: Acompanhe os tempos de construção, as taxas de sucesso e os acertos do cache.
+- **Painel de métricas**: Acompanhe os tempos de construção, as taxas de sucesso e os acertos de cache.
 
 ### Integrações
 - **Notificações**: Slack, Discord, Microsoft Teams, webhooks personalizados.
@@ -298,28 +299,28 @@ max-age = "30d"
 ## Comandos da Linha de Comando
 
 | Comando | Descrição |
-| --------- | ------------- |
+|---------|-------------|
 | `hwb build` | Construir pacotes a partir do código-fonte |
 | `hwb publish` | Publicar no PyPI/registros |
 | `hwb inspect` | Analisar a configuração do projeto |
-| `hwb github` | Operações do GitHub (lançamentos, solicitações de alteração, problemas) |
-| `hwb release` | Gerenciamento de lançamentos (em rascunho) |
-| `hwb pipeline` | Orquestração do pipeline de CI/CD |
-| `hwb deps` | Análise do grafo de dependências |
+| `hwb github` | Operações do GitHub (lançamentos, PRs, issues) |
+| `hwb release` | Gerenciamento de lançamentos preliminares |
+| `hwb pipeline` | Orquestração de pipelines CI/CD |
+| `hwb deps` | Análise de grafos de dependências |
 | `hwb actions` | Gerador de GitHub Actions |
 | `hwb multirepo` | Operações com múltiplos repositórios |
 | `hwb notify` | Gerenciamento de notificações |
 | `hwb security` | Análise de segurança |
-| `hwb metrics` | Métricas e análises de construção |
-| `hwb cache` | Gerenciamento do cache de artefatos |
+| `hwb metrics` | Métricas e análises de build |
+| `hwb cache` | Gerenciamento de cache de artefatos |
 | `hwb changelog` | Geração de changelog |
 
 ## Requisitos
 
 - Python 3.10+
 - Git (para suporte a fontes Git)
-- Docker (opcional, para compilações manylinux)
-- uv (opcional, para compilações mais rápidas)
+- Docker (opcional, para builds "manylinux")
+- uv (opcional, para builds mais rápidos)
 
 ## Documentação
 
@@ -330,9 +331,17 @@ Consulte o diretório [docs/](docs/) para documentação completa:
 - [API.md](docs/API.md) - Referência da API da linha de comando e da API Python
 - [SECURITY.md](docs/SECURITY.md) - Modelo de segurança e melhores práticas
 - [PUBLISHING.md](docs/PUBLISHING.md) - Fluxos de trabalho de publicação no registro
-- [ISOLATION.md](docs/ISOLATION.md) - Estratégias de isolamento da construção
+- [ISOLATION.md](docs/ISOLATION.md) - Estratégias de isolamento de builds
 - [VERSIONING.md](docs/VERSIONING.md) - Versionamento semântico e changelog
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) - Diretrizes de desenvolvimento
+
+## Segurança e Privacidade
+
+**Dados acessados:** Código-fonte Python (somente leitura para análise), artefatos de build (dist/), pyproject.toml, histórico do Git, contêineres Docker, APIs de registro de pacotes.
+
+**Dados NÃO acessados:** Credenciais de usuário diretamente (usa variáveis de ambiente e tokens OIDC), arquivos do sistema fora do projeto. Nenhuma telemetria é coletada ou enviada. Tokens são lidos apenas de variáveis de ambiente e nunca são registrados.
+
+**Permissões:** Leitura/escrita do sistema de arquivos para builds, socket Docker (opcional), rede para publicação no registro e API do GitHub. Consulte [SECURITY.md](SECURITY.md) para a política completa.
 
 ## Licença
 
@@ -341,3 +350,7 @@ Licença MIT -- veja [LICENSE](LICENSE) para detalhes.
 ## Contribuições
 
 Contribuições são bem-vindas! Consulte [CONTRIBUTING.md](docs/CONTRIBUTING.md) para diretrizes.
+
+---
+
+Criado por <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>

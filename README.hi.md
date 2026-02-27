@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
+  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.md">English</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
 </p>
 
 <p align="center">
@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder"><img src="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder/branch/main/graph/badge.svg" alt="codecov"></a>
   <a href="https://pypi.org/project/headless-wheel-builder/"><img src="https://img.shields.io/pypi/v/headless-wheel-builder" alt="PyPI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/headless-wheel-builder/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
@@ -19,7 +20,7 @@
 
 ## हेडलेस व्हील बिल्डर क्यों?
 
-अधिकांश पायथन बिल्ड टूल `python -m build` पर रुक जाते हैं। हेडलेस व्हील बिल्डर आगे बढ़ता है: अनुमोदन वर्कफ़्लो के साथ ड्राफ्ट रिलीज़, लाइसेंस अनुपालन के साथ निर्भरता विश्लेषण, मल्टी-रिपो समन्वय और रजिस्ट्री प्रकाशन - यह सब एक ही CLI से। यदि आप पायथन पैकेजों के लिए CI/CD पाइपलाइन चलाते हैं, तो यह स्क्रिप्ट के एक संयोजन को एक उपकरण से बदल देता है।
+अधिकांश पायथन बिल्ड टूल `python -m build` पर रुक जाते हैं। हेडलेस व्हील बिल्डर आगे बढ़ता है: अनुमोदन वर्कफ़्लो के साथ ड्राफ्ट रिलीज़, लाइसेंस अनुपालन के साथ निर्भरता विश्लेषण, मल्टी-रिपो समन्वय और रजिस्ट्री प्रकाशन - यह सब एक ही CLI से। यदि आप पायथन पैकेजों के लिए CI/CD पाइपलाइन चलाते हैं, तो यह स्क्रिप्ट के एक संग्रह को एक उपकरण से बदल देता है।
 
 ## v0.3.0 में नया क्या है
 
@@ -298,17 +299,17 @@ max-age = "30d"
 ## CLI कमांड
 
 | कमांड | विवरण |
-| --------- | ------------- |
+|---------|-------------|
 | `hwb build` | स्रोत से व्हील बनाएं |
 | `hwb publish` | PyPI/रजिस्ट्री पर प्रकाशित करें |
 | `hwb inspect` | परियोजना कॉन्फ़िगरेशन का विश्लेषण करें |
-| `hwb github` | GitHub संचालन (रिलीज़, पुल रिक्वेस्ट, मुद्दे) |
-| `hwb release` | प्रारंभिक रिलीज़ प्रबंधन |
+| `hwb github` | गिटहब संचालन (रिलीज़, PR, इश्यू) |
+| `hwb release` | रिलीज़ प्रबंधन |
 | `hwb pipeline` | सीआई/सीडी पाइपलाइन का समन्वय |
 | `hwb deps` | निर्भरता ग्राफ विश्लेषण |
-| `hwb actions` | GitHub एक्शन जेनरेटर |
-| `hwb multirepo` | मल्टी-रिपॉजिटरी संचालन |
-| `hwb notify` | अधिसूचना प्रबंधन |
+| `hwb actions` | गिटहब एक्शन जेनरेटर |
+| `hwb multirepo` | मल्टी-रिपॉजिटरी ऑपरेशन |
+| `hwb notify` | नोटिफिकेशन प्रबंधन |
 | `hwb security` | सुरक्षा स्कैनिंग |
 | `hwb metrics` | बिल्ड मेट्रिक्स और विश्लेषण |
 | `hwb cache` | आर्टिफैक्ट कैश प्रबंधन |
@@ -317,8 +318,8 @@ max-age = "30d"
 ## आवश्यकताएं
 
 - पायथन 3.10+
-- गिट (गिट स्रोत समर्थन के लिए)
-- डॉकर (वैकल्पिक, manylinux बिल्ड के लिए)
+- गिट (गिट सोर्स सपोर्ट के लिए)
+- डॉकर (वैकल्पिक, मनिलीनक्स बिल्ड के लिए)
 - यूवी (वैकल्पिक, तेज़ बिल्ड के लिए)
 
 ## दस्तावेज़
@@ -329,10 +330,18 @@ max-age = "30d"
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) - सिस्टम डिज़ाइन और घटक
 - [API.md](docs/API.md) - सीएलआई और पायथन एपीआई संदर्भ
 - [SECURITY.md](docs/SECURITY.md) - सुरक्षा मॉडल और सर्वोत्तम अभ्यास
-- [PUBLISHING.md](docs/PUBLISHING.md) - रजिस्ट्री प्रकाशन कार्यप्रवाह
+- [PUBLISHING.md](docs/PUBLISHING.md) - रजिस्ट्री प्रकाशन वर्कफ़्लो
 - [ISOLATION.md](docs/ISOLATION.md) - बिल्ड आइसोलेशन रणनीतियाँ
 - [VERSIONING.md](docs/VERSIONING.md) - सिमेंटिक वर्जनिंग और चेंजलॉग
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) - विकास दिशानिर्देश
+
+## सुरक्षा और गोपनीयता
+
+**डेटा जो उपयोग में है:** पायथन सोर्स कोड (केवल पढ़ने के लिए विश्लेषण के लिए), बिल्ड आर्टिफैक्ट (dist/), pyproject.toml, गिट इतिहास, डॉकर कंटेनर, पैकेज रजिस्ट्री एपीआई।
+
+**डेटा जो उपयोग में नहीं है:** उपयोगकर्ता क्रेडेंशियल सीधे (पर्यावरण चर और ओआईडीसी टोकन का उपयोग करता है), प्रोजेक्ट के बाहर की सिस्टम फाइलें। कोई टेलीमेट्री एकत्र या भेजा नहीं जाता है। टोकन केवल पर्यावरण चर से पढ़े जाते हैं और कभी भी लॉग नहीं किए जाते हैं।
+
+**अनुमतियाँ:** बिल्ड के लिए फ़ाइल सिस्टम पढ़ने/लिखने की अनुमति, डॉकर सॉकेट (वैकल्पिक), रजिस्ट्री प्रकाशन और गिटहब एपीआई के लिए नेटवर्क। पूर्ण नीति के लिए [SECURITY.md](SECURITY.md) देखें।
 
 ## लाइसेंस
 
@@ -341,3 +350,7 @@ max-age = "30d"
 ## योगदान
 
 योगदान का स्वागत है! दिशानिर्देशों के लिए [CONTRIBUTING.md](docs/CONTRIBUTING.md) देखें।
+
+---
+
+द्वारा निर्मित <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>

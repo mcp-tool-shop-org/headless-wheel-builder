@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
+  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.md">English</a> | <a href="README.pt-BR.md">Português (BR)</a>
 </p>
 
 <p align="center">
@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder"><img src="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder/branch/main/graph/badge.svg" alt="codecov"></a>
   <a href="https://pypi.org/project/headless-wheel-builder/"><img src="https://img.shields.io/pypi/v/headless-wheel-builder" alt="PyPI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/headless-wheel-builder/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
@@ -19,18 +20,18 @@ Parte di [MCP Tool Shop](https://mcp-tool-shop.github.io/) -- strumenti pratici 
 
 ## Perché un costruttore di pacchetti senza interfaccia grafica?
 
-La maggior parte degli strumenti di build Python si fermano a `python -m build`. Questo costruttore di pacchetti va oltre: permette di creare bozze di release con flussi di approvazione, analisi delle dipendenze con verifica della conformità delle licenze, coordinamento tra più repository e pubblicazione sui registri, il tutto da un'unica interfaccia a riga di comando. Se utilizzi pipeline CI/CD per pacchetti Python, questo strumento sostituisce una serie di script con un'unica soluzione.
+La maggior parte degli strumenti di build Python si fermano a `python -m build`. Questo costruttore di pacchetti va oltre: crea release preliminari con flussi di approvazione, analisi delle dipendenze con verifica della conformità delle licenze, coordinamento tra più repository e pubblicazione sui registri, il tutto da un'unica interfaccia a riga di comando. Se utilizzi pipeline CI/CD per i pacchetti Python, questo strumento sostituisce una serie di script con un'unica soluzione.
 
 ## Novità nella versione 0.3.0
 
-- **Gestione delle release**: Creazione di bozze di release con flussi di approvazione a più stadi.
+- **Gestione delle release**: Creazione di release preliminari con flussi di approvazione a più fasi.
 - **Analisi delle dipendenze**: Grafico completo delle dipendenze con verifica della conformità delle licenze.
 - **Pipeline CI/CD**: Orchestrazione della pipeline di build-to-release.
 - **Operazioni su più repository**: Coordinamento delle build tra i repository.
 - **Notifiche**: Integrazioni con Slack, Discord e webhook.
 - **Analisi della sicurezza**: Generazione di SBOM (Software Bill of Materials), audit delle licenze, controlli delle vulnerabilità.
 - **Metriche e analisi**: Monitoraggio e reportistica delle prestazioni delle build.
-- **Caching degli artefatti**: Cache LRU (Least Recently Used) con integrazione con i registri.
+- **Caching degli artefatti**: Cache LRU (Least Recently Used) con integrazione del registro.
 
 ## Funzionalità
 
@@ -41,13 +42,13 @@ La maggior parte degli strumenti di build Python si fermano a `python -m build`.
 - **Pubblicazione**: PyPI Trusted Publishers (OIDC), DevPi, Artifactory, S3.
 
 ### Gestione delle release
-- **Bozze di release**: Crea, rivedi e approva le release prima della pubblicazione.
-- **Flussi di approvazione**: Semplici, a due stadi o per aziende (QA → Sicurezza → Release).
+- **Release preliminari**: Crea, esamina e approva le release prima della pubblicazione.
+- **Flussi di approvazione**: Semplici, a due fasi o aziendali (QA → Sicurezza → Release).
 - **Supporto per il rollback**: Ripristina facilmente le release pubblicate.
-- **Generazione del changelog**: Genera automaticamente a partire dai commit convenzionali.
+- **Generazione del changelog**: Generazione automatica dai commit convenzionali.
 
 ### DevOps e CI/CD
-- **Orchestrazione delle pipeline**: Collega build → test → release → pubblicazione.
+- **Orchestrazione della pipeline**: Catena build → test → release → pubblicazione.
 - **Generatore di GitHub Actions**: Crea flussi di lavoro CI ottimizzati.
 - **Operazioni su più repository**: Coordina le release tra i repository.
 - **Caching degli artefatti**: Riduci i tempi di build con un caching intelligente.
@@ -78,7 +79,7 @@ pip install headless-wheel-builder[all]
 
 ## Guida rapida
 
-### Costruisci pacchetti
+### Crea pacchetti
 
 ```bash
 # Build from current directory
@@ -130,7 +131,7 @@ hwb deps cycles ./my-project
 hwb deps order ./my-project
 ```
 
-### Automazione delle pipeline
+### Automazione della pipeline
 
 ```bash
 # Run a complete build-to-release pipeline
@@ -298,19 +299,19 @@ max-age = "30d"
 ## Comandi della riga di comando
 
 | Comando | Descrizione |
-| --------- | ------------- |
-| `hwb build` | Costruisci pacchetti a partire dal codice sorgente. |
-| `hwb publish` | Pubblica sui registri PyPI/altri registri. |
-| `hwb inspect` | Analizza la configurazione del progetto. |
-| `hwb github` | Operazioni su GitHub (versioni, richieste di pull, segnalazioni di problemi) |
-| `hwb release` | Gestione delle versioni (bozze) |
+|---------|-------------|
+| `hwb build` | Crea pacchetti dal codice sorgente |
+| `hwb publish` | Pubblica su PyPI/registri |
+| `hwb inspect` | Analizza la configurazione del progetto |
+| `hwb github` | Operazioni di GitHub (release, PR, issue) |
+| `hwb release` | Gestione delle release preliminari |
 | `hwb pipeline` | Orchestrazione della pipeline CI/CD |
 | `hwb deps` | Analisi del grafo delle dipendenze |
 | `hwb actions` | Generatore di GitHub Actions |
 | `hwb multirepo` | Operazioni su più repository |
 | `hwb notify` | Gestione delle notifiche |
 | `hwb security` | Analisi della sicurezza |
-| `hwb metrics` | Metriche e analisi delle build |
+| `hwb metrics` | Metriche e analisi dei build |
 | `hwb cache` | Gestione della cache degli artefatti |
 | `hwb changelog` | Generazione del changelog |
 
@@ -318,21 +319,29 @@ max-age = "30d"
 
 - Python 3.10+
 - Git (per il supporto del codice sorgente Git)
-- Docker (opzionale, per le build manylinux)
+- Docker (opzionale, per i build manylinux)
 - uv (opzionale, per build più veloci)
 
 ## Documentazione
 
-Consultare la directory [docs/](docs/) per una documentazione completa:
+Consultare la directory [docs/](docs/) per la documentazione completa:
 
 - [ROADMAP.md](docs/ROADMAP.md) - Fasi di sviluppo e obiettivi
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Progettazione del sistema e componenti
 - [API.md](docs/API.md) - Riferimento dell'API CLI e Python
 - [SECURITY.md](docs/SECURITY.md) - Modello di sicurezza e buone pratiche
 - [PUBLISHING.md](docs/PUBLISHING.md) - Flussi di pubblicazione nel registro
-- [ISOLATION.md](docs/ISOLATION.md) - Strategie di isolamento delle build
+- [ISOLATION.md](docs/ISOLATION.md) - Strategie di isolamento dei build
 - [VERSIONING.md](docs/VERSIONING.md) - Versioning semantico e changelog
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) - Linee guida per lo sviluppo
+
+## Sicurezza e Privacy
+
+**Dati accessibili:** codice sorgente Python (solo lettura per l'analisi), artefatti di build (dist/), pyproject.toml, cronologia Git, container Docker, API del registro dei pacchetti.
+
+**Dati NON accessibili:** credenziali utente direttamente (utilizza variabili d'ambiente e token OIDC), file di sistema al di fuori del progetto. Non vengono raccolti o trasmessi dati di telemetria. I token vengono letti solo dalle variabili d'ambiente e non vengono mai registrati.
+
+**Permessi:** lettura/scrittura del file system per i build, socket Docker (opzionale), rete per la pubblicazione nel registro e l'API di GitHub. Consultare [SECURITY.md](SECURITY.md) per la politica completa.
 
 ## Licenza
 
@@ -341,3 +350,7 @@ Licenza MIT -- vedere [LICENSE](LICENSE) per i dettagli.
 ## Contributi
 
 I contributi sono benvenuti! Consultare [CONTRIBUTING.md](docs/CONTRIBUTING.md) per le linee guida.
+
+---
+
+Creato da <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>

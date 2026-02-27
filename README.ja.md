@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
+  <a href="README.md">English</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
 </p>
 
 <p align="center">
@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder"><img src="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder/branch/main/graph/badge.svg" alt="codecov"></a>
   <a href="https://pypi.org/project/headless-wheel-builder/"><img src="https://img.shields.io/pypi/v/headless-wheel-builder" alt="PyPI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/headless-wheel-builder/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
@@ -19,7 +20,7 @@
 
 ## ヘッドレスwheelビルダの利点
 
-多くのPythonビルドツールは`python -m build`で終わります。ヘッドレスwheelビルダは、承認ワークフローによるドラフトリリース、ライセンスコンプライアンスを含む依存関係分析、複数リポジトリの連携、およびレジストリへの公開など、さらに多くの機能を提供します。これらはすべて、単一のCLIから実行できます。PythonパッケージのCI/CDパイプラインを実行している場合、これは複数のスクリプトを1つのツールに置き換えることができます。
+多くのPythonビルドツールは`python -m build`で終わります。ヘッドレスwheelビルダは、承認ワークフローによるドラフトリリース、ライセンスコンプライアンスを含む依存関係分析、複数リポジトリの連携、およびレジストリへの公開など、さらに多くの機能を提供します。これらはすべて、単一のCLIから実行できます。PythonパッケージのCI/CDパイプラインを実行している場合、このツールは、複数のスクリプトを1つのツールに置き換えることができます。
 
 ## v0.3.0の主な変更点
 
@@ -43,7 +44,7 @@
 ### リリース管理
 - **ドラフトリリース**: 公開前にリリースを作成、レビュー、承認
 - **承認ワークフロー**: シンプル、2段階、またはエンタープライズ（QA → セキュリティ → リリース）
-- **ロールバック**: 公開されたリリースの簡単な復元
+- **ロールバック**: 公開されたリリースの容易な復元
 - **変更ログの生成**: Conventional Commitsから自動生成
 
 ### DevOps & CI/CD
@@ -53,14 +54,14 @@
 - **アーティファクトキャッシュ**: インテリジェントなキャッシュによるビルド時間の短縮
 
 ### 分析とセキュリティ
-- **依存関係グラフ**: パッケージの依存関係を可視化および分析
+- **依存関係グラフ**: パッケージの依存関係の可視化と分析
 - **ライセンスコンプライアンス**: 許可的なプロジェクトにおけるGPLの検出、不明なライセンスの検出
 - **セキュリティスキャン**: 脆弱性の検出、SBOMの生成
 - **メトリクスダッシュボード**: ビルド時間、成功率、キャッシュヒット率の追跡
 
 ### 連携機能
 - **通知**: Slack、Discord、Microsoft Teams、カスタムwebhook
-- **ヘッドレスGitHub**: リリース、プルリクエスト、課題、ワークフロー - すべてスクリプトで制御可能
+- **ヘッドレスGitHub**: リリース、プルリクエスト、イシュー、ワークフロー - すべてスクリプト化可能
 - **レジストリサポート**: PyPI、TestPyPI、プライベートレジストリ、S3
 
 ## インストール
@@ -114,7 +115,7 @@ hwb release publish rel-abc123
 hwb release pending
 ```
 
-### 依存関係分析
+### 依存関係の分析
 
 ```bash
 # Show dependency tree
@@ -298,16 +299,16 @@ max-age = "30d"
 ## CLIコマンド
 
 | コマンド | 説明 |
-| --------- | ------------- |
+|---------|-------------|
 | `hwb build` | ソースからwheelをビルド |
 | `hwb publish` | PyPI/レジストリに公開 |
 | `hwb inspect` | プロジェクトの設定を分析 |
-| `hwb github` | GitHubの操作（リリース、プルリクエスト、課題） |
-| `hwb release` | ドラフトリリース管理 |
+| `hwb github` | GitHub操作（リリース、プルリクエスト、イシュー） |
+| `hwb release` | ドラフトリリースの管理 |
 | `hwb pipeline` | CI/CDパイプラインのオーケストレーション |
 | `hwb deps` | 依存関係グラフの分析 |
-| `hwb actions` | GitHub Actionsジェネレーター |
-| `hwb multirepo` | 複数リポジトリの操作 |
+| `hwb actions` | GitHub Actions ジェネレーター |
+| `hwb multirepo` | 複数リポジトリへの対応 |
 | `hwb notify` | 通知管理 |
 | `hwb security` | セキュリティスキャン |
 | `hwb metrics` | ビルドのメトリクスと分析 |
@@ -316,28 +317,40 @@ max-age = "30d"
 
 ## 要件
 
-- Python 3.10以降
-- Git（Gitソースコードのサポート用）
-- Docker（オプション、manylinuxビルド用）
-- uv（オプション、より高速なビルド用）
+- Python 3.10 以降
+- Git (Gitソースコードのサポート用)
+- Docker (オプション、manylinux ビルド用)
+- uv (オプション、ビルド速度向上のため)
 
 ## ドキュメント
 
-詳細なドキュメントは[docs/](docs/)ディレクトリをご覧ください。
+詳細なドキュメントは、[docs/](docs/) ディレクトリを参照してください。
 
 - [ROADMAP.md](docs/ROADMAP.md) - 開発段階とマイルストーン
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) - システム設計とコンポーネント
-- [API.md](docs/API.md) - CLIおよびPython APIリファレンス
+- [API.md](docs/API.md) - CLI および Python API のリファレンス
 - [SECURITY.md](docs/SECURITY.md) - セキュリティモデルとベストプラクティス
 - [PUBLISHING.md](docs/PUBLISHING.md) - レジストリへの公開ワークフロー
 - [ISOLATION.md](docs/ISOLATION.md) - ビルドの分離戦略
 - [VERSIONING.md](docs/VERSIONING.md) - セマンティックバージョニングと変更履歴
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) - 開発ガイドライン
 
+## セキュリティとプライバシー
+
+**アクセスするデータ:** Python ソースコード (分析用、読み取り専用)、ビルド成果物 (dist/ ディレクトリ)、pyproject.toml、Git の履歴、Docker コンテナ、パッケージレジストリの API。
+
+**アクセスしないデータ:** ユーザーの認証情報 (環境変数と OIDC トークンを使用)、プロジェクト以外のシステムファイル。テレメトリは収集および送信されません。トークンは環境変数からのみ読み込まれ、ログには記録されません。
+
+**権限:** ビルドのためのファイルシステムの読み取り/書き込み、Docker ソケット (オプション)、レジストリへの公開と GitHub API 用のネットワークアクセス。詳細については、[SECURITY.md](SECURITY.md) を参照してください。
+
 ## ライセンス
 
-MITライセンス -- 詳細については[LICENSE](LICENSE)をご覧ください。
+MIT ライセンス -- 詳細については、[LICENSE](LICENSE) を参照してください。
 
 ## 貢献
 
-貢献は大歓迎です！ガイドラインについては[CONTRIBUTING.md](docs/CONTRIBUTING.md)をご覧ください。
+貢献は大歓迎です！ガイドラインについては、[CONTRIBUTING.md](docs/CONTRIBUTING.md) を参照してください。
+
+---
+
+作成者: <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>
