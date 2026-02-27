@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- SECURITY.md with vulnerability reporting policy and supported versions
+- Threat model section in README (data touched, data NOT touched, permissions)
+- Structured error shape on all exceptions: `error_code`, `hint`, `retryable`, `exit_code`
+- `scripts/verify.sh` — one-command lint + format + typecheck + test + build
+- `pip-audit` dependency scanning job in CI
+- SHIP_GATE.md and SCORECARD.md for product standards tracking
+
+### Changed
+- CLI error output now shows error code and hint for HWBError exceptions
+- Exit codes follow Shipcheck contract: 0 ok, 1 user error, 2 runtime error
+
 ## [0.3.0] - 2026-01-24
 
 ### Added

@@ -22,7 +22,7 @@ from headless_wheel_builder.cli.commands import (
     validate_build_options,
 )
 from headless_wheel_builder.depgraph.cli import deps as deps_group
-from headless_wheel_builder.exceptions import HWBError
+from headless_wheel_builder.exceptions import EXIT_RUNTIME, HWBError
 from headless_wheel_builder.github.cli import github as github_group
 from headless_wheel_builder.metrics.cli import metrics as metrics_group
 from headless_wheel_builder.multirepo.cli import multirepo as multirepo_group
@@ -151,8 +151,10 @@ def build(
             )
         )
     except HWBError as e:
-        error_console.print(f"[red]Error: {e}[/red]")
-        raise SystemExit(1) from e
+        error_console.print(f"[red]Error [{e.error_code}]: {e}[/red]")
+        if e.hint:
+            error_console.print(f"[yellow]Hint: {e.hint}[/yellow]")
+        raise SystemExit(e.exit_code) from e
     except KeyboardInterrupt as e:
         error_console.print("\n[yellow]Build interrupted by user[/yellow]")
         raise SystemExit(130) from e
@@ -187,8 +189,10 @@ def inspect(
     try:
         run_async(execute_inspect(source, output_format, check))
     except HWBError as e:
-        error_console.print(f"[red]Error: {e}[/red]")
-        raise SystemExit(1) from e
+        error_console.print(f"[red]Error [{e.error_code}]: {e}[/red]")
+        if e.hint:
+            error_console.print(f"[yellow]Hint: {e.hint}[/yellow]")
+        raise SystemExit(e.exit_code) from e
 
 
 @cli.command("version")
@@ -271,13 +275,23 @@ def main() -> None:
     except (BrokenPipeError, KeyboardInterrupt):
         # Handle broken pipe (when output is piped) and Ctrl+C
         sys.exit(130 if isinstance(sys.exc_info()[1], KeyboardInterrupt) else 1)
-    except Exception as e:
-        error_console.print(f"[red]Unexpected error: {e}[/red]")
-        import traceback
-
+    except HWBError as e:
+        error_console.print(f"[red]Error [{e.error_code}]: {e}[/red]")
+        if e.hint:
+            error_console.print(f"[yellow]Hint: {e.hint}[/yellow]")
         if "-v" in sys.argv or "--verbose" in sys.argv:
+            import traceback
+
             traceback.print_exc()
-        sys.exit(1)
+        sys.exit(e.exit_code)
+    except Exception as e:
+        error_console.print(f"[red]Error [RUNTIME_UNEXPECTED]: {e}[/red]")
+        error_console.print("[yellow]Hint: Run with --verbose for details.[/yellow]")
+        if "-v" in sys.argv or "--verbose" in sys.argv:
+            import traceback
+
+            traceback.print_exc()
+        sys.exit(EXIT_RUNTIME)
 
 
 if __name__ == "__main__":

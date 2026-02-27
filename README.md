@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/headless-wheel-builder/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder"><img src="https://codecov.io/gh/mcp-tool-shop-org/headless-wheel-builder/branch/main/graph/badge.svg" alt="codecov"></a>
   <a href="https://pypi.org/project/headless-wheel-builder/"><img src="https://img.shields.io/pypi/v/headless-wheel-builder" alt="PyPI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/headless-wheel-builder/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
@@ -334,6 +335,14 @@ See the [docs/](docs/) directory for comprehensive documentation:
 - [VERSIONING.md](docs/VERSIONING.md) - Semantic versioning and changelog
 - [CONTRIBUTING.md](docs/CONTRIBUTING.md) - Development guidelines
 
+## Security & Privacy
+
+**Data touched:** Python source code (read-only for analysis), build artifacts (dist/), pyproject.toml, git history, Docker containers, package registry APIs.
+
+**Data NOT touched:** user credentials directly (uses environment variables and OIDC tokens), system files outside the project. No telemetry is collected or sent. Tokens are read from environment variables only and never logged.
+
+**Permissions:** filesystem read/write for builds, Docker socket (optional), network for registry publishing and GitHub API. See [SECURITY.md](SECURITY.md) for the full policy.
+
 ## License
 
 MIT License -- see [LICENSE](LICENSE) for details.
@@ -341,3 +350,7 @@ MIT License -- see [LICENSE](LICENSE) for details.
 ## Contributing
 
 Contributions are welcome! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
+
+---
+
+Built by <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>
