@@ -14,7 +14,7 @@ export const config: SiteConfig = {
     headlineAccent: 'One CLI does it all.',
     description: 'Universal, headless Python wheel builder supporting local paths, git repos, and CI/CD pipelines.',
     primaryCta: { href: '#usage', label: 'Get started' },
-    secondaryCta: { href: '#features', label: 'See features' },
+    secondaryCta: { href: 'handbook/', label: 'Read the Handbook' },
     previews: [
       {
         label: 'Install',
